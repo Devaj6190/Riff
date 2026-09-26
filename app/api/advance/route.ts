@@ -1,10 +1,9 @@
+import { after } from "next/server";
 import { nextPhase, phaseSeconds } from "@/lib/engine/clock";
+import { prefetchRounds, roundFor } from "@/lib/engine/rounds";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { requirePlayer } from "@/lib/supabase/auth";
-import type { AdvanceRequest, AdvanceResponse, GamePhase, Mechanic, Riff } from "@/lib/types";
-
-// ponytail: fixed placeholder round until AI round writing lands (#2).
-const PLACEHOLDER = { mechanic: "open_prompt" as Mechanic, depth: 1, payload: { prompt: "What's the best thing you ate this week?" } };
+import type { AdvanceRequest, AdvanceResponse, GamePhase, Riff } from "@/lib/types";
 
 /**
  * Start the game from the lobby, or move past an expired/complete phase. Both clients call this when a
@@ -38,7 +37,9 @@ export async function POST(req: Request) {
 
   const startsRound = next === "round_active";
   const roundNumber = riff.round_number + (startsRound ? 1 : 0);
-  const endsAt = new Date(Date.now() + phaseSeconds(next, PLACEHOLDER.mechanic) * 1000).toISOString();
+  // Promoted from the prefetch queue, or filled locally: never waits on a model.
+  const round = startsRound ? await roundFor(riffId, roundNumber) : null;
+  const endsAt = new Date(Date.now() + phaseSeconds(next, round?.mechanic) * 1000).toISOString();
 
   // Compare-and-set: only the call that still sees the phase it read gets to move it.
   const { data: won, error: updateError } = await db
@@ -63,11 +64,11 @@ export async function POST(req: Request) {
   }
 
   // If this insert fails the riff sits in round_active without a round; its deadline still passes, so it recovers.
-  if (startsRound) {
-    const { error: roundError } = await db
-      .from("rounds")
-      .insert({ riff_id: riffId, number: roundNumber, ...PLACEHOLDER, ends_at: endsAt });
+  if (round) {
+    const { error: roundError } = await db.from("rounds").insert({ riff_id: riffId, number: roundNumber, ...round, ends_at: endsAt });
     if (roundError) throw roundError;
+    await db.from("queued_rounds").delete().eq("riff_id", riffId).eq("for_number", roundNumber);
+    after(() => prefetchRounds(riffId, roundNumber).catch((e) => console.error("prefetch failed", e)));
   }
   return reply(next, true);
 }

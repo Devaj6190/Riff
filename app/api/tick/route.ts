@@ -2,8 +2,8 @@ import { after } from "next/server";
 import { BOT_USER_ID, botTurn } from "@/lib/engine/bot";
 import { endIfWon } from "@/lib/engine/ending";
 import { nudgeFor, prefetchNudges, refreshTurf } from "@/lib/engine/nudges";
-import { shouldNudge, timerSeconds } from "@/lib/engine/pacing";
-import { scoreNudge } from "@/lib/engine/score";
+import { mayClose, shouldNudge, timerSeconds, type PaceState } from "@/lib/engine/pacing";
+import { closeIfAnswered, scoreNudge } from "@/lib/engine/score";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { requirePlayer } from "@/lib/supabase/auth";
 import type { Nudge, Player, Riff, RiffPhase, TickRequest, TickResponse } from "@/lib/types";
@@ -12,12 +12,13 @@ import type { Nudge, Player, Riff, RiffPhase, TickRequest, TickResponse } from "
 export const maxDuration = 60;
 
 /**
- * Both clients call this every few seconds while chatting. It does two things, each exactly once however many
- * calls race: scores the last nudge when its timer runs out (compare-and-set on scored_at), and pops up the next
- * nudge when it's due (pacing.ts; unique riff_id + number). The first nudge pops up as soon as the chat starts.
+ * Both clients call this every second while chatting. It does three things, each exactly once however many calls
+ * race: closes the timer early once both have answered (closeIfAnswered), scores the last nudge when its timer runs
+ * out (compare-and-set on scored_at), and pops up the next nudge when it's due (pacing.ts; unique riff_id + number).
+ * The first nudge pops up as soon as the chat starts.
  */
 export async function POST(req: Request) {
-  const { riffId } = (await req.json().catch(() => ({}))) as Partial<TickRequest>;
+  const { riffId, typing } = (await req.json().catch(() => ({}))) as Partial<TickRequest>;
   if (typeof riffId !== "string") return new Response("riffId required", { status: 400 });
   try {
     await requirePlayer(req, riffId);
@@ -39,7 +40,7 @@ export async function POST(req: Request) {
   const now = Date.now();
 
   // Timer ran out: score the answers, then end the game if someone reached the target, else switch bonus mode
-  // (nudges lean toward the trailing player) if the scores call for it. The breather after a timer gives this time.
+  // (nudges lean toward the trailing player) if the scores call for it.
   if (lastNudge && !lastNudge.scored_at && now >= Date.parse(lastNudge.ends_at)) {
     const { data: claimed } = await db
       .from("nudges")
@@ -72,16 +73,17 @@ export async function POST(req: Request) {
     .order("created_at", { ascending: false })
     .limit(200);
   const seatOf = new Map(seated.map((p) => [p.id, p.seat]));
-  const due = shouldNudge(
-    {
-      shown: lastNudge?.number ?? 0,
-      poppedAt: Date.parse(poppedAt),
-      endsAt: Date.parse(lastNudge?.ends_at ?? poppedAt),
-      messages: (recent ?? []).reverse().map((m) => ({ seat: seatOf.get(m.player_id) ?? "A", at: Date.parse(m.created_at) })),
-    },
-    now,
-  );
-  if (!due) return reply("chatting", false);
+  const pace: PaceState = {
+    shown: lastNudge?.number ?? 0,
+    endsAt: Date.parse(lastNudge?.ends_at ?? poppedAt),
+    messages: (recent ?? []).reverse().map((m) => ({ seat: seatOf.get(m.player_id) ?? "A", at: Date.parse(m.created_at) })),
+    typing: typing === true,
+  };
+  if (lastNudge && mayClose(pace, now)) {
+    const lastAt = pace.messages.at(-1)!.at;
+    after(() => closeIfAnswered(riffId, lastNudge, lastAt).catch((e) => console.error("answer judge failed", e)));
+  }
+  if (!shouldNudge(pace, now)) return reply("chatting", false);
 
   // Promoted from the prefetch queue, or filled locally: never waits on a model.
   const number = (lastNudge?.number ?? 0) + 1;

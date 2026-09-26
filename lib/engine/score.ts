@@ -1,8 +1,10 @@
 // Points (SPEC §4.3) come only from answering nudges. A player's answer is what they text while the nudge's timer
-// runs. Scored once when the timer runs out: speed in code, quality + connection from the model.
+// runs. Scored once when the timer runs out: speed in code, quality + connection from the model. The timer closes
+// early once the model judges both have answered (closeIfAnswered).
 import { supabaseAdmin } from "../supabase/admin";
 import type { Nudge, Player, ScoreResult, Seat } from "../types";
 import { llmJson } from "./llm";
+import { PACING, timerSeconds } from "./pacing";
 
 export const SCORE_TIMEOUT_MS = 12_000;
 
@@ -84,7 +86,7 @@ export async function scoreNudge(riffId: string, nudge: Nudge): Promise<void> {
     riff_id: riffId,
     nudge_id: nudge.id,
     player_id: p.id,
-    speed: speedPoints(nudge.created_at, answers.get(p.id)![0].created_at, nudge.ends_at),
+    speed: speedPoints(nudge.created_at, answers.get(p.id)![0].created_at, fullTimerEnd(nudge)), // not the closed-early end
     quality: result[p.seat].quality,
     connection: result[p.seat].connection,
   }));
@@ -98,4 +100,40 @@ export async function scoreNudge(riffId: string, nudge: Nudge): Promise<void> {
       await db.from("players").update({ extracted_interests: [...p.extracted_interests, ...add].slice(-12) }).eq("id", p.id);
     }),
   );
+}
+
+const fullTimerEnd = (n: Nudge) => new Date(Date.parse(n.created_at) + timerSeconds(n.kind, n.number) * 1000).toISOString();
+
+// ponytail: per-instance memory, so two clients ticking every second don't ask twice about the same chat. Another
+// serverless instance may ask again; the close is idempotent. Never pruned: one short entry per nudge.
+const judged = new Map<string, number>();
+
+/**
+ * Both players answered `nudge`? Then drop its timer to PACING.closeSeconds. Called from /api/tick in the background
+ * whenever there's a new message (lastMessageAt) since it last asked. Grok first (~1 s); on any failure, the timer
+ * just runs out as usual.
+ */
+export async function closeIfAnswered(riffId: string, nudge: Nudge, lastMessageAt: number): Promise<void> {
+  if ((judged.get(nudge.id) ?? 0) >= lastMessageAt) return;
+  judged.set(nudge.id, lastMessageAt);
+  const db = supabaseAdmin();
+  const [players, said] = await Promise.all([
+    db.from("players").select("id, seat, name").eq("riff_id", riffId),
+    db.from("messages").select("player_id, body").eq("riff_id", riffId).gte("created_at", nudge.created_at).order("id").limit(40),
+  ]);
+  const seat = new Map((players.data ?? []).map((p) => [p.id, p.seat as Seat]));
+  const out = (await llmJson(
+    [
+      "Two people are texting in a chat app. An AI dropped a nudge (a prompt) into their chat.",
+      "For each player, has what they've texted since answered the nudge? Any real, on-topic answer counts, however short or casual",
+      '("inception lol" answers "favorite movie?"). Small talk, "idk", or only asking the other person does not.',
+      'JSON shape: {"A": true|false, "B": true|false}',
+    ].join(" "),
+    JSON.stringify({ nudge: nudge.payload.prompt, chat: (said.data ?? []).map((m) => `${seat.get(m.player_id) ?? "?"}: ${m.body}`) }),
+    4000,
+    { fast: true },
+  )) as { A?: unknown; B?: unknown };
+  if (out.A !== true || out.B !== true) return;
+  const endsAt = new Date(Date.now() + PACING.closeSeconds * 1000).toISOString();
+  await db.from("nudges").update({ ends_at: endsAt }).eq("id", nudge.id).gt("ends_at", endsAt).is("scored_at", null);
 }

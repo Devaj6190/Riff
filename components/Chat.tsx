@@ -6,10 +6,10 @@ import { supabase } from "@/lib/supabase/client";
 import { subscribeToRiff } from "@/lib/supabase/realtime";
 import type { Message, Player } from "@/lib/types";
 
-type Props = { riffId: string; me: Player };
+type Props = { riffId: string; me: Player; onTyping?: (typing: boolean) => void };
 
 /** Real-time DM thread. History loads once the subscription is live, so nothing sent in between is lost. */
-export function Chat({ riffId, me }: Props) {
+export function Chat({ riffId, me, onTyping }: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -49,6 +49,7 @@ export function Chat({ riffId, me }: Props) {
     const body = draft.trim();
     if (!body) return;
     setDraft("");
+    onTyping?.(false);
     try {
       await post(body);
       setError(null);
@@ -80,7 +81,10 @@ export function Chat({ riffId, me }: Props) {
         <div className="flex h-12 items-center gap-1 rounded-full border border-current/15 pl-4 pr-1 focus-within:border-primary">
           <input
             value={draft}
-            onChange={(e) => setDraft(e.target.value)}
+            onChange={(e) => {
+              setDraft(e.target.value);
+              onTyping?.(!!e.target.value.trim());
+            }}
             maxLength={500}
             placeholder="Message…"
             aria-label="Message"

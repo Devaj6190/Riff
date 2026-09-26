@@ -2,10 +2,13 @@
 
 import { ChevronLeft, Heart, Sparkles, Zap } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import type { RealtimeChannel } from "@supabase/supabase-js";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Chat } from "@/components/Chat";
 import { Avatar } from "@/components/HomeScreen";
 import { callApi } from "@/lib/api";
+import { PACING } from "@/lib/engine/pacing";
+import { supabase } from "@/lib/supabase/client";
 import type { Nudge, Player, Riff, Score, TickRequest, TickResponse } from "@/lib/types";
 import { EndControls, endRiff } from "./EndControls";
 import { useGameState } from "./useGameState";
@@ -22,7 +25,8 @@ export function GameScreen({ me, riff, players }: Props) {
   const pops = useScorePops(snap.scores, snap.loaded);
   const [keptFor, setKeptFor] = useState<string | null>(null); // "Keep chatting" hides the end screen for this ending only
   const [restartError, setRestartError] = useState<string | null>(null);
-  useTick(snap.riff.id, phase === "chatting", reload);
+  const { isTyping, onTyping } = useTyping(snap.riff.id);
+  useTick(snap.riff.id, phase === "chatting", reload, isTyping);
 
   const nameOf = (id: string) => (id === me.id ? "You" : (snap.players.find((p) => p.id === id)?.name ?? "?"));
 
@@ -79,7 +83,7 @@ export function GameScreen({ me, riff, players }: Props) {
       ) : (
         <>
           {phase === "chatting" && nudge && <NudgeBanner key={nudge.id} nudge={nudge} />}
-          <Chat riffId={snap.riff.id} me={me} />
+          <Chat riffId={snap.riff.id} me={me} onTyping={onTyping} />
         </>
       )}
 
@@ -229,18 +233,54 @@ function EndScreen({
   );
 }
 
-/** While chatting, ask the server every 5 s whether a nudge is due. It decides; this just keeps the clock going. */
-function useTick(riffId: string, active: boolean, onPhaseChange: () => Promise<void>) {
+/**
+ * Whether either player is typing, for pacing (the next nudge waits while someone's mid-message). My keystrokes are
+ * shared over a Realtime broadcast, at most once a second; sending or clearing the message stops it straight away.
+ */
+function useTyping(riffId: string) {
+  const mine = useRef(0); // last keystroke, ms; 0 = not typing
+  const theirs = useRef(0);
+  const sentAt = useRef(0);
+  const channel = useRef<RealtimeChannel | null>(null);
+
+  useEffect(() => {
+    const db = supabase();
+    const ch = db
+      .channel(`typing:${riffId}`)
+      .on("broadcast", { event: "typing" }, ({ payload }) => {
+        theirs.current = payload?.typing ? Date.now() : 0;
+      })
+      .subscribe();
+    channel.current = ch;
+    return () => {
+      void db.removeChannel(ch);
+    };
+  }, [riffId]);
+
+  const onTyping = useCallback((typing: boolean) => {
+    const now = Date.now();
+    mine.current = typing ? now : 0;
+    if (typing && now - sentAt.current < 1000) return;
+    sentAt.current = typing ? now : 0;
+    void channel.current?.send({ type: "broadcast", event: "typing", payload: { typing } });
+  }, []);
+
+  const isTyping = useCallback(() => Date.now() - Math.max(mine.current, theirs.current) < PACING.typingSeconds * 1000, []);
+  return { isTyping, onTyping };
+}
+
+/** While chatting, ask the server every second whether a nudge is due. It decides; this just keeps the clock going. */
+function useTick(riffId: string, active: boolean, onPhaseChange: () => Promise<void>, isTyping: () => boolean) {
   useEffect(() => {
     if (!active) return;
     const tick = () =>
-      callApi<TickResponse>("/api/tick", { riffId } satisfies TickRequest)
+      callApi<TickResponse>("/api/tick", { riffId, typing: isTyping() } satisfies TickRequest)
         .then((r) => (r.phase !== "chatting" ? onPhaseChange() : undefined))
         .catch(() => {}); // ponytail: a failed tick is simply retried on the next one
     void tick();
-    const id = setInterval(tick, 5000);
+    const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, [riffId, active, onPhaseChange]);
+  }, [riffId, active, onPhaseChange, isTyping]);
 }
 
 function useMsLeft(endsAt: string) {

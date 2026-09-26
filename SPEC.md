@@ -68,14 +68,15 @@ Points come **only from answering nudges**. A player's answer is what they text 
 
 ### 4.5 Pacing (follow the flow)
 - **Intro nudge** right away when the chat starts.
-- **No new nudge while a timer runs**, and a 10 s breather after it (points pop, answers get read).
-- **While the conversation flows** (both talking back and forth), Riff stays out of the way.
-- **It nudges when the flow breaks:** 15 s of silence, one person carrying it (the other quiet for 30 s), or nobody answered the last nudge.
-- At least one every 3 min after the last timer, so the game keeps moving.
+- **No new nudge while a timer runs.**
+- **Closes when answered:** once each player has said something and nobody is typing, Grok judges live whether both answered the nudge. If they did, the countdown drops to 2 s and the nudge closes smoothly.
+- **Then a short buffer:** after the timer, the next nudge pops once there's 5 s with no message and nobody typing. It never waits more than 15 s after the timer, however lively the chat.
+- **Nobody answered:** the next nudge pops the moment the timer runs out.
+- **Typing** is shared between the clients over a Realtime broadcast, and each tick reports it.
 - All numbers are placeholders to tune in playtesting (`lib/engine/pacing.ts`).
 
 ### 4.6 Timers & ending
-- **Timers:** text 30 s · image 30 s · audio 20 s · intro nudges 45 s. The client renders the countdown from `nudges.ends_at`.
+- **Timers:** text 30 s · image 30 s · audio 20 s · intro nudges 45 s, or 2 s after both answered (§4.5). Speed points still run over the full timer. The client renders the countdown from `nudges.ends_at`.
 - **End:** first to the target score (100; configurable; **Expo mode = 50**), checked when a nudge is scored. Or either player taps **End**.
 - After the end the chat stays open: **keep chatting** (no more nudges) or **new match** (nudges and scores reset, chat kept).
 
@@ -117,7 +118,7 @@ The AI:
 
 **Data:** `riffs` (phase `lobby → chatting → ended`), `players` (name, interests[], extracted_interests[]), `messages`, `nudges` (number, kind, payload, depth, is_bonus, for_seat, ends_at, scored_at), `queued_nudges` (server-only), `scores` (speed, quality, connection per nudge per player).
 
-**Nudge clock:** there's no server clock. While chatting, **both clients call `/api/tick` every few seconds**; it scores the last nudge once its timer has run out (compare-and-set on `scored_at`), and asks `shouldNudge()` (§4.5) whether to show the next one (`unique (riff_id, number)` on `nudges`). Concurrent ticks are no-ops.
+**Nudge clock:** there's no server clock. While chatting, **both clients call `/api/tick` every second** (with whether anyone's typing); it closes the timer early once both answered, scores the last nudge once its timer has run out (compare-and-set on `scored_at`), and asks `shouldNudge()` (§4.5) whether to show the next one (`unique (riff_id, number)` on `nudges`). Concurrent ticks are no-ops.
 
 **Routes:**
 - `/api/tick` — when a timer runs out, in the background: score the answers, end the game if someone reached the target, and rewrite the next queued nudge if bonus mode switched on, off or to the other player. When the next nudge is due: promote it from `queued_nudges` (text 1 ahead, image 2 ahead) or fill a template locally, so it never waits on a model, stamp its timer, and write the next ones ahead.

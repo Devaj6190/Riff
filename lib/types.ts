@@ -100,8 +100,9 @@ export type Clip = {
 // Every route takes JSON (except /api/transcribe) plus `Authorization: Bearer <supabase access token>`.
 // Call them with callApi() from lib/api.ts; guard them with requirePlayer() from lib/supabase/auth.ts.
 
-/** POST /api/tick: call every few seconds while chatting. Shows the next nudge if it's time. Idempotent. */
-export type TickRequest = { riffId: string };
+/** POST /api/tick: call every second while chatting. Shows the next nudge if it's time. Idempotent.
+ *  `typing`: either player typed in the last few seconds (the client hears the partner over a Realtime broadcast). */
+export type TickRequest = { riffId: string; typing?: boolean };
 /** Test mode: seat the AI as player B in the caller's riff. */
 export type BotRequest = { code: string };
 export type TickResponse = { phase: RiffPhase; nudged: boolean };

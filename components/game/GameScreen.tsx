@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Chat } from "@/components/Chat";
 import { callApi } from "@/lib/api";
 import { supabase } from "@/lib/supabase/client";
-import type { AdvanceRequest, AdvanceResponse, Answer, GamePhase, Player, Riff, Round, Score } from "@/lib/types";
+import type { AdvanceRequest, AdvanceResponse, Answer, GamePhase, Player, Riff, Round, Score, Seat } from "@/lib/types";
 import { mechanicAnswers } from "./mechanicAnswers";
 import { useGameState, type GameSnapshot } from "./useGameState";
 
@@ -134,6 +134,7 @@ function PhaseBody({
         <ActiveRound
           round={round}
           turfName={round?.is_bonus && round.bonus_seat ? snap.players.find((p) => p.seat === round.bonus_seat)?.name : undefined}
+          seat={me.seat}
           submitted={Boolean(myAnswer)}
           busy={sending}
           error={answerError}
@@ -141,7 +142,7 @@ function PhaseBody({
         />
       );
     case "round_result":
-      return <Result round={round} players={snap.players} answers={snap.answers} scores={snap.scores} meId={me.id} popKey={`${round?.id ?? ""}:${snap.riff.phase}`} />;
+      return <Result round={round} rounds={snap.rounds} players={snap.players} answers={snap.answers} scores={snap.scores} meId={me.id} popKey={`${round?.id ?? ""}:${snap.riff.phase}`} />;
     case "talk_window":
       return (
         <div className="flex min-h-0 flex-1 flex-col">
@@ -190,6 +191,7 @@ function Lobby({ ready, starting, error, onStart, chat }: { ready: boolean; star
 function ActiveRound({
   round,
   turfName,
+  seat,
   submitted,
   busy,
   error,
@@ -197,6 +199,7 @@ function ActiveRound({
 }: {
   round: Round | undefined;
   turfName: string | undefined;
+  seat: Seat;
   submitted: boolean;
   busy: boolean;
   error: string | null;
@@ -216,13 +219,14 @@ function ActiveRound({
           <p className="text-sm font-semibold opacity-80">{turfName ? `2× points for ${turfName} this round` : "2× points this round"}</p>
         </div>
       )}
-      <AnswerSlot round={round} submitted={submitted} busy={busy} error={error} onSubmit={onSubmit} />
+      <AnswerSlot round={round} seat={seat} submitted={submitted} busy={busy} error={error} onSubmit={onSubmit} />
     </section>
   );
 }
 
 function Result({
   round,
+  rounds,
   players,
   answers,
   scores,
@@ -230,17 +234,27 @@ function Result({
   popKey,
 }: {
   round: Round | undefined;
+  rounds: Round[];
   players: Player[];
   answers: Answer[];
   scores: Score[];
   meId: string;
   popKey: string;
 }) {
+  const answerOf = (player: Player) => (round ? answers.find((a) => a.round_id === round.id && a.player_id === player.id) : undefined);
+  const picks = round?.mechanic === "pick" ? players.map((p) => answerOf(p)?.payload).map((a) => (a && "choice" in a ? a.choice : null)) : [];
+  const matched = picks.length === 2 && picks[0] !== null && picks[0] === picks[1];
   return (
     <ul className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-4">
+      {matched && round?.mechanic === "pick" && (
+        <li key={`${popKey}:match`} className="riff-burst rounded-2xl bg-foreground p-4 text-center text-background">
+          <p className="text-2xl font-bold">It&apos;s a match! 🎉</p>
+          <p className="text-sm opacity-80">You both picked {round.payload.options[picks[0]!]?.label}</p>
+        </li>
+      )}
       {players.map((player, i) => {
         const score = round ? scores.find((s) => s.round_id === round.id && s.player_id === player.id && s.kind === "round") : undefined;
-        const answer = round ? answers.find((a) => a.round_id === round.id && a.player_id === player.id) : undefined;
+        const answer = answerOf(player);
         return (
           <li key={`${popKey}:${player.id}`} className="riff-pop rounded-2xl border border-current/15 p-4" style={{ animationDelay: `${i * 80}ms` }}>
             <div className="flex items-baseline justify-between gap-3">
@@ -256,7 +270,8 @@ function Result({
               <p className="mt-1 text-sm opacity-70">Scoring…</p>
             )}
             {score?.reason && <p className="mt-2">{score.reason}</p>}
-            {answerText(answer) && <p className="mt-2 text-sm opacity-80">{answerText(answer)}</p>}
+            {round && answerSummary(round, answer) && <p className="mt-2 text-sm opacity-80">{answerSummary(round, answer)}</p>}
+            {round && <TwoTruthsReveal round={round} rounds={rounds} answers={answers} player={player} players={players} />}
           </li>
         );
       })}
@@ -394,9 +409,30 @@ function secondsUntil(deadline: string) {
   return Math.max(0, Math.ceil((Date.parse(deadline) - Date.now()) / 1000));
 }
 
-function answerText(answer: Answer | undefined): string | null {
+/** What to show under a player's result. Never reveals a two-truths lie before the guess round. */
+function answerSummary(round: Round, answer: Answer | undefined): string | null {
   if (!answer) return null;
   const payload = answer.payload;
-  if ("text" in payload && typeof payload.text === "string") return payload.text;
+  if ("text" in payload) return payload.text;
+  if ("transcript" in payload) return payload.transcript;
+  if ("choice" in payload && round.mechanic === "pick") return `Picked: ${round.payload.options[payload.choice]?.label ?? "?"}`;
+  if ("statements" in payload) return "Statements locked in.";
   return null;
+}
+
+/** Guess-round result line: what this player guessed vs the partner's actual lie. */
+function TwoTruthsReveal({ round, rounds, answers, player, players }: { round: Round; rounds: Round[]; answers: Answer[]; player: Player; players: Player[] }) {
+  if (round.mechanic !== "two_truths" || round.payload.stage !== "guess") return null;
+  const partner = players.find((p) => p.id !== player.id);
+  const writeRound = [...rounds].reverse().find((r) => r.number < round.number && r.mechanic === "two_truths" && r.payload.stage === "write");
+  const theirWrite = writeRound && partner ? answers.find((a) => a.round_id === writeRound.id && a.player_id === partner.id)?.payload : undefined;
+  const myGuess = answers.find((a) => a.round_id === round.id && a.player_id === player.id)?.payload;
+  if (!partner || !theirWrite || !("lieIndex" in theirWrite)) return null;
+  const lie = theirWrite.statements[theirWrite.lieIndex];
+  const guessed = myGuess && "guess" in myGuess ? myGuess.guess : null;
+  return (
+    <p className="mt-2 text-sm">
+      {partner.name}&apos;s lie: “{lie}” — {guessed === null ? "no guess" : guessed === theirWrite.lieIndex ? "caught it ✅" : "fooled 😈"}
+    </p>
+  );
 }

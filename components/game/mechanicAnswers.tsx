@@ -1,12 +1,15 @@
 "use client";
 
 import type { ComponentType } from "react";
-import type { Answer, Mechanic, Round } from "@/lib/types";
+import type { Answer, Mechanic, Round, Seat } from "@/lib/types";
 import { OpenPromptAnswer } from "./OpenPromptAnswer";
+import { PickAnswer } from "./PickAnswer";
+import { TwoTruthsAnswer } from "./TwoTruthsAnswer";
 
 /** What the round screen passes into whichever mechanic is active. */
 export type MechanicAnswerProps = {
   round: Round;
+  seat: Seat; // the viewing player's seat
   submitted: boolean;
   busy: boolean;
   error: string | null;
@@ -34,9 +37,9 @@ function PendingMechanic({ round }: MechanicAnswerProps) {
 
 export const mechanicAnswers: Record<Mechanic, ComponentType<MechanicAnswerProps>> = {
   open_prompt: OpenPromptAnswer,
-  two_truths: PendingMechanic,
+  two_truths: TwoTruthsAnswer,
   image: PendingMechanic,
-  pick: PendingMechanic,
+  pick: PickAnswer,
   voice: PendingMechanic,
   meme_audio: PendingMechanic,
 };

@@ -2,10 +2,9 @@
 
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { Chat } from "@/components/Chat";
+import { GameScreen } from "@/components/game/GameScreen";
 import { ProfileForm } from "@/components/ProfileForm";
 import { ensureSignedIn, supabase } from "@/lib/supabase/client";
-import { subscribeToRiff } from "@/lib/supabase/realtime";
 import type { Player, Riff } from "@/lib/types";
 
 type View =
@@ -39,13 +38,6 @@ export default function RiffPage() {
     fetchView(code).then(setView);
   }, [code]);
 
-  // Refresh the player list when the partner joins.
-  const riffId = view.status === "in" ? view.riff.id : null;
-  useEffect(() => {
-    if (!riffId) return;
-    return subscribeToRiff("players", riffId, () => load(), () => load());
-  }, [riffId, load]);
-
   async function join(name: string, interests: string[]) {
     const { error } = await supabase().rpc("join_riff", { p_code: code, p_name: name, p_interests: interests });
     if (error) throw new Error(error.message);
@@ -64,26 +56,5 @@ export default function RiffPage() {
     );
   }
 
-  const partner = view.players.find((p) => p.id !== view.me.id);
-  return (
-    <main className="mx-auto flex h-dvh w-full max-w-md flex-col">
-      <header className="flex items-center justify-between gap-2 border-b border-current/10 p-4">
-        <div>
-          <div className="font-semibold">{partner ? `You & ${partner.name}` : "Waiting for someone to join…"}</div>
-          <div className="text-sm opacity-60">
-            Riff <span className="font-mono tracking-widest">{view.riff.code}</span>
-          </div>
-        </div>
-        {!partner && (
-          <button
-            onClick={() => navigator.clipboard?.writeText(location.href)}
-            className="h-11 rounded-lg border border-current/20 px-4 text-sm"
-          >
-            Copy link
-          </button>
-        )}
-      </header>
-      <Chat riffId={view.riff.id} me={view.me} players={view.players} />
-    </main>
-  );
+  return <GameScreen me={view.me} riff={view.riff} players={view.players} />;
 }

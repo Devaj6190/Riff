@@ -87,7 +87,7 @@ Points come **only from answering nudges**. A player's answer is what they text 
 - Tap targets ≥ 44 px with spacing.
 - Input bar stays above the keyboard (`dvh` units / `visualViewport` API).
 - No hover-only controls.
-- Nudge pop-in animation + haptics (`navigator.vibrate` on Android); special entrance for the Bonus nudge.
+- Nudge pop-in animation + haptics (`navigator.vibrate` on Android). Bonus mode has no special look: nobody is called out.
 
 ## 5. Why AI is essential
 **Without AI, Riff is a card deck:** generic prompts, no way to score opinions, no catch-up.

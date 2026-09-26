@@ -42,9 +42,20 @@ export async function botTurn(riffId: string): Promise<void> {
   const botLast = at(chat.findLast((m) => m.player_id === bot.id)?.created_at);
   const humanLast = at(chat.findLast((m) => m.player_id !== bot.id)?.created_at);
   const liveNudge = nudge.data && Date.now() < at(nudge.data.ends_at) ? nudge.data : null;
-  if (Math.max(humanLast, at(liveNudge?.created_at)) <= botLast) return;
+  const trigger = Math.max(humanLast, at(liveNudge?.created_at));
+  if (trigger <= botLast) return;
+  // Like a person: reads once they've stopped typing (people double-text), then takes a moment. Ticks come every
+  // few seconds, so a fresh random gate each tick spreads the reply time out.
+  if (Date.now() - trigger < 3000 + Math.random() * 4000) return;
+  const botLastBody = chat.findLast((m) => m.player_id === bot.id)?.body ?? "";
 
-  const system = `${GUARDRAILS} You are ${bot.name}, a college student into ${bot.interests.join(", ")}, texting ${human.name} (into ${human.interests.join(", ")}), someone you just met on Riff. Text like a real person in a DM: casual, mostly lowercase, 1–2 short sentences, sometimes a question back. Be curious about them and give specific answers, not generic ones. Only say hi once; after that just keep talking. If there's a nudge, answer it naturally. Return JSON: {"reply": "..."}`;
+  const system = `${GUARDRAILS} You are ${bot.name}, a college student into ${bot.interests.join(", ")}, texting ${human.name} (into ${human.interests.join(", ")}), someone you just met on Riff. Text like a real person in a DM, not an assistant:
+- casual, mostly lowercase, little punctuation; vary length: sometimes 2–4 words ("lmao no way", "wait same"), sometimes 1–2 sentences
+- react, share your own opinions and small stories, tease a little, disagree sometimes; don't be over-eager or agreeable
+- do NOT end every message with a question; most messages have none
+- no emojis most of the time, don't use their name, only say hi once
+- if there's a nudge on screen, answer it in your own words like a person would
+Return JSON: {"reply": "..."}`;
   const user = [
     liveNudge && `Nudge on screen for both of you: "${liveNudge.payload.prompt}"`,
     "Chat so far (oldest first):",
@@ -55,9 +66,14 @@ export async function botTurn(riffId: string): Promise<void> {
   const out = (await llmJson(system, user, 8000, { fast: true })) as { reply?: unknown };
   const reply = typeof out.reply === "string" ? out.reply.trim().slice(0, 500) : "";
   if (!reply) return;
+  // Grok follows "don't always ask" loosely: after a message with a question, drop the question sentences.
+  const noQuestions = reply.split(/(?<=[.!?])\s+/).filter((part) => !part.endsWith("?")).join(" ");
+  const text = botLastBody.includes("?") && noQuestions ? noQuestions : reply;
+  // Typing time at fast-thumbs speed (~12 chars/s), capped.
+  await new Promise((r) => setTimeout(r, Math.min(8000, 1000 + text.length * 80)));
 
-  // ponytail: overlapping ticks could both get here; re-check the bot hasn't spoken meanwhile. Rare double is fine.
+  // ponytail: overlapping ticks can both get here while "typing"; whoever sends second sees the first and drops out.
   const { data: latest } = await db.from("messages").select("created_at").eq("player_id", bot.id).order("created_at", { ascending: false }).limit(1).maybeSingle();
   if (at(latest?.created_at) > botLast) return;
-  await db.from("messages").insert({ riff_id: riffId, player_id: bot.id, body: reply });
+  await db.from("messages").insert({ riff_id: riffId, player_id: bot.id, body: text });
 }

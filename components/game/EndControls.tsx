@@ -66,7 +66,7 @@ export function EndControls({ riffId, me, partner }: { riffId: string; me: Playe
         <div className="fixed inset-x-0 top-16 z-10 mx-auto flex w-full max-w-md flex-col gap-2 px-4">
           {open && (
             <div className="flex gap-2 rounded-2xl border border-current/15 bg-background p-3 shadow-lg">
-              <button type="button" onClick={end} disabled={busy} className="h-11 flex-1 rounded-lg bg-foreground font-semibold text-background disabled:opacity-40">
+              <button type="button" onClick={end} disabled={busy} className="h-11 flex-1 rounded-lg bg-primary font-semibold text-primary-foreground disabled:opacity-40">
                 End game now
               </button>
               <button
@@ -87,7 +87,7 @@ export function EndControls({ riffId, me, partner }: { riffId: string; me: Playe
             <div className="riff-pop flex flex-col gap-2 rounded-2xl border border-current/15 bg-background p-3 shadow-lg">
               <p className="font-semibold">{partner?.name ?? "Your partner"} suggests ending the game</p>
               <div className="flex gap-2">
-                <button type="button" onClick={end} disabled={busy} className="h-11 flex-1 rounded-lg bg-foreground font-semibold text-background disabled:opacity-40">
+                <button type="button" onClick={end} disabled={busy} className="h-11 flex-1 rounded-lg bg-primary font-semibold text-primary-foreground disabled:opacity-40">
                   End it
                 </button>
                 <button
@@ -103,7 +103,7 @@ export function EndControls({ riffId, me, partner }: { riffId: string; me: Playe
               </div>
             </div>
           )}
-          {notice && <p className="rounded-2xl bg-foreground px-4 py-3 text-sm text-background shadow-lg">{notice}</p>}
+          {notice && <p className="rounded-2xl bg-primary px-4 py-3 text-sm text-primary-foreground shadow-lg">{notice}</p>}
         </div>
       )}
     </>

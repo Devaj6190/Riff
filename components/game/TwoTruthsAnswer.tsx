@@ -30,7 +30,7 @@ export function TwoTruthsAnswer({ round, seat, submitted, busy, error, onSubmit 
             }}
             disabled={(submitted || busy) && guess !== i}
             aria-pressed={guess === i}
-            className={`min-h-14 rounded-2xl border-2 p-4 text-left disabled:opacity-40 ${guess === i ? "border-foreground" : "border-current/15"}`}
+            className={`min-h-14 rounded-2xl border-2 p-4 text-left disabled:opacity-40 ${guess === i ? "border-primary" : "border-current/15"}`}
           >
             {theirs[i]}
           </button>
@@ -69,7 +69,7 @@ export function TwoTruthsAnswer({ round, seat, submitted, busy, error, onSubmit 
             onClick={() => setLie(i)}
             disabled={submitted}
             aria-pressed={lie === i}
-            className={`h-11 rounded-lg border px-3 text-sm ${lie === i ? "border-transparent bg-foreground text-background" : "border-current/20"}`}
+            className={`h-11 rounded-lg border px-3 text-sm ${lie === i ? "border-transparent bg-primary text-primary-foreground" : "border-current/20"}`}
           >
             lie
           </button>
@@ -78,7 +78,7 @@ export function TwoTruthsAnswer({ round, seat, submitted, busy, error, onSubmit 
       {submitted ? (
         <p className="text-sm opacity-70">Locked in. Waiting for your partner.</p>
       ) : (
-        <button type="submit" disabled={!ready || busy} className="h-12 rounded-full bg-foreground font-semibold text-background disabled:opacity-40">
+        <button type="submit" disabled={!ready || busy} className="h-12 rounded-full bg-primary font-semibold text-primary-foreground disabled:opacity-40">
           {busy ? "…" : "Lock it in"}
         </button>
       )}

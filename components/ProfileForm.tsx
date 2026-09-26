@@ -68,7 +68,7 @@ export function ProfileForm({ submitLabel, onSubmit }: Props) {
                 onClick={() => toggle(chip)}
                 aria-pressed={on}
                 disabled={!on && full}
-                className={`h-11 rounded-full border px-4 disabled:opacity-40 ${on ? "border-transparent bg-foreground text-background" : "border-current/20"}`}
+                className={`h-11 rounded-full border px-4 disabled:opacity-40 ${on ? "border-transparent bg-primary text-primary-foreground" : "border-current/20"}`}
               >
                 {chip}
               </button>
@@ -101,7 +101,7 @@ export function ProfileForm({ submitLabel, onSubmit }: Props) {
       <button
         type="submit"
         disabled={busy || !name.trim() || picked.length < INTERESTS_REQUIRED}
-        className="h-12 rounded-lg bg-foreground font-semibold text-background disabled:opacity-40"
+        className="h-12 rounded-lg bg-primary font-semibold text-primary-foreground disabled:opacity-40"
       >
         {busy ? "…" : submitLabel}
       </button>

@@ -28,7 +28,7 @@ export function PickAnswer({ round, submitted, busy, error, onSubmit }: Mechanic
               onClick={() => pick(i)}
               disabled={locked && !mine}
               aria-pressed={mine}
-              className={`relative flex min-h-24 flex-col overflow-hidden rounded-2xl border-2 text-left transition-opacity disabled:opacity-40 ${mine ? "border-foreground" : "border-current/15"}`}
+              className={`relative flex min-h-24 flex-col overflow-hidden rounded-2xl border-2 text-left transition-opacity disabled:opacity-40 ${mine ? "border-primary" : "border-current/15"}`}
             >
               {option.imageUrl && (
                 // eslint-disable-next-line @next/next/no-img-element -- remote/generated images of unknown size

@@ -60,6 +60,9 @@ type RoundBase = {
 /** A round; narrowing on `mechanic` narrows `payload`. */
 export type Round = { [M in Mechanic]: RoundBase & { mechanic: M; payload: RoundPayloads[M] } }[Mechanic];
 
+/** A round written ahead of time (server-only table). Promoted into `rounds` when its number comes up. */
+export type QueuedRound = { [M in Mechanic]: { id: string; riff_id: string; for_number: number; mechanic: M; depth: Depth; payload: RoundPayloads[M]; created_at: string } }[Mechanic];
+
 export type Answer<M extends Mechanic = Mechanic> = {
   id: string;
   riff_id: string;

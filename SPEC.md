@@ -119,12 +119,12 @@ The AI:
 - On expiry, **whichever client notices first calls `/api/advance`**, which uses a conditional update so duplicate calls are no-ops. No client has to host the game clock.
 
 **Routes:**
-- `/api/round` — generate the next round. Requested **when the talk window opens**, so the model call runs while players chat.
+- `/api/round` — write rounds **ahead of time** into a hidden queue (`queued_rounds`): text rounds 1 ahead, image rounds 2 ahead, each written from both players' profiles + the chat so far. Advancing promotes the next queued round, so rounds start instantly; an empty queue falls back to a local template fill. The Bonus Round is written when it triggers (during result + talk window) and jumps the queue.
 - `/api/judge` — score the round's answers.
 - `/api/talk` — score talk-window messages for connection; runs when the window closes, non-blocking.
 - `/api/image`, `/api/transcribe`, `/api/advance`.
 
-**Known limit:** because the next round is requested when the talk window opens, it can't reference *that* window's chat (it can reference everything before). Later fix: regenerate at window close if there's time.
+**Known limit:** a round written ahead can't reference chat from after it was written (up to ~2 rounds for image rounds). Later fix: rewrite the head of the queue at window close if there's time.
 
 **Judge output (JSON):**
 ```json

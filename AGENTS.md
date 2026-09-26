@@ -24,15 +24,14 @@ Next.js 16 App Router + TypeScript + Tailwind 4 · Supabase (Postgres, Realtime,
 
 ## Parallel work: lanes
 
-Three tools work at once, each in its own git worktree. Your lane comes from your branch:
+Two Claude sessions work at once, each in its own git worktree. Your lane comes from your branch:
 
-| Branch | Lane | Owns |
-|---|---|---|
-| `claude/engine` | Engine | `/api/round`, `/api/judge`, `/api/advance`, `/api/talk`, state machine, scoring, Bonus Round |
-| `cursor/ui` | UI | pages and components: chat, round cards, animations, mobile feel |
-| `codex/media` | Media | `/api/image`, `/api/transcribe`, meme audio, `public/clips/`, `clips.json` |
+| Branch | Worktree | Lane | Owns |
+|---|---|---|---|
+| `backend` | `riff-backend` | Backend | `app/api/*`, `lib/engine/*`, `lib/supabase/*`: state machine, round writing, judging, scoring, Bonus Round, images, transcription, meme audio, `public/clips/`, `clips.json` |
+| `frontend` | `riff-frontend` | Frontend | pages and components: chat, round cards, animations, mobile feel |
 
-- Work comes from GitHub issues labelled with your lane (`lane:engine`, `lane:ui`, `lane:media`) and `ready-for-agent`. Skip any issue with an open blocker. Put `Closes #<n>` in the commit that finishes it.
+- Work comes from GitHub issues labelled `ready-for-agent`: `lane:engine` and `lane:media` are Backend, `lane:ui` is Frontend. Skip any issue with an open blocker. Put `Closes #<n>` in the commit that finishes it.
 - Commit only to your own branch. Never merge into or push `main`; the human does that.
 - Stay in your lane's files. Need something outside it? Stop and say so.
 - `lib/types.ts`, `supabase/migrations/` and `package.json` change only on `main`. Need a new type, column or package? Stop and ask.

@@ -1,6 +1,8 @@
 import { requirePlayer } from "../../../lib/supabase/auth";
 import type { TranscribeResponse } from "../../../lib/types";
 
+export const maxDuration = 30; // Grok STT gets 15 s; see advance/route.ts
+
 const MAX_AUDIO_BYTES = 12 * 1024 * 1024;
 const AUDIO_TYPES = new Set([
   "audio/webm", "audio/ogg", "audio/mp4", "audio/mpeg", "audio/wav", "audio/x-wav",

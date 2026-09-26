@@ -52,26 +52,32 @@ type NudgeBase = {
   is_bonus: boolean;
   for_seat: Seat | null; // Bonus nudge: whose turf. Null = both players.
   created_at: string; // when it popped up
+  ends_at: string; // its countdown: what each player texts before this is their answer
+  scored_at: string | null; // set once the answers are scored, when the timer runs out
 };
 
-/** An AI pop-up at the top of the chat. Players respond by chatting. Narrowing on `kind` narrows `payload`. */
+/**
+ * An AI pop-up at the top of the chat with a countdown. Players answer by chatting before `ends_at`.
+ * Narrowing on `kind` narrows `payload`.
+ */
 export type Nudge = { [K in NudgeKind]: NudgeBase & { kind: K; payload: NudgePayloads[K] } }[NudgeKind];
 
 /** A nudge written ahead of time (server-only table), shown when its number comes up. */
 export type QueuedNudge = {
-  [K in NudgeKind]: Omit<NudgeBase, "number"> & { for_number: number; kind: K; payload: NudgePayloads[K] };
+  [K in NudgeKind]: Omit<NudgeBase, "number" | "ends_at" | "scored_at"> & { for_number: number; kind: K; payload: NudgePayloads[K] };
 }[NudgeKind];
 
-/** Hidden score for the chat after a nudge, up to the next one. */
+/** One player's points for answering one nudge. Players who didn't answer get no row. */
 export type Score = {
   id: string;
   riff_id: string;
   nudge_id: string;
   player_id: string;
+  speed: number; // 0–5, how fast their first message came after the nudge popped up
   quality: number; // 0–10
-  connection: number; // 0–5
-  multiplier: 1 | 2;
-  total: number; // (quality + connection) * multiplier, computed by the DB
+  connection: number; // 0–5, ties to the partner and to earlier messages
+  multiplier: 1 | 2; // 2 on a Bonus nudge for its player
+  total: number; // (speed + quality + connection) * multiplier, computed by the DB
   reason: string | null;
   created_at: string;
 };
@@ -123,7 +129,7 @@ export type Template = {
   tags: string[];
 };
 
-/** What the scorer returns for one stretch of chat (SPEC §6). */
+/** What the scorer returns for one nudge's answers (SPEC §6). Speed is computed in code. */
 export type ScoreResult = Record<Seat, { quality: number; connection: number; reason: string }> & {
   new_interests: Partial<Record<Seat, string[]>>;
 };

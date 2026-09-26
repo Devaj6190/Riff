@@ -24,9 +24,9 @@
 1. **Create a riff** → share link or 4-letter code. In the UI a riff is a **chat**.
 2. **Join:** display name + tap 3 interest chips (or type your own). The chat starts when the second player joins.
 3. **Chat like any messaging app** (think Instagram DMs): either person sends anytime. No rounds, no timers, no result screens.
-4. **Nudges:** pretty often, the AI pops a **nudge** into the top of the screen: a text prompt, an image or an audio clip, written for this pair from what they're talking about. Players respond by just chatting.
-5. **Hidden scoring:** the chat after each nudge is scored in the background. Points aren't shown yet (a points display comes later).
-6. **Bonus nudge:** when one player falls behind, the next nudge is on their turf, built from their own words, with double points.
+4. **Nudges:** the AI pops a **nudge** into the top of the screen with a **countdown**: a text prompt, an image or an audio clip, written for this pair from what they're talking about. Players answer by just texting before the timer runs out.
+5. **Points:** when a nudge's timer runs out, each player's answer is scored (speed + quality + connection) and the points pop in. Ordinary chat earns no points.
+6. **Bonus nudge:** when one player falls behind, the next nudge is on their turf, built from their own words; their answer counts double.
 7. **End:** first to the target score (100; **Expo mode = 50**), or either player taps End. End screen shows superlatives; they can **keep chatting** (nudges stop) or start a **new match** in the same chat.
 
 **Phase 2** (spec'd now, built later): discovery search → Riff chat → **Moment Card** (shared) + **private feedback** (8 sections) → **recommendations** for who to talk to next → rematch.
@@ -52,28 +52,31 @@ Voice notes are ordinary chat messages: record → transcribe → send.
 - **Deep (3)** only once both players have earned connection points; until then it stays at opinions. Never an opener.
 - The writer reads the live chat: if it's stalling, the nudge is easy and fun to answer.
 
-### 4.3 Scoring (hidden, per player, per nudge)
-When a nudge pops up, the chat since the previous nudge is scored:
+### 4.3 Scoring (per player, per nudge)
+Points come **only from answering nudges**. A player's answer is what they text while the nudge's timer runs. It's scored once, when the timer runs out:
+- **Speed:** 0–5, computed in code, linear from the pop-up to the buzzer (first message counts).
 - **Quality:** 0–10, AI: specificity, effort, creativity, being real. Opinions are never "right" or "wrong."
-- **Connection:** 0–5, AI: follow-ups, callbacks to earlier messages, responding to the partner.
-- The scorer also returns a **one-line reason** per player, for the later points display.
-- Players don't have to answer the nudge; a good conversation that went elsewhere scores well. Saying nothing scores nothing.
+- **Connection:** 0–5, AI: tying the answer to the partner or earlier messages: callbacks, follow-ups, responding to the partner.
+- The scorer also returns a **one-line witty reason** per player.
+- ~20 max per nudge → 100 takes ~7–9 nudges. No answer = no points.
 
 ### 4.4 Bonus nudge (catch-up)
 - **Trigger:** score gap ≥ **15 + random 0–5**; cooldown of 2 nudges after each Bonus nudge.
 - **Content:** quotes something the trailing player actually said and asks a follow-up on it, drawing on their interests.
-- Trailing player earns **2× points** on the chat after it.
+- Trailing player earns **2× points** on their answer to it.
 - **The leader is never called out.** The connection score quietly rewards them for asking follow-ups.
 
 ### 4.5 Pacing (follow the flow)
 - **Intro nudge** right away when the chat starts.
+- **No new nudge while a timer runs**, and a 10 s breather after it (points pop, answers get read).
 - **While the conversation flows** (both talking back and forth), Riff stays out of the way.
-- **It nudges when the flow breaks:** 15 s of silence, one person carrying it (the other quiet for 30 s), or a nudge nobody answered for 45 s.
-- Never within 20 s of the last nudge; at least one every 3 min so the game keeps moving.
+- **It nudges when the flow breaks:** 15 s of silence, one person carrying it (the other quiet for 30 s), or nobody answered the last nudge.
+- At least one every 3 min after the last timer, so the game keeps moving.
 - All numbers are placeholders to tune in playtesting (`lib/engine/pacing.ts`).
 
-### 4.6 Ending
-- First to the target score (100; configurable; **Expo mode = 50**), checked each time a nudge pops up. Or either player taps **End**.
+### 4.6 Timers & ending
+- **Timers:** text 30 s · image 30 s · audio 20 s · intro nudges 45 s. The client renders the countdown from `nudges.ends_at`.
+- **End:** first to the target score (100; configurable; **Expo mode = 50**), checked when a nudge is scored. Or either player taps **End**.
 - After the end the chat stays open: **keep chatting** (no more nudges) or **new match** (nudges and scores reset, chat kept).
 
 ### 4.7 Safety (MVP)
@@ -106,18 +109,18 @@ The AI:
 | Job | Primary | Fallback |
 |---|---|---|
 | Nudge writing, superlatives | **Muse Spark 1.3** via OpenAI SDK → Meta Model API (~5–8 s; hidden by writing ahead) | Grok, automatically on error |
-| Scoring, Bonus nudge (time-boxed) | **Grok** (~1 s) | Muse Spark, automatically on error |
+| Scoring answers, Bonus nudge (time-boxed) | **Grok** (~1 s) | Muse Spark, automatically on error |
 | Images | **Muse Image** (`muse-image-1.0`, $0.01/image, ~12–19 s; written 2 nudges ahead) | Grok Imagine (~25 s), then the pre-generated tagged pool |
 | Speech-to-text (voice messages) | Grok STT | Type instead |
 | Meme audio | `/public/clips` + `clips.json` (file, tags, answer, **license, source URL**) | Skip the kind |
 | Nudge writing when slow | — | Fill a template locally without AI |
 
-**Data:** `riffs` (phase `lobby → chatting → ended`), `players` (name, interests[], extracted_interests[]), `messages`, `nudges` (number, kind, payload, depth, is_bonus, for_seat), `queued_nudges` (server-only), `scores` (per nudge per player).
+**Data:** `riffs` (phase `lobby → chatting → ended`), `players` (name, interests[], extracted_interests[]), `messages`, `nudges` (number, kind, payload, depth, is_bonus, for_seat, ends_at, scored_at), `queued_nudges` (server-only), `scores` (speed, quality, connection per nudge per player).
 
-**Nudge clock:** there's no server clock. While chatting, **both clients call `/api/tick` every few seconds**; it asks `shouldNudge()` (§4.5) and, if due, shows the next nudge. `unique (riff_id, number)` on `nudges` makes concurrent ticks no-ops.
+**Nudge clock:** there's no server clock. While chatting, **both clients call `/api/tick` every few seconds**; it scores the last nudge once its timer has run out (compare-and-set on `scored_at`), and asks `shouldNudge()` (§4.5) whether to show the next one (`unique (riff_id, number)` on `nudges`). Concurrent ticks are no-ops.
 
 **Routes:**
-- `/api/tick` — show the next nudge when due: promote it from `queued_nudges` (text 1 ahead, image 2 ahead) or fill a template locally, so it never waits on a model. Then, in the background: score the chat since the previous nudge, end the game if someone reached the target, maybe queue a Bonus nudge, and write the next nudges ahead.
+- `/api/tick` — when a timer runs out, in the background: score the answers, end the game if someone reached the target, maybe queue a Bonus nudge. When the next nudge is due: promote it from `queued_nudges` (text 1 ahead, image 2 ahead) or fill a template locally, so it never waits on a model, stamp its timer, and write the next ones ahead.
 - `/api/end` — end now, or start a new match (chat kept).
 - `/api/image`, `/api/transcribe`.
 
@@ -138,13 +141,12 @@ The AI:
 1. Riff + join (interest chips)
 2. Real-time chat (Instagram-DM feel)
 3. Intro nudges, text nudges + flow-aware pacing
-4. Hidden scoring + ending + end screen (keep chatting / new match)
+4. Nudge timers + answer scoring + points pop + ending + end screen (keep chatting / new match)
 5. Bonus nudge
 6. Image nudges
 7. Voice messages
 8. Audio nudges (meme clips)
-9. Points display
-10. Profanity masking + leave & report
+9. Profanity masking + leave & report
 
 If time runs short, cut from the bottom of this list.
 

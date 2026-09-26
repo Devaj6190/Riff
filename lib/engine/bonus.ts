@@ -15,7 +15,7 @@ export function shouldBonus(gap: number, jitter: number, next: number, lastBonus
 }
 
 /**
- * Run once the chat before nudge `current` is scored. If the trailing player qualifies, write nudge current+1 for
+ * Run once nudge `current` is scored. If the trailing player qualifies, write nudge current+1 for
  * them into the queue, replacing whatever prefetch wrote there. Never throws for model problems.
  */
 export async function maybeBonus(riffId: string, current: number): Promise<void> {

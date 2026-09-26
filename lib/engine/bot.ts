@@ -29,6 +29,18 @@ export async function seatBot(riffId: string, persona = PERSONAS[Math.floor(Math
  * system prompt (the coach, coach.ts); that bot also opens the chat and may ask questions.
  */
 export async function botTurn(riffId: string, persona?: (bot: Player, human: Player) => Promise<string>): Promise<void> {
+  // ponytail: per-instance, like the reader: ticks come every second, one reply in flight per riff is enough.
+  if (replying.has(riffId)) return;
+  replying.add(riffId);
+  try {
+    await turn(riffId, persona);
+  } finally {
+    replying.delete(riffId);
+  }
+}
+const replying = new Set<string>();
+
+async function turn(riffId: string, persona?: (bot: Player, human: Player) => Promise<string>): Promise<void> {
   const db = supabaseAdmin();
   const [players, messages, nudge] = await Promise.all([
     db.from("players").select("*").eq("riff_id", riffId),
@@ -46,9 +58,8 @@ export async function botTurn(riffId: string, persona?: (bot: Player, human: Pla
   const liveNudge = nudge.data && Date.now() < at(nudge.data.ends_at) ? nudge.data : null;
   const trigger = Math.max(humanLast, at(liveNudge?.created_at), persona && !chat.length ? 1 : 0);
   if (trigger <= botLast) return;
-  // Like a person: reads once they've stopped typing (people double-text), then takes a moment. Ticks come every
-  // few seconds, so a fresh random gate each tick spreads the reply time out.
-  if (Date.now() - trigger < 3000 + Math.random() * 4000) return;
+  // Like a person: reads once they've stopped typing (people double-text), then takes a moment.
+  if (Date.now() - trigger < 1500 + Math.random() * 2000) return;
   const botLastBody = chat.findLast((m) => m.player_id === bot.id)?.body ?? "";
 
   const system = persona ? await persona(bot, human) : `${GUARDRAILS} You are ${bot.name}, a college student into ${bot.interests.join(", ")}, texting ${human.name} (into ${human.interests.join(", ")}), someone you just met on Riff. Text like a real person in a DM, not an assistant:
@@ -56,12 +67,18 @@ export async function botTurn(riffId: string, persona?: (bot: Player, human: Pla
 - react, share your own opinions and small stories, tease a little, disagree sometimes; don't be over-eager or agreeable
 - do NOT end every message with a question; most messages have none
 - no emojis most of the time, don't use their name, only say hi once
-- if there's a nudge on screen, answer it in your own words like a person would
+- always respond to what they just said before anything else; never ignore their message or change the subject
+- if there's a nudge you haven't answered, answer it in your own words like a person would
 Return JSON: {"reply": "..."}`;
+  // What to respond to: their messages since the bot last spoke, and the nudge if the bot hasn't answered it yet.
+  const unread = chat.filter((m) => m.player_id !== bot.id && at(m.created_at) > botLast).map((m) => m.body);
+  const openNudge = liveNudge && at(liveNudge.created_at) > botLast ? liveNudge : null;
   const user = [
-    liveNudge && `Nudge on screen for both of you: "${liveNudge.payload.prompt}"`,
     "Chat so far (oldest first):",
     ...chat.map((m) => `${m.player_id === bot.id ? bot.name : human.name}: ${m.body}`),
+    "",
+    unread.length && `${human.name} just said: ${unread.map((b) => `"${b}"`).join(" / ")}. Respond to that directly first: react to what they actually said, answer anything they asked.`,
+    openNudge && `Nudge on screen for both of you that you haven't answered yet: "${openNudge.payload.prompt}". Answer it too.`,
   ]
     .filter(Boolean)
     .join("\n");
@@ -71,11 +88,12 @@ Return JSON: {"reply": "..."}`;
   // Grok follows "don't always ask" loosely: after a message with a question, drop the question sentences.
   const noQuestions = reply.split(/(?<=[.!?])\s+/).filter((part) => !part.endsWith("?")).join(" ");
   const text = !persona && botLastBody.includes("?") && noQuestions ? noQuestions : reply;
-  // Typing time at fast-thumbs speed (~12 chars/s), capped.
-  await new Promise((r) => setTimeout(r, Math.min(8000, 1000 + text.length * 80)));
+  // Typing time at fast-thumbs speed (~16 chars/s), capped.
+  await new Promise((r) => setTimeout(r, Math.min(5000, 600 + text.length * 60)));
 
   // ponytail: overlapping ticks can both get here while "typing"; whoever sends second sees the first and drops out.
-  const { data: latest } = await db.from("messages").select("created_at").eq("player_id", bot.id).order("created_at", { ascending: false }).limit(1).maybeSingle();
-  if (at(latest?.created_at) > botLast) return;
+  // Stale: they sent something new while the bot was typing, so the next tick replies to all of it instead.
+  const { data: latest } = await db.from("messages").select("player_id, created_at").eq("riff_id", riffId).order("created_at", { ascending: false }).limit(1).maybeSingle();
+  if (latest && at(latest.created_at) > Math.max(botLast, humanLast)) return;
   await db.from("messages").insert({ riff_id: riffId, player_id: bot.id, body: text });
 }

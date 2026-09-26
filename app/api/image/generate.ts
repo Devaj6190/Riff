@@ -11,7 +11,12 @@ export function poolImage(tags: string[]): ImageResponse {
 }
 
 // Style + safety only. Don't describe the app here: both models drew "Conversation Game" signs into scenes.
-const STYLE = "Playful, colourful, all-ages illustration. No violence, nudity or sexual content, and no written text, signs or logos. Scene: ";
+export type ImageStyle = "cartoon" | "photo";
+const STYLE: Record<ImageStyle, string> = {
+  cartoon: "Playful, colourful cartoon illustration, bold shapes, a little absurd.",
+  photo: "Photorealistic photo, natural light, candid, shot on a phone camera.",
+};
+const SAFETY = " All-ages. No violence, nudity or sexual content, and no written text, signs or logos. Scene: ";
 
 type ImageProvider = { url: string; key: string | undefined; model: string };
 
@@ -27,7 +32,7 @@ function providers(): ImageProvider[] {
  * One image within `timeoutMs` overall (providers share the deadline, including reading the body).
  * Measured: Muse ~12 s, Grok ~25 s, so callers that need a generated image must ask ahead of time.
  */
-export async function generateImage(prompt: string, tags: string[], timeoutMs = 5000): Promise<ImageResponse> {
+export async function generateImage(prompt: string, tags: string[], timeoutMs = 5000, style: ImageStyle = "cartoon"): Promise<ImageResponse> {
   const fallback = () => poolImage(tags);
   const chain = providers();
   if (!chain.length) return fallback();
@@ -40,7 +45,7 @@ export async function generateImage(prompt: string, tags: string[], timeoutMs = 
     });
     const generation = (async (): Promise<ImageResponse> => {
       for (const provider of chain) {
-        const image = await tryProvider(provider, prompt, controller.signal).catch(() => null);
+        const image = await tryProvider(provider, STYLE[style] + SAFETY + prompt, controller.signal).catch(() => null);
         if (image) return image;
         if (controller.signal.aborted) break;
       }
@@ -58,7 +63,7 @@ async function tryProvider(p: ImageProvider, prompt: string, signal: AbortSignal
   const response = await fetch(p.url, {
     method: "POST",
     headers: { Authorization: `Bearer ${p.key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ model: p.model, n: 1, response_format: "url", prompt: STYLE + prompt }),
+    body: JSON.stringify({ model: p.model, n: 1, response_format: "url", prompt }),
     signal,
   });
   if (!response.ok) return null;

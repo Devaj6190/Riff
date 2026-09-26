@@ -12,6 +12,7 @@ const writer: Writer<"text"> = {
         "Two people are texting in a chat app. You drop a nudge into their chat: one prompt that sparks the next few messages.",
         "Pick one of the given templates and rewrite it for this pair: build on what they're talking about right now or their interests,",
         "keep the template's spirit, one prompt both can answer, under 140 characters, casual texting tone. Don't repeat earlier nudges.",
+        VIBE_RULE,
         CONTEXT_RULE,
         "Match the depth you're given. If the chat is stalling, make it easy and fun to answer.",
         "In the intro stage, keep it a simple warm introduction: names, where they're from, what they're into.",
@@ -31,6 +32,13 @@ const writer: Writer<"text"> = {
 };
 
 export default writer;
+
+/** How nudges sound: in tune with internet culture, not an icebreaker card. */
+export const VIBE_RULE = [
+  "Sound like a group chat, not an icebreaker card: meme-aware, current internet and pop culture (music, shows, games, trends, slang used naturally).",
+  "Prefer hot takes, pick-a-side, rate-it, red flags, would-you-rather with a twist, and stories over bland \"what's your favorite\" or \"what would you do first\" questions.",
+  "Mildly controversial is good (dating, money, family, overrated things, spicy opinions) as long as it stays within the safety rules.",
+].join(" ");
 
 /** What the writers get beyond the chat itself (reader.ts, loadContext) and how to use it. */
 export const CONTEXT_RULE = [

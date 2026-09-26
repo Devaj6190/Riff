@@ -1,7 +1,7 @@
 import { generateImage, poolImage } from "../../../app/api/image/generate";
 import { llmJson } from "../llm";
 import { fillSeed, MODEL_TIMEOUT_MS, type NudgeContext, type Writer } from "../nudges";
-import { BONUS_RULE, CONTEXT_RULE, userMessage } from "./text";
+import { BONUS_RULE, CONTEXT_RULE, userMessage, VIBE_RULE } from "./text";
 
 const IMAGE_TIMEOUT_MS = 25_000; // Muse Image ~12–19 s; written 2 nudges ahead (≥ 60 s) so nobody waits
 
@@ -15,17 +15,19 @@ const writer: Writer<"image"> = {
         "Pick one of the given templates, then write a scene for an illustration built from both players' interests or what they're talking about,",
         "and rewrite the template's prompt for that scene: one prompt both can answer, under 120 characters, casual texting tone.",
         "The scene is 1-2 sentences, concrete and visual, no text or signs in it. Don't repeat earlier nudges.",
+        "Pick the style that fits: \"cartoon\" for absurd, meme-y or impossible scenes; \"photo\" for real places, food, rooms, trips and anything that should look real.",
+        VIBE_RULE,
         CONTEXT_RULE,
         BONUS_RULE,
-        'JSON shape: {"templateId": string, "scene": string, "prompt": string}',
+        'JSON shape: {"templateId": string, "scene": string, "style": "cartoon" | "photo", "prompt": string}',
       ].join(" "),
       userMessage(ctx),
       MODEL_TIMEOUT_MS,
-    )) as { scene?: unknown; prompt?: unknown };
+    )) as { scene?: unknown; style?: unknown; prompt?: unknown };
     const scene = typeof out.scene === "string" ? out.scene.trim() : "";
     const prompt = typeof out.prompt === "string" ? out.prompt.trim() : "";
     if (!scene || !prompt || prompt.length > 200) throw new Error(`bad image nudge from model: ${JSON.stringify(out)}`);
-    const { url } = await generateImage(scene, tags(ctx), IMAGE_TIMEOUT_MS);
+    const { url } = await generateImage(scene, tags(ctx), IMAGE_TIMEOUT_MS, out.style === "photo" ? "photo" : "cartoon");
     return { prompt, imageUrl: url };
   },
 

@@ -40,7 +40,7 @@ export function nextPhase(s: ClockState, now: Date): GamePhase | null {
 }
 
 /** How long `phase` lasts; `mechanic` is the round's, used for round_active. */
-export function phaseSeconds(phase: GamePhase, mechanic: Mechanic): number {
+export function phaseSeconds(phase: GamePhase, mechanic: Mechanic = "open_prompt"): number {
   if (phase === "round_active") return ROUND_SECONDS[mechanic];
   return PHASE_SECONDS[phase as keyof typeof PHASE_SECONDS];
 }

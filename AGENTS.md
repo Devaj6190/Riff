@@ -1,5 +1,7 @@
 # Riff
 
+Product spec: `SPEC.md` (scope, game design, architecture). Read the relevant section before building a feature.
+
 ## Agent skills
 
 ### Issue tracker

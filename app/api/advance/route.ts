@@ -8,6 +8,10 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 import { requirePlayer } from "@/lib/supabase/auth";
 import type { AdvanceRequest, AdvanceResponse, GamePhase, Riff } from "@/lib/types";
 
+// ponytail: 60 s is the Hobby ceiling without Fluid compute; the after() work (judge, prefetch
+// with images) needs well over the old 10 s default. Fluid compute raises the default anyway.
+export const maxDuration = 60;
+
 /**
  * Start the game from the lobby, or move past an expired/complete phase. Both clients call this when a
  * deadline passes; the conditional update on (phase, round_number) makes every call but the first a no-op.

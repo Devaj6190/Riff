@@ -3,6 +3,8 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 import { requirePlayer } from "@/lib/supabase/auth";
 import type { EndRequest, EndResponse, Riff } from "@/lib/types";
 
+export const maxDuration = 60; // superlatives are a Muse call; see advance/route.ts
+
 /** End the riff now, or start a fresh game in it (chat is kept). */
 export async function POST(req: Request) {
   const { riffId, action } = (await req.json().catch(() => ({}))) as Partial<EndRequest>;

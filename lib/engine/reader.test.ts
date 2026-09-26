@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { normalizeHistory } from "./ending";
+import { normalizeHistory, normalizeProfile } from "./ending";
 import { normalizeContext } from "./reader";
 
 test("normalizeContext keeps string notes per seat, caps lists, defaults junk", () => {
@@ -19,4 +19,9 @@ test("normalizeHistory shares the recap and fills both seats", () => {
   expect(h.A).toEqual({ recap: "Talked dogs.", learned: ["has a corgi"], clicked: [], died: [], misses: ["Succession ref"] });
   expect(h.B.recap).toBe("Talked dogs.");
   expect(h.B.learned).toEqual([]);
+});
+
+test("normalizeProfile keeps strings, counts chats, defaults junk", () => {
+  const p = normalizeProfile({ about: " Quick, jokey texter. ", enjoys: ["anime", 4], flat: "nope" }, 3);
+  expect(p).toEqual({ about: "Quick, jokey texter.", enjoys: ["anime"], flat: [], misses: [], chats: 3 });
 });

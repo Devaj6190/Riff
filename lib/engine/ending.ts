@@ -3,7 +3,7 @@
 // summary per player to chat_histories, for pairing people later.
 import { after } from "next/server";
 import { supabaseAdmin } from "../supabase/admin";
-import type { ChatHistorySummary, Player, Riff, RiffPhase, RiffSummary, Score, Seat } from "../types";
+import type { ChatHistorySummary, Player, Riff, RiffPhase, RiffSummary, Score, Seat, UserProfile } from "../types";
 import { BOT_USER_ID } from "./bot";
 import { llmJson } from "./llm";
 import { loadChatContext, strings } from "./reader";
@@ -114,13 +114,16 @@ export function normalizeHistory(raw: unknown): Record<Seat, ChatHistorySummary>
 /**
  * Summarize the whole chat into chat_histories, one row per (real) player. Runs after the response (endRiff), on
  * every end: a new match in the same riff keeps the chat, so the latest end overwrites with the fuller summary.
+ * Then rolls each player's histories into their hidden profile.
  */
 export async function saveHistory(riffId: string): Promise<void> {
   const db = supabaseAdmin();
-  const [players, messages, known] = await Promise.all([
+  const [players, messages, known, nudges, scores] = await Promise.all([
     db.from("players").select("*").eq("riff_id", riffId),
     db.from("messages").select("player_id, body").eq("riff_id", riffId).order("id", { ascending: false }).limit(400),
     loadChatContext(riffId),
+    db.from("nudges").select("id, payload").eq("riff_id", riffId).order("number"),
+    db.from("scores").select("nudge_id, player_id, quality").eq("riff_id", riffId),
   ]);
   const seated = (players.data ?? []) as Player[];
   const seat = new Map(seated.map((p) => [p.id, p.seat]));
@@ -130,7 +133,8 @@ export async function saveHistory(riffId: string): Promise<void> {
       [
         "Two people who just met finished a chat. Summarize it for a matchmaker who will pair them with new people later.",
         "recap: the chat in 2-3 sentences. Per player: learned: facts, opinions, tastes and stories they shared;",
-        "clicked: topics that got long, excited back-and-forths; died: topics that went nowhere;",
+        "clicked: topics that got long, excited back-and-forths; died: topics that went nowhere.",
+        "nudges shows how well each answered each nudge (quality 0-10, missing = no answer): weigh it in clicked and died.",
         "misses: references or topics they didn't get, or checked out of (\"didn't know the Succession reference\").",
         "Short phrases, only what the chat shows. Leave out contact details, addresses and social handles.",
         'JSON shape: {"recap": s, "A": {"learned": [s], "clicked": [s], "died": [s], "misses": [s]}, "B": {...}}',
@@ -138,9 +142,13 @@ export async function saveHistory(riffId: string): Promise<void> {
       JSON.stringify({
         players: seated.map((p) => ({ seat: p.seat, name: p.name, interests: p.interests })),
         liveNotes: known,
+        nudges: (nudges.data ?? []).map((n) => ({
+          prompt: n.payload?.prompt,
+          quality: Object.fromEntries((scores.data ?? []).filter((s) => s.nudge_id === n.id).map((s) => [seat.get(s.player_id) ?? "?", s.quality])),
+        })),
         chat: messages.data.reverse().map((m) => `${seat.get(m.player_id) ?? "?"}: ${m.body}`),
       }),
-      30_000,
+      25_000, // then rollUpProfile, all inside the route's 60 s
     ),
   );
   const rows = seated
@@ -153,5 +161,44 @@ export async function saveHistory(riffId: string): Promise<void> {
       created_at: new Date().toISOString(),
     }));
   const { error } = await db.from("chat_histories").upsert(rows, { onConflict: "user_id,riff_id" });
+  if (error) throw error;
+  await Promise.all(seated.filter((p) => p.user_id !== BOT_USER_ID).map((p) => rollUpProfile(p)));
+}
+
+/** Coerce model output into a UserProfile. */
+export function normalizeProfile(raw: unknown, chats: number): UserProfile {
+  const o = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
+  const about = typeof o.about === "string" ? o.about.trim().slice(0, 300) : "";
+  return { about, enjoys: strings(o.enjoys, 10), flat: strings(o.flat, 10), misses: strings(o.misses, 10), chats };
+}
+
+/** Roll all of a user's chat_histories into their hidden user_profiles row. Grok: it runs after the history call. */
+async function rollUpProfile(player: Player): Promise<void> {
+  const db = supabaseAdmin();
+  // ponytail: newest 20 is every chat at hackathon scale; roll the old profile in instead if people get past that.
+  const { data: histories } = await db
+    .from("chat_histories")
+    .select("summary")
+    .eq("user_id", player.user_id)
+    .order("created_at", { ascending: false })
+    .limit(20);
+  if (!histories?.length) return;
+  const profile = normalizeProfile(
+    await llmJson(
+      [
+        "You keep a private profile of one person for a matchmaker, built from summaries of their past chats (newest first).",
+        "about: who they are and how they chat, 1-2 sentences. enjoys: topics that reliably spark them.",
+        "flat: topics that fell flat. misses: references or topics they tend not to get.",
+        "Weigh patterns across chats over one-offs; newer chats win when they disagree. Short phrases.",
+        "Leave out contact details, addresses and social handles.",
+        'JSON shape: {"about": s, "enjoys": [s], "flat": [s], "misses": [s]}',
+      ].join(" "),
+      JSON.stringify({ name: player.name, signupInterests: player.interests, chats: histories.map((h) => h.summary) }),
+      15_000,
+      { fast: true },
+    ),
+    histories.length,
+  );
+  const { error } = await db.from("user_profiles").upsert({ user_id: player.user_id, profile, updated_at: new Date().toISOString() });
   if (error) throw error;
 }

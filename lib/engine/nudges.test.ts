@@ -59,7 +59,8 @@ test("a failed model write falls back to a local fill, with a pool image for ima
     players: [player("Ana", ["hiking"]), player("Ben", ["travel"])],
     chat: [],
     known: EMPTY_CONTEXT,
-    previousPrompts: [],
+    earlier: [],
+    past: {},
     templates: [{ id: "t", kind, tone: "fun", depth: 1, seed: "Best {interest} spot?", tags: [] }],
     turf: null,
   });

@@ -1,7 +1,7 @@
 import { generateImage, poolImage } from "../../../app/api/image/generate";
 import { llmJson } from "../llm";
 import { fillSeed, MODEL_TIMEOUT_MS, type NudgeContext, type Writer } from "../nudges";
-import { BONUS_RULE, userMessage } from "./text";
+import { BONUS_RULE, CONTEXT_RULE, userMessage } from "./text";
 
 const IMAGE_TIMEOUT_MS = 25_000; // Muse Image ~12–19 s; written 2 nudges ahead (≥ 60 s) so nobody waits
 
@@ -15,6 +15,7 @@ const writer: Writer<"image"> = {
         "Pick one of the given templates, then write a scene for an illustration built from both players' interests or what they're talking about,",
         "and rewrite the template's prompt for that scene: one prompt both can answer, under 120 characters, casual texting tone.",
         "The scene is 1-2 sentences, concrete and visual, no text or signs in it. Don't repeat earlier nudges.",
+        CONTEXT_RULE,
         BONUS_RULE,
         'JSON shape: {"templateId": string, "scene": string, "prompt": string}',
       ].join(" "),

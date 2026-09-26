@@ -40,6 +40,15 @@ export type ChatHistorySummary = {
   misses: string[]; // references or topics this player didn't get, or checked out of
 };
 
+/** Engine-only (user_profiles): all of a user's chat_histories rolled into one. Steers later chats; never shown. */
+export type UserProfile = {
+  about: string; // who they are and how they chat, 1-2 sentences
+  enjoys: string[]; // topics that reliably spark them
+  flat: string[]; // topics that fell flat
+  misses: string[]; // references or topics they tend not to get
+  chats: number; // how many chats this is built from
+};
+
 export type Player = {
   id: string;
   riff_id: string;

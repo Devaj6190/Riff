@@ -26,7 +26,16 @@ export type Riff = {
   reported_at: string | null;
 };
 
-export type RiffSummary = { superlatives: Record<Seat, string> };
+/** Moment Spotlight: `moments` is empty when the chat was too short, the model failed, or it's a coach chat. */
+export type RiffSummary = { moments: Moment[] };
+
+/** One card of the end-of-match reel: a show template and the real messages it quotes, in chat order. */
+export type Moment = {
+  template: string; // id from lib/engine/moments.ts TEMPLATES; style by it if you like
+  title: string; // show title, e.g. "The Laugh Riot"
+  lines: { seat: Seat; body: string }[]; // 1-4 consecutive messages, verbatim
+  caption: string; // one hype line from the AI host
+};
 
 /** Engine-only (riff_context): what the chat has revealed so far, kept current as messages come in. */
 export type ChatContext = {

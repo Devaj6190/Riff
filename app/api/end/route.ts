@@ -3,7 +3,7 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 import { requirePlayer } from "@/lib/supabase/auth";
 import type { EndRequest, EndResponse, Riff } from "@/lib/types";
 
-export const maxDuration = 60; // superlatives are a Muse call; see tick/route.ts
+export const maxDuration = 60; // Moment Spotlight is a Muse call; see tick/route.ts
 
 /** End the riff now, or start a new match in it (chat is kept). */
 export async function POST(req: Request) {

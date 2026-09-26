@@ -1,4 +1,4 @@
-// One OpenAI-compatible client for nudge writing, scoring and superlatives (SPEC §6).
+// One OpenAI-compatible client for nudge writing, scoring and moments (SPEC §6).
 // Primary = META_BASE_URL + META_API_KEY + LLM_MODEL (Muse Spark). If it errors (e.g. Meta billing 402),
 // the same call retries on Grok via XAI_API_KEY + LLM_FALLBACK_MODEL, so the game keeps real AI.
 import OpenAI from "openai";

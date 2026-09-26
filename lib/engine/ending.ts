@@ -1,13 +1,13 @@
-// Ending (SPEC §3 step 5, §4.6): first to the target score, or a player taps End. Superlatives at the end.
+// Ending (SPEC §3 step 5, §4.6): first to the target score, or a player taps End. Moment Spotlight at the end.
 // The chat stays open after either; a new match restarts the nudges and scores. Each end also saves a private
 // summary per player to chat_histories, for pairing people later.
 import { after } from "next/server";
 import { supabaseAdmin } from "../supabase/admin";
-import type { ChatHistorySummary, Player, Riff, RiffPhase, RiffSummary, Score, Seat, UserProfile } from "../types";
+import type { ChatHistorySummary, Moment, Player, Riff, RiffPhase, RiffSummary, Score, Seat, UserProfile } from "../types";
 import { BOT_USER_ID } from "./bot";
 import { llmJson } from "./llm";
 import { loadChatContext, strings } from "./reader";
-import { SCORE_TIMEOUT_MS } from "./score";
+import { MOMENTS_PROMPT, normalizeMoments } from "./moments";
 
 /** Target score: RIFF_TARGET_SCORE (Expo mode = 50), else the riff's own. */
 export function targetScore(fallback: number): number {
@@ -36,45 +36,49 @@ export async function totalsByPlayer(riffId: string): Promise<Map<string, number
   return byPlayer;
 }
 
-/** Write one playful superlative per player into riffs.summary. Never throws. */
-export async function writeSummary(riffId: string): Promise<void> {
+/**
+ * Write the Moment Spotlight into riffs.summary: up to 3 real moments from this match (messages since its first
+ * nudge; a new match gets a fresh reel). Never throws, and always writes, so the client's loading state ends.
+ */
+export async function writeSummary(riff: Riff): Promise<void> {
   const db = supabaseAdmin();
-  const [players, messages, known] = await Promise.all([
-    db.from("players").select("*").eq("riff_id", riffId),
-    db.from("messages").select("player_id, body").eq("riff_id", riffId).order("created_at", { ascending: false }).limit(60),
-    loadChatContext(riffId),
-  ]);
-  const seated = (players.data ?? []) as Player[];
-  const name = new Map(seated.map((p) => [p.id, p.name]));
-  let superlatives: Record<Seat, string> = { A: "Most likely to riff again", B: "Most likely to riff again" };
+  let moments: Moment[] = [];
   try {
-    const out = (await llmJson(
-      [
-        "Two people just finished a chat. Give each player one playful superlative based on what they actually said,",
-        'like "Most likely to defend Sharknado 3 in court". Kind, specific, under 10 words, starting with "Most likely to".',
-        "notes has what each player shared over the whole chat and thread has its running jokes: the best ones call back to a",
-        "running joke or the most them thing they said. Never about scores, and nothing they'd be embarrassed to see.",
-        'JSON shape: {"A": string, "B": string}',
-      ].join(" "),
-      JSON.stringify({
-        players: seated.map((p) => ({
-          seat: p.seat,
-          name: p.name,
-          interests: [...p.interests, ...p.extracted_interests],
-          notes: known.notes[p.seat],
-        })),
-        thread: known.thread,
-        chat: (messages.data ?? []).reverse().map((m) => `${name.get(m.player_id) ?? "?"}: ${m.body}`),
-      }),
-      SCORE_TIMEOUT_MS,
-    )) as Partial<Record<Seat, unknown>>;
-    const pick = (v: unknown, d: string) => (typeof v === "string" && v.trim() ? v.trim().slice(0, 80) : d);
-    superlatives = { A: pick(out.A, superlatives.A), B: pick(out.B, superlatives.B) };
+    if (riff.kind === "coach") return;
+    const [players, first, known] = await Promise.all([
+      db.from("players").select("*").eq("riff_id", riff.id),
+      db.from("nudges").select("created_at").eq("riff_id", riff.id).order("number").limit(1).maybeSingle(),
+      loadChatContext(riff.id),
+    ]);
+    let q = db.from("messages").select("player_id, body").eq("riff_id", riff.id);
+    if (first.data) q = q.gte("created_at", first.data.created_at);
+    const { data: messages } = await q.order("id", { ascending: false }).limit(200);
+    const seated = (players.data ?? []) as Player[];
+    const seat = new Map(seated.map((p) => [p.id, p.seat]));
+    const lines = (messages ?? []).reverse().flatMap((m) => (seat.has(m.player_id) ? [{ seat: seat.get(m.player_id)!, body: m.body }] : []));
+    if (lines.length < 2) return;
+    moments = normalizeMoments(
+      await llmJson(
+        MOMENTS_PROMPT,
+        JSON.stringify({
+          players: seated.map((p) => ({ seat: p.seat, name: p.name })),
+          runningJokes: known.thread.callbacks,
+          chat: lines.map((l, i) => `${i + 1} ${l.seat}: ${l.body}`),
+        }),
+        MOMENTS_TIMEOUT_MS,
+      ),
+      lines,
+    );
   } catch (e) {
-    console.warn("superlatives: model failed, using defaults", e instanceof Error ? e.message : e);
+    console.warn("moments: model failed, empty reel", e instanceof Error ? e.message : e);
+  } finally {
+    // Only while still ended: a New match mid-generation must not get the old reel.
+    await db.from("riffs").update({ summary: { moments } satisfies RiffSummary }).eq("id", riff.id).eq("phase", "ended");
   }
-  await db.from("riffs").update({ summary: { superlatives } satisfies RiffSummary }).eq("id", riffId);
 }
+
+// ponytail: per provider, so Muse then Grok is 30 s worst case; tighten if /api/end's 60 s gets crowded.
+const MOMENTS_TIMEOUT_MS = 15_000;
 
 /** End the riff now (idempotent). Returns the phase it's in afterwards. */
 export async function endRiff(riff: Riff): Promise<RiffPhase> {
@@ -88,7 +92,7 @@ export async function endRiff(riff: Riff): Promise<RiffPhase> {
   if (data?.length) {
     // ponytail: coach chats don't feed the profile, so a miss stays until a later real chat stops showing it.
     if (riff.kind !== "coach") after(() => saveHistory(riff.id).catch((e) => console.error("chat history failed", e)));
-    await writeSummary(riff.id);
+    await writeSummary(riff);
   }
   return "ended";
 }

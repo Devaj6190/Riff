@@ -1,5 +1,6 @@
 import { after } from "next/server";
 import { nextPhase, phaseSeconds } from "@/lib/engine/clock";
+import { judgeRound } from "@/lib/engine/judge";
 import { prefetchRounds, roundFor } from "@/lib/engine/rounds";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { requirePlayer } from "@/lib/supabase/auth";
@@ -61,6 +62,8 @@ export async function POST(req: Request) {
       .eq("number", riff.round_number)
       .gt("ends_at", new Date().toISOString());
     if (closeError) throw closeError;
+    // Scores land during round_result; the compare-and-set above guarantees one judge per round.
+    after(() => judgeRound(riffId, riff.round_number).catch((e) => console.error("judge failed", e)));
   }
 
   // If this insert fails the riff sits in round_active without a round; its deadline still passes, so it recovers.

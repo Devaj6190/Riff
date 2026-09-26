@@ -200,7 +200,101 @@ body {
   animation: riff-reveal 1.1s cubic-bezier(0.45, 0, 0.25, 1) backwards;
 }
 
+/* Apple Messages bubbles. The last bubble in a run gets a tail: ::before is the tail in the bubble's color,
+   ::after is a page-colored curve that carves it. Needs a --background page behind it. */
+.bubble {
+  position: relative;
+  z-index: 0;
+}
+
+.bubble-tail::before,
+.bubble-tail::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  height: 20px;
+}
+
+.bubble-tail::before {
+  z-index: -1;
+  width: 20px;
+  background: inherit;
+}
+
+.bubble-tail::after {
+  z-index: -1;
+  width: 10px;
+  background: var(--background);
+}
+
+.bubble-mine.bubble-tail::before {
+  right: -7px;
+  border-bottom-left-radius: 16px 14px;
+}
+
+.bubble-mine.bubble-tail::after {
+  right: -10px;
+  border-bottom-left-radius: 10px;
+}
+
+.bubble-theirs.bubble-tail::before {
+  left: -7px;
+  border-bottom-right-radius: 16px 14px;
+}
+
+.bubble-theirs.bubble-tail::after {
+  left: -10px;
+  border-bottom-right-radius: 10px;
+}
+
+/* New bubbles spring up from their corner, like a sent iMessage. */
+@keyframes riff-bubble {
+  from {
+    transform: translateY(12px) scale(0.85);
+    opacity: 0;
+  }
+  70% {
+    transform: translateY(-2px) scale(1.02);
+    opacity: 1;
+  }
+  to {
+    transform: none;
+  }
+}
+
+.riff-bubble {
+  animation: riff-bubble 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.1) both;
+}
+
+.bubble-mine.riff-bubble {
+  transform-origin: bottom right;
+}
+
+.bubble-theirs.riff-bubble {
+  transform-origin: bottom left;
+}
+
+/* Three dots while the partner types. */
+@keyframes riff-dot {
+  0%,
+  60%,
+  100% {
+    transform: none;
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-3px);
+    opacity: 1;
+  }
+}
+
+.riff-dot {
+  animation: riff-dot 1.2s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .riff-bubble,
+  .riff-dot,
   .riff-reveal,
   .riff-drop,
   .riff-bonus,

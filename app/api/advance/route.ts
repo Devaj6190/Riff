@@ -1,5 +1,6 @@
 import { after } from "next/server";
 import { nextPhase, phaseSeconds } from "@/lib/engine/clock";
+import { isGameOver, targetScore, totals, writeSummary } from "@/lib/engine/ending";
 import { judgeRound } from "@/lib/engine/judge";
 import { loadWindow, scoreTalk, talkDeadline } from "@/lib/engine/talk";
 import { prefetchRounds, roundFor } from "@/lib/engine/rounds";
@@ -54,16 +55,25 @@ export async function POST(req: Request) {
   );
   if (!next) return reply(riff.phase, false);
 
-  const startsRound = next === "round_active";
+  // Game over is checked as the result leaves the screen, so both players see the final round's scores first.
+  const to: GamePhase = next === "talk_window" && isGameOver(await totals(riffId), riff.target_score, riff.round_number) ? "ended" : next;
+
+  const startsRound = to === "round_active";
   const roundNumber = riff.round_number + (startsRound ? 1 : 0);
   // Promoted from the prefetch queue, or filled locally: never waits on a model.
   const round = startsRound ? await roundFor(riffId, roundNumber) : null;
-  const endsAt = new Date(Date.now() + phaseSeconds(next, round?.mechanic) * 1000).toISOString();
+  const endsAt = to === "ended" ? null : new Date(Date.now() + phaseSeconds(to, round?.mechanic) * 1000).toISOString();
 
   // Compare-and-set: only the call that still sees the phase it read gets to move it.
   const { data: won, error: updateError } = await db
     .from("riffs")
-    .update({ phase: next, phase_ends_at: endsAt, round_number: roundNumber })
+    .update({
+      phase: to,
+      phase_ends_at: endsAt,
+      round_number: roundNumber,
+      ...(riff.phase === "lobby" && { target_score: targetScore(riff.target_score) }), // Expo mode applies per game
+      ...(to === "ended" && { ended_at: new Date().toISOString() }),
+    })
     .eq("id", riffId)
     .eq("phase", riff.phase)
     .eq("round_number", riff.round_number)
@@ -84,7 +94,8 @@ export async function POST(req: Request) {
     after(() => judgeRound(riffId, riff.round_number).catch((e) => console.error("judge failed", e)));
   }
 
-  if (next === "talk_window") after(() => prefetchRounds(riffId, riff.round_number).catch((e) => console.error("prefetch top-up failed", e)));
+  if (to === "ended") after(() => writeSummary(riffId).catch((e) => console.error("summary failed", e)));
+  if (to === "talk_window") after(() => prefetchRounds(riffId, riff.round_number).catch((e) => console.error("prefetch top-up failed", e)));
   if (riff.phase === "talk_window") after(() => scoreTalk(riffId, riff.round_number).catch((e) => console.error("talk scoring failed", e)));
 
   // If this insert fails the riff sits in round_active without a round; its deadline still passes, so it recovers.
@@ -94,7 +105,7 @@ export async function POST(req: Request) {
     await db.from("queued_rounds").delete().eq("riff_id", riffId).eq("for_number", roundNumber);
     after(() => prefetchRounds(riffId, roundNumber).catch((e) => console.error("prefetch failed", e)));
   }
-  return reply(next, true);
+  return reply(to, true);
 }
 
 async function count(query: PromiseLike<{ count: number | null; error: unknown }>): Promise<number> {

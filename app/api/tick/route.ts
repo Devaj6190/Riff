@@ -2,6 +2,7 @@ import { after } from "next/server";
 import { BOT_USER_ID, botTurn } from "@/lib/engine/bot";
 import { endIfWon } from "@/lib/engine/ending";
 import { nudgeFor, prefetchNudges, refreshTurf } from "@/lib/engine/nudges";
+import { readChat } from "@/lib/engine/reader";
 import { mayClose, shouldNudge, timerSeconds, type PaceState } from "@/lib/engine/pacing";
 import { closeIfAnswered, scoreNudge } from "@/lib/engine/score";
 import { supabaseAdmin } from "@/lib/supabase/admin";
@@ -12,9 +13,10 @@ import type { Nudge, Player, Riff, RiffPhase, TickRequest, TickResponse } from "
 export const maxDuration = 60;
 
 /**
- * Both clients call this every second while chatting. It does three things, each exactly once however many calls
- * race: closes the timer early once both have answered (closeIfAnswered), scores the last nudge when its timer runs
- * out (compare-and-set on scored_at), and pops up the next nudge when it's due (pacing.ts; unique riff_id + number).
+ * Both clients call this every second while chatting. It reads new messages into the chat context (reader.ts), and
+ * does three things, each exactly once however many calls race: closes the timer early once both have answered
+ * (closeIfAnswered), scores the last nudge when its timer runs out (compare-and-set on scored_at), and pops up the
+ * next nudge when it's due (pacing.ts; unique riff_id + number).
  * The first nudge pops up as soon as the chat starts.
  */
 export async function POST(req: Request) {
@@ -79,8 +81,9 @@ export async function POST(req: Request) {
     messages: (recent ?? []).reverse().map((m) => ({ seat: seatOf.get(m.player_id) ?? "A", at: Date.parse(m.created_at) })),
     typing: typing === true,
   };
-  if (lastNudge && mayClose(pace, now)) {
-    const lastAt = pace.messages.at(-1)!.at;
+  const lastAt = pace.messages.at(-1)?.at;
+  if (lastAt) after(() => readChat(riffId, lastAt).catch((e) => console.error("chat reader failed", e)));
+  if (lastNudge && lastAt && mayClose(pace, now)) {
     after(() => closeIfAnswered(riffId, lastNudge, lastAt).catch((e) => console.error("answer judge failed", e)));
   }
   if (!shouldNudge(pace, now)) return reply("chatting", false);

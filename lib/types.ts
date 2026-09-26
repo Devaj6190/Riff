@@ -25,6 +25,21 @@ export type Riff = {
 
 export type RiffSummary = { superlatives: Record<Seat, string> };
 
+/** Engine-only (riff_context): what the chat has revealed so far, kept current as messages come in. */
+export type ChatContext = {
+  notes: Record<Seat, string[]>; // facts, opinions, stories, likes each player has shared
+  thread: { topic: string; open: string[]; callbacks: string[] }; // on right now; unanswered questions; running jokes
+};
+
+/** Engine-only (chat_histories): one player's side of a finished riff, for future pairing. Never shown to users. */
+export type ChatHistorySummary = {
+  recap: string; // the whole chat in 2-3 sentences
+  learned: string[]; // about this player
+  clicked: string[]; // topics that got long, excited back-and-forths
+  died: string[]; // topics that went nowhere
+  misses: string[]; // references or topics this player didn't get, or checked out of
+};
+
 export type Player = {
   id: string;
   riff_id: string;

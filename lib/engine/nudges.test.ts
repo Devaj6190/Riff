@@ -1,6 +1,7 @@
 import { expect, test } from "vitest";
 import type { Player, Template } from "../types";
 import { DEPTH_ARC, depthFor, fillSeed, pickTemplates, writeOrFill, writerFor, type NudgeContext } from "./nudges";
+import { EMPTY_CONTEXT } from "./reader";
 import templates from "./templates.json";
 
 const player = (name: string, interests: string[]) => ({ name, interests, extracted_interests: [] }) as unknown as Player;
@@ -57,6 +58,7 @@ test("a failed model write falls back to a local fill, with a pool image for ima
     depth: 1,
     players: [player("Ana", ["hiking"]), player("Ben", ["travel"])],
     chat: [],
+    known: EMPTY_CONTEXT,
     previousPrompts: [],
     templates: [{ id: "t", kind, tone: "fun", depth: 1, seed: "Best {interest} spot?", tags: [] }],
     turf: null,

@@ -1,8 +1,12 @@
 // Ending (SPEC §3 step 5, §4.6): first to the target score, or a player taps End. Superlatives at the end.
-// The chat stays open after either; a new match restarts the nudges and scores.
+// The chat stays open after either; a new match restarts the nudges and scores. Each end also saves a private
+// summary per player to chat_histories, for pairing people later.
+import { after } from "next/server";
 import { supabaseAdmin } from "../supabase/admin";
-import type { Player, Riff, RiffPhase, RiffSummary, Score, Seat } from "../types";
+import type { ChatHistorySummary, Player, Riff, RiffPhase, RiffSummary, Score, Seat } from "../types";
+import { BOT_USER_ID } from "./bot";
 import { llmJson } from "./llm";
+import { loadChatContext, strings } from "./reader";
 import { SCORE_TIMEOUT_MS } from "./score";
 
 /** Target score: RIFF_TARGET_SCORE (Expo mode = 50), else the riff's own. */
@@ -76,7 +80,10 @@ export async function endRiff(riff: Riff): Promise<RiffPhase> {
     .eq("id", riff.id)
     .neq("phase", "ended")
     .select("id");
-  if (data?.length) await writeSummary(riff.id);
+  if (data?.length) {
+    after(() => saveHistory(riff.id).catch((e) => console.error("chat history failed", e)));
+    await writeSummary(riff.id);
+  }
   return "ended";
 }
 
@@ -91,4 +98,60 @@ export async function restartRiff(riff: Riff): Promise<RiffPhase> {
   const phase: RiffPhase = riff.phase === "lobby" ? "lobby" : "chatting";
   await db.from("riffs").update({ phase, summary: null, ended_at: null }).eq("id", riff.id);
   return phase;
+}
+
+/** Coerce model output into one ChatHistorySummary per seat. */
+export function normalizeHistory(raw: unknown): Record<Seat, ChatHistorySummary> {
+  const o = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
+  const recap = typeof o.recap === "string" ? o.recap.trim().slice(0, 600) : "";
+  const side = (s: Seat): ChatHistorySummary => {
+    const r = (o[s] && typeof o[s] === "object" ? o[s] : {}) as Record<string, unknown>;
+    return { recap, learned: strings(r.learned, 20), clicked: strings(r.clicked, 8), died: strings(r.died, 8), misses: strings(r.misses, 8) };
+  };
+  return { A: side("A"), B: side("B") };
+}
+
+/**
+ * Summarize the whole chat into chat_histories, one row per (real) player. Runs after the response (endRiff), on
+ * every end: a new match in the same riff keeps the chat, so the latest end overwrites with the fuller summary.
+ */
+export async function saveHistory(riffId: string): Promise<void> {
+  const db = supabaseAdmin();
+  const [players, messages, known] = await Promise.all([
+    db.from("players").select("*").eq("riff_id", riffId),
+    db.from("messages").select("player_id, body").eq("riff_id", riffId).order("id", { ascending: false }).limit(400),
+    loadChatContext(riffId),
+  ]);
+  const seated = (players.data ?? []) as Player[];
+  const seat = new Map(seated.map((p) => [p.id, p.seat]));
+  if (!messages.data?.length) return;
+  const summary = normalizeHistory(
+    await llmJson(
+      [
+        "Two people who just met finished a chat. Summarize it for a matchmaker who will pair them with new people later.",
+        "recap: the chat in 2-3 sentences. Per player: learned: facts, opinions, tastes and stories they shared;",
+        "clicked: topics that got long, excited back-and-forths; died: topics that went nowhere;",
+        "misses: references or topics they didn't get, or checked out of (\"didn't know the Succession reference\").",
+        "Short phrases, only what the chat shows. Leave out contact details, addresses and social handles.",
+        'JSON shape: {"recap": s, "A": {"learned": [s], "clicked": [s], "died": [s], "misses": [s]}, "B": {...}}',
+      ].join(" "),
+      JSON.stringify({
+        players: seated.map((p) => ({ seat: p.seat, name: p.name, interests: p.interests })),
+        liveNotes: known,
+        chat: messages.data.reverse().map((m) => `${seat.get(m.player_id) ?? "?"}: ${m.body}`),
+      }),
+      30_000,
+    ),
+  );
+  const rows = seated
+    .filter((p) => p.user_id !== BOT_USER_ID)
+    .map((p) => ({
+      user_id: p.user_id,
+      riff_id: riffId,
+      partner_user_id: seated.find((o) => o.id !== p.id)?.user_id ?? null,
+      summary: summary[p.seat],
+      created_at: new Date().toISOString(),
+    }));
+  const { error } = await db.from("chat_histories").upsert(rows, { onConflict: "user_id,riff_id" });
+  if (error) throw error;
 }

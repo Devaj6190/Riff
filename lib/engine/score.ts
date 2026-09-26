@@ -5,6 +5,7 @@ import { supabaseAdmin } from "../supabase/admin";
 import type { Nudge, Player, ScoreResult, Seat } from "../types";
 import { llmJson } from "./llm";
 import { PACING, timerSeconds } from "./pacing";
+import { loadChatContext } from "./reader";
 
 export const SCORE_TIMEOUT_MS = 12_000;
 
@@ -32,7 +33,7 @@ export function normalizeScore(raw: unknown): ScoreResult {
 /** Score each player's answer to `nudge`. Players who didn't answer get no row. Never throws for model problems. */
 export async function scoreNudge(riffId: string, nudge: Nudge): Promise<void> {
   const db = supabaseAdmin();
-  const [players, answered, before] = await Promise.all([
+  const [players, answered, before, known] = await Promise.all([
     db.from("players").select("*").eq("riff_id", riffId).order("seat"),
     db
       .from("messages")
@@ -42,6 +43,7 @@ export async function scoreNudge(riffId: string, nudge: Nudge): Promise<void> {
       .lte("created_at", nudge.ends_at)
       .order("id"),
     db.from("messages").select("player_id, body").eq("riff_id", riffId).lt("created_at", nudge.created_at).order("id", { ascending: false }).limit(20),
+    loadChatContext(riffId),
   ]);
   const seated = (players.data ?? []) as Player[];
   const name = new Map(seated.map((p) => [p.id, p.name]));
@@ -57,6 +59,8 @@ export async function scoreNudge(riffId: string, nudge: Nudge): Promise<void> {
           "Two people are texting in a chat app. An AI dropped a nudge (a prompt) into their chat and each had a short timer to answer by texting.",
           "Score each player's answer. quality 0-10: specificity, effort, creativity, being real. Opinions are never right or wrong; a bold, specific take beats a safe one.",
           "connection 0-5: tying the answer to the partner or to earlier messages — a callback, a follow-up question, responding to what the partner just said.",
+          "notes has what each player has shared in the whole chat so far (it may already include these answers) and the current thread:",
+          "use it to spot callbacks to things said long ago, and answers that only repeat what they've said before.",
           "Also list up to 2 new interests per player revealed by their answer (short lowercase nouns), or none.",
           'JSON shape: {"A": {"quality": n, "connection": n}, "B": {...}, "new_interests": {"A": [s], "B": [s]}}',
           "If a player didn't answer, give them 0.",
@@ -68,8 +72,10 @@ export async function scoreNudge(riffId: string, nudge: Nudge): Promise<void> {
             seat: p.seat,
             name: p.name,
             interests: [...p.interests, ...p.extracted_interests],
+            notes: known.notes[p.seat],
             answer: answers.get(p.id)!.map((m) => m.body),
           })),
+          thread: known.thread,
           answersInOrder: (answered.data ?? []).map((m) => `${name.get(m.player_id) ?? "?"}: ${m.body}`),
         }),
         SCORE_TIMEOUT_MS,

@@ -14,6 +14,7 @@ const writer: Writer<"text"> = {
         "keep the template's spirit, one prompt both can answer, under 140 characters, casual texting tone. Don't repeat earlier nudges.",
         "Match the depth you're given. If the chat is stalling, make it easy and fun to answer.",
         "In the intro stage, keep it a simple warm introduction: names, where they're from, what they're into.",
+        BONUS_RULE,
         'JSON shape: {"templateId": string, "prompt": string}',
       ].join(" "),
       userMessage(ctx),
@@ -24,10 +25,16 @@ const writer: Writer<"text"> = {
     return { prompt };
   },
 
-  fill: (ctx) => ({ prompt: fillSeed(ctx.templates[0].seed, ctx.players) }),
+  fill: (ctx) => ({ prompt: fillSeed(ctx.templates[0].seed, ctx.players, ctx.turf) }),
 };
 
 export default writer;
+
+/** Bonus mode (bonus.ts): shift the topic toward the trailing player's ground without saying why. */
+export const BONUS_RULE = [
+  "If leanTowards is set, build this nudge around that player's interests and things they've said, so they can answer well;",
+  "it must still be answerable by both. Never mention scores, points, who is ahead or behind, or that the topic was chosen for anyone.",
+].join(" ");
 
 export function userMessage(ctx: NudgeContext): string {
   return JSON.stringify({
@@ -37,6 +44,7 @@ export function userMessage(ctx: NudgeContext): string {
     players: ctx.players.map((p) => ({ name: p.name, interests: [...p.interests, ...p.extracted_interests] })),
     chatSoFar: ctx.chat,
     earlierNudges: ctx.previousPrompts,
+    leanTowards: ctx.turf && { name: ctx.turf.name, interests: [...ctx.turf.interests, ...ctx.turf.extracted_interests] },
     templates: ctx.templates.map((t) => ({ id: t.id, tone: t.tone, seed: t.seed })),
   });
 }

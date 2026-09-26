@@ -26,7 +26,7 @@
 3. **Chat like any messaging app** (think Instagram DMs): either person sends anytime. No rounds, no timers, no result screens.
 4. **Nudges:** the AI pops a **nudge** into the top of the screen with a **countdown**: a text prompt, an image or an audio clip, written for this pair from what they're talking about. Players answer by just texting before the timer runs out.
 5. **Points:** when a nudge's timer runs out, each player's answer is scored (speed + quality + connection) and the points pop in. Ordinary chat earns no points.
-6. **Bonus nudge:** when one player falls behind, the next nudge is on their turf, built from their own words; their answer counts double.
+6. **Bonus mode:** when one player falls behind, the conversation shifts toward their interests: the next nudges are about things they know, so they can answer better.
 7. **End:** first to the target score (100; **Expo mode = 50**), or either player taps End. End screen shows superlatives; they can **keep chatting** (nudges stop) or start a **new match** in the same chat.
 
 **Phase 2** (spec'd now, built later): discovery search → Riff chat → **Moment Card** (shared) + **private feedback** (8 sections) → **recommendations** for who to talk to next → rematch.
@@ -57,14 +57,13 @@ Points come **only from answering nudges**. A player's answer is what they text 
 - **Speed:** 0–5, computed in code, linear from the pop-up to the buzzer (first message counts).
 - **Quality:** 0–10, AI: specificity, effort, creativity, being real. Opinions are never "right" or "wrong."
 - **Connection:** 0–5, AI: tying the answer to the partner or earlier messages: callbacks, follow-ups, responding to the partner.
-- The scorer also returns a **one-line witty reason** per player.
 - ~20 max per nudge → 100 takes ~7–9 nudges. No answer = no points.
 
-### 4.4 Bonus nudge (catch-up)
-- **Trigger:** score gap ≥ **15 + random 0–5**; cooldown of 2 nudges after each Bonus nudge.
-- **Content:** quotes something the trailing player actually said and asks a follow-up on it, drawing on their interests.
-- Trailing player earns **2× points** on their answer to it.
-- **The leader is never called out.** The connection score quietly rewards them for asking follow-ups.
+### 4.4 Bonus mode (catch-up)
+- **Trigger:** while one player trails by **15+** points.
+- **What happens:** the conversation shifts toward the trailing player. Nudges are written around their interests and things they've said. Example: Sam likes gaming, Alex likes movies, Alex is winning → the nudges turn game-heavy, so Sam can answer better and is encouraged to.
+- Both players still answer every nudge, and scoring is unchanged. It switches off once the gap closes.
+- **Nobody is called out.** Nudges never mention scores or who the topic is for.
 
 ### 4.5 Pacing (follow the flow)
 - **Intro nudge** right away when the chat starts.
@@ -96,7 +95,7 @@ Points come **only from answering nudges**. A player's answer is what they text 
 The AI:
 1. **Writes each nudge** from the live chat, both players' interests and the current depth level.
 2. **Scores the conversation** for quality and connection — no rule-based system can score "Sharknado 3, unironically."
-3. **Builds the Bonus nudge** from what the trailing player actually said.
+3. **Shifts the conversation in bonus mode** toward the trailing player's interests and what they've said.
 4. **Generates the images** for image nudges.
 
 **What's learned, honestly:** in the MVP, interests are extracted in-context from the conversation during the chat — not a trained model. The **Phase 2 bandit** (§7) adds real per-pair learning.
@@ -109,7 +108,7 @@ The AI:
 | Job | Primary | Fallback |
 |---|---|---|
 | Nudge writing, superlatives | **Muse Spark 1.3** via OpenAI SDK → Meta Model API (~5–8 s; hidden by writing ahead) | Grok, automatically on error |
-| Scoring answers, Bonus nudge (time-boxed) | **Grok** (~1 s) | Muse Spark, automatically on error |
+| Scoring answers (time-boxed) | **Grok** (~1 s) | Muse Spark, automatically on error |
 | Images | **Muse Image** (`muse-image-1.0`, $0.01/image, ~12–19 s; written 2 nudges ahead) | Grok Imagine (~25 s), then the pre-generated tagged pool |
 | Speech-to-text (voice messages) | Grok STT | Type instead |
 | Meme audio | `/public/clips` + `clips.json` (file, tags, answer, **license, source URL**) | Skip the kind |
@@ -120,7 +119,7 @@ The AI:
 **Nudge clock:** there's no server clock. While chatting, **both clients call `/api/tick` every few seconds**; it scores the last nudge once its timer has run out (compare-and-set on `scored_at`), and asks `shouldNudge()` (§4.5) whether to show the next one (`unique (riff_id, number)` on `nudges`). Concurrent ticks are no-ops.
 
 **Routes:**
-- `/api/tick` — when a timer runs out, in the background: score the answers, end the game if someone reached the target, maybe queue a Bonus nudge. When the next nudge is due: promote it from `queued_nudges` (text 1 ahead, image 2 ahead) or fill a template locally, so it never waits on a model, stamp its timer, and write the next ones ahead.
+- `/api/tick` — when a timer runs out, in the background: score the answers, end the game if someone reached the target, and rewrite the next queued nudge if bonus mode switched on, off or to the other player. When the next nudge is due: promote it from `queued_nudges` (text 1 ahead, image 2 ahead) or fill a template locally, so it never waits on a model, stamp its timer, and write the next ones ahead.
 - `/api/end` — end now, or start a new match (chat kept).
 - `/api/image`, `/api/transcribe`.
 
@@ -128,8 +127,8 @@ The AI:
 
 **Scorer output (JSON):**
 ```json
-{ "A": {"quality": 8, "connection": 3, "reason": "committing to Sharknado 3 is brave"},
-  "B": {"quality": 4, "connection": 0, "reason": "safe pick. why Inception?"},
+{ "A": {"quality": 8, "connection": 3},
+  "B": {"quality": 4, "connection": 0},
   "new_interests": {"B": ["minecraft"]} }
 ```
 
@@ -142,7 +141,7 @@ The AI:
 2. Real-time chat (Instagram-DM feel)
 3. Intro nudges, text nudges + flow-aware pacing
 4. Nudge timers + answer scoring + points pop + ending + end screen (keep chatting / new match)
-5. Bonus nudge
+5. Bonus mode
 6. Image nudges
 7. Voice messages
 8. Audio nudges (meme clips)
@@ -166,13 +165,13 @@ If time runs short, cut from the bottom of this list.
 **Video (~2:30), story order:**
 1. **0:00–0:20 Hook:** "Everyone solves the first message. Nobody solves the second." Dead chat: "hey" → "hey" → silence.
 2. **0:20–0:35 Find:** discovery if built; otherwise sending a riff link.
-3. **0:35–1:55 Play:** two phones side by side, chatting normally. The chat stalls → a text nudge pops in → an image nudge sparks an argument → **Bonus nudge rescue**: Sam falls behind, Riff quotes something Sam said earlier, Sam catches up, Alex's follow-up earns connection points.
+3. **0:35–1:55 Play:** two phones side by side, chatting normally. The chat stalls → a text nudge pops in → an image nudge sparks an argument → **Bonus mode rescue**: Sam (gaming) falls behind Alex (movies), the nudges turn to games, Sam catches up, Alex's follow-up earns connection points.
 4. **1:55–2:15 After:** end screen; feedback and recommendations **only if they're real.**
 5. **2:15–2:30 Why AI + vision:** "AI isn't your friend here — it's the referee between two humans."
 
 **Expo, live:** hand two phones to two judges, Expo mode (first to 50), let them chat. Keep a backup recording.
 
-**The one moment to remember:** the Bonus nudge quoting the trailing player's own words back to them.
+**The one moment to remember:** the conversation quietly shifting onto the trailing player's turf, and them catching up.
 
 ## 9. Risks & open questions
 - **Muse Spark:** latency and JSON-schema support. It's a reasoning model and may be slow. Test first; fallback is an env-var swap.
@@ -182,7 +181,7 @@ If time runs short, cut from the bottom of this list.
 - **Domain prize:** which challenge offers it? Ask at the opening ceremony.
 - **SpaceXAI:** confirm the "built with Cursor" requirement fits your workflow.
 - **CastChat:** closest existing app (matches strangers into voice chat with mini-games). Know how Riff differs.
-- **AI scoring fairness:** the scorer's reason must always explain the score, so a low score reads as feedback, not an insult.
+- **AI scoring fairness:** scores come without explanations, so they must feel consistent; playtest the scorer.
 
 ## 10. Vision (Create-X / write-up)
 Riff becomes **the layer for everything after hello**:

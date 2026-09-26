@@ -1,23 +1,18 @@
 import { expect, test } from "vitest";
 import type { Player } from "../types";
-import { fillBonus, shouldBonus } from "./bonus";
+import { BONUS_GAP, turfFor } from "./bonus";
 
-const sam = { name: "Sam", interests: ["climbing"], extracted_interests: [] } as unknown as Player;
+const sam = { id: "sam", seat: "A", interests: ["gaming"] } as unknown as Player;
+const alex = { id: "alex", seat: "B", interests: ["movies"] } as unknown as Player;
+const totals = (a: number, b: number) => new Map([["sam", a], ["alex", b]]);
 
-test("trigger: gap of at least 15 + jitter", () => {
-  expect(shouldBonus(14, 0, 4, null)).toBe(false);
-  expect(shouldBonus(15, 0, 4, null)).toBe(true);
-  expect(shouldBonus(19, 5, 4, null)).toBe(false);
-  expect(shouldBonus(20, 5, 4, null)).toBe(true);
+test("nudges lean toward the trailing player once the gap reaches BONUS_GAP", () => {
+  expect(turfFor([sam, alex], totals(10, 10 + BONUS_GAP - 1))).toBeNull();
+  expect(turfFor([sam, alex], totals(10, 10 + BONUS_GAP))).toBe(sam);
+  expect(turfFor([sam, alex], totals(10 + BONUS_GAP, 10))).toBe(alex);
 });
 
-test("cooldown: the 2 nudges after a Bonus nudge can't be one", () => {
-  expect(shouldBonus(30, 0, 6, 5)).toBe(false);
-  expect(shouldBonus(30, 0, 7, 5)).toBe(false);
-  expect(shouldBonus(30, 0, 8, 5)).toBe(true);
-});
-
-test("local fill quotes the player's own words, else leans on an interest", () => {
-  expect(fillBonus(sam, ["I once slept on a glacier"])).toContain('Sam said "I once slept on a glacier"');
-  expect(fillBonus(sam, [])).toContain("climbing");
+test("no bonus mode before scores exist or with one player", () => {
+  expect(turfFor([sam, alex], new Map())).toBeNull();
+  expect(turfFor([sam], totals(0, 50))).toBeNull();
 });

@@ -2,6 +2,8 @@
 // so a nudge never waits on a model when it pops up.
 import { supabaseAdmin } from "../supabase/admin";
 import type { Depth, NudgeKind, NudgePayloads, Player, QueuedNudge, Seat, Template } from "../types";
+import { turfFor } from "./bonus";
+import { totalsByPlayer } from "./ending";
 import { PACING } from "./pacing";
 import allTemplates from "./templates.json";
 
@@ -16,6 +18,7 @@ export type NudgeContext = {
   chat: string[]; // "Name: message", oldest first
   previousPrompts: string[];
   templates: Template[]; // shortlist for this kind and depth
+  turf: Player | null; // bonus mode (bonus.ts): lean this nudge toward this player's interests
 };
 
 /**
@@ -57,9 +60,9 @@ export function pickTemplates(templates: Template[], riffId: string, number: num
   return rotated.filter((t) => t.kind === rotated[0].kind).slice(0, 4);
 }
 
-/** Replace `{interest}` with one of the pair's interests. */
-export function fillSeed(seed: string, players: Player[]): string {
-  const interests = players.flatMap((p) => [...p.interests, ...p.extracted_interests]);
+/** Replace `{interest}` with one of the pair's interests, or the bonus-mode player's when there is one. */
+export function fillSeed(seed: string, players: Player[], turf: Player | null = null): string {
+  const interests = (turf ? [turf] : players).flatMap((p) => [...p.interests, ...p.extracted_interests]);
   const pick = interests[Math.floor(Math.random() * interests.length)] ?? "your favourite hobby";
   return seed.replaceAll("{interest}", pick);
 }
@@ -81,11 +84,12 @@ async function playableTemplates(): Promise<Template[]> {
 
 async function loadContext(riffId: string, number: number): Promise<NudgeContext> {
   const db = supabaseAdmin();
-  const [players, messages, nudges, scores] = await Promise.all([
+  const [players, messages, nudges, scores, totals] = await Promise.all([
     db.from("players").select("*").eq("riff_id", riffId).order("seat"),
     db.from("messages").select("player_id, body").eq("riff_id", riffId).order("created_at", { ascending: false }).limit(40),
     db.from("nudges").select("payload").eq("riff_id", riffId).order("number"),
     db.from("scores").select("player_id, connection").eq("riff_id", riffId).gt("connection", 0),
+    totalsByPlayer(riffId),
   ]);
   const seated = (players.data ?? []) as Player[];
   const name = new Map(seated.map((p) => [p.id, p.name]));
@@ -98,6 +102,7 @@ async function loadContext(riffId: string, number: number): Promise<NudgeContext
     chat: (messages.data ?? []).reverse().map((m) => `${name.get(m.player_id) ?? "?"}: ${m.body}`),
     previousPrompts: (nudges.data ?? []).map((n) => n.payload?.prompt).filter((p): p is string => typeof p === "string"),
     templates: pickTemplates(await playableTemplates(), riffId, number, depth),
+    turf: isIntro(number) ? null : turfFor(seated, totals),
   };
 }
 
@@ -112,8 +117,10 @@ export async function nudgeFor(riffId: string, number: number): Promise<PlannedN
   if (data) return { kind: data.kind, depth: data.depth, payload: data.payload, is_bonus: data.is_bonus, for_seat: data.for_seat };
   const ctx = await loadContext(riffId, number);
   const writer = (await writerFor(ctx.templates[0].kind))!;
-  return { kind: ctx.templates[0].kind, depth: ctx.depth, payload: writer.fill(ctx), is_bonus: false, for_seat: null };
+  return { kind: ctx.templates[0].kind, depth: ctx.depth, payload: writer.fill(ctx), ...bonusFields(ctx) };
 }
+
+const bonusFields = (ctx: NudgeContext) => ({ is_bonus: !!ctx.turf, for_seat: ctx.turf?.seat ?? null });
 
 /** Write with the model; fall back to a local fill on any failure or timeout. */
 export async function writeOrFill(writer: Writer, ctx: NudgeContext): Promise<NudgePayloads[NudgeKind]> {
@@ -137,15 +144,36 @@ export async function prefetchNudges(riffId: string, current: number): Promise<v
         .eq("riff_id", riffId)
         .eq("for_number", number);
       if (count) return;
-      const ctx = await loadContext(riffId, number);
-      const kind = ctx.templates[0].kind;
-      const writer = (await writerFor(kind))!;
-      if (writer.lead < ahead) return;
-      const payload = await writeOrFill(writer, ctx);
-      const { error } = await db.from("queued_nudges").insert({ riff_id: riffId, for_number: number, kind, depth: ctx.depth, payload });
-      if (error && error.code !== "23505") throw error; // 23505: a concurrent prefetch or a Bonus nudge got this slot
+      await writeSlot(riffId, await loadContext(riffId, number), ahead);
     }),
   );
+}
+
+/**
+ * Run once nudge `current` is scored. If bonus mode just switched on, off or to the other player, rewrite the next
+ * queued nudge so the conversation shifts now rather than a nudge later. Too slow → nudgeFor fills it locally.
+ */
+export async function refreshTurf(riffId: string, current: number): Promise<void> {
+  const db = supabaseAdmin();
+  const number = current + 1;
+  const [{ data: queued }, ctx] = await Promise.all([
+    db.from("queued_nudges").select("for_seat").eq("riff_id", riffId).eq("for_number", number).maybeSingle(),
+    loadContext(riffId, number),
+  ]);
+  if (queued && queued.for_seat === (ctx.turf?.seat ?? null)) return;
+  if (queued) await db.from("queued_nudges").delete().eq("riff_id", riffId).eq("for_number", number);
+  await writeSlot(riffId, ctx, 1);
+}
+
+async function writeSlot(riffId: string, ctx: NudgeContext, ahead: 1 | 2): Promise<void> {
+  const kind = ctx.templates[0].kind;
+  const writer = (await writerFor(kind))!;
+  if (writer.lead < ahead) return;
+  const payload = await writeOrFill(writer, ctx);
+  const { error } = await supabaseAdmin()
+    .from("queued_nudges")
+    .insert({ riff_id: riffId, for_number: ctx.number, kind, depth: ctx.depth, payload, ...bonusFields(ctx) });
+  if (error && error.code !== "23505") throw error; // 23505: a concurrent write got this slot first
 }
 
 function hash(s: string): number {

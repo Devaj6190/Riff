@@ -1,7 +1,6 @@
 import { after } from "next/server";
-import { maybeBonus } from "@/lib/engine/bonus";
 import { endIfWon } from "@/lib/engine/ending";
-import { nudgeFor, prefetchNudges } from "@/lib/engine/nudges";
+import { nudgeFor, prefetchNudges, refreshTurf } from "@/lib/engine/nudges";
 import { shouldNudge, timerSeconds } from "@/lib/engine/pacing";
 import { scoreNudge } from "@/lib/engine/score";
 import { supabaseAdmin } from "@/lib/supabase/admin";
@@ -38,8 +37,8 @@ export async function POST(req: Request) {
   const lastNudge = last.data;
   const now = Date.now();
 
-  // Timer ran out: score the answers, then end the game if someone reached the target, else maybe queue a Bonus
-  // nudge for the trailing player. The breather after a timer (pacing.ts) gives this time to land.
+  // Timer ran out: score the answers, then end the game if someone reached the target, else switch bonus mode
+  // (nudges lean toward the trailing player) if the scores call for it. The breather after a timer gives this time.
   if (lastNudge && !lastNudge.scored_at && now >= Date.parse(lastNudge.ends_at)) {
     const { data: claimed } = await db
       .from("nudges")
@@ -51,7 +50,7 @@ export async function POST(req: Request) {
       after(async () => {
         try {
           await scoreNudge(riffId, lastNudge);
-          if (!(await endIfWon(riffId))) await maybeBonus(riffId, lastNudge.number);
+          if (!(await endIfWon(riffId))) await refreshTurf(riffId, lastNudge.number);
         } catch (e) {
           console.error("score/bonus failed", e);
         }

@@ -40,6 +40,11 @@ test("fillSeed puts one of the pair's interests into the template", () => {
   expect(fillSeed("What {interest} hot take?", [player("Ana", ["chess"])])).toBe("What chess hot take?");
 });
 
+test("bonus mode: fills use only the trailing player's interests", () => {
+  const gamer = player("Sam", ["gaming"]);
+  for (let i = 0; i < 20; i++) expect(fillSeed("{interest}?", [player("Alex", ["movies"]), gamer], gamer)).toBe("gaming?");
+});
+
 test("writers are dispatched per kind by file; missing ones are skipped", async () => {
   expect((await writerFor("text"))?.lead).toBe(1);
   expect((await writerFor("image"))?.lead).toBe(2);
@@ -54,6 +59,7 @@ test("a failed model write falls back to a local fill, with a pool image for ima
     chat: [],
     previousPrompts: [],
     templates: [{ id: "t", kind, tone: "fun", depth: 1, seed: "Best {interest} spot?", tags: [] }],
+    turf: null,
   });
   const failing = async (kind: "text" | "image") => ({ ...(await writerFor(kind))!, write: () => Promise.reject(new Error("timeout")) });
   expect(await writeOrFill(await failing("text"), ctx("text"))).toEqual({ prompt: expect.stringMatching(/^Best (hiking|travel) spot\?$/) });

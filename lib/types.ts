@@ -50,7 +50,7 @@ type NudgeBase = {
   number: number; // 1, 2, 3… in the order shown
   depth: Depth;
   is_bonus: boolean;
-  for_seat: Seat | null; // Bonus nudge: whose turf. Null = both players.
+  for_seat: Seat | null; // bonus mode: the trailing player this nudge leans toward. Null = neither.
   created_at: string; // when it popped up
   ends_at: string; // its countdown: what each player texts before this is their answer
   scored_at: string | null; // set once the answers are scored, when the timer runs out
@@ -76,9 +76,7 @@ export type Score = {
   speed: number; // 0–5, how fast their first message came after the nudge popped up
   quality: number; // 0–10
   connection: number; // 0–5, ties to the partner and to earlier messages
-  multiplier: 1 | 2; // 2 on a Bonus nudge for its player
-  total: number; // (speed + quality + connection) * multiplier, computed by the DB
-  reason: string | null;
+  total: number; // speed + quality + connection, computed by the DB
   created_at: string;
 };
 
@@ -130,6 +128,6 @@ export type Template = {
 };
 
 /** What the scorer returns for one nudge's answers (SPEC §6). Speed is computed in code. */
-export type ScoreResult = Record<Seat, { quality: number; connection: number; reason: string }> & {
+export type ScoreResult = Record<Seat, { quality: number; connection: number }> & {
   new_interests: Partial<Record<Seat, string[]>>;
 };

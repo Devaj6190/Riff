@@ -56,6 +56,8 @@ export function GameScreen({ me, riff, players }: Props) {
       setAnswerError("Answer didn't send");
       return;
     }
+    // The second answer ends the round early; the engine no-ops if the partner hasn't answered yet.
+    callApi<AdvanceResponse>("/api/advance", { riffId: snap.riff.id } satisfies AdvanceRequest).catch(() => {});
     await reload();
   }
 

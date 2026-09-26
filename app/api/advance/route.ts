@@ -51,6 +51,17 @@ export async function POST(req: Request) {
   if (updateError) throw updateError;
   if (!won?.length) return reply(riff.phase, false);
 
+  // A round that ended early must close now: partners' answers become readable (RLS) once rounds.ends_at passes.
+  if (riff.phase === "round_active") {
+    const { error: closeError } = await db
+      .from("rounds")
+      .update({ ends_at: new Date().toISOString() })
+      .eq("riff_id", riffId)
+      .eq("number", riff.round_number)
+      .gt("ends_at", new Date().toISOString());
+    if (closeError) throw closeError;
+  }
+
   // If this insert fails the riff sits in round_active without a round; its deadline still passes, so it recovers.
   if (startsRound) {
     const { error: roundError } = await db

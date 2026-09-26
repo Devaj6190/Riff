@@ -24,3 +24,56 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@keyframes riff-drop {
+  from {
+    transform: translateY(-1.25rem);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@keyframes riff-bonus {
+  from {
+    transform: scale(0.92);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@keyframes riff-pop {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.riff-drop {
+  animation: riff-drop 0.45s ease-out;
+}
+
+.riff-bonus {
+  animation: riff-bonus 0.55s ease-out;
+}
+
+.riff-pop {
+  animation: riff-pop 0.4s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .riff-drop,
+  .riff-bonus,
+  .riff-pop {
+    animation: none;
+  }
+}

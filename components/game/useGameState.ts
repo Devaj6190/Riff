@@ -3,17 +3,17 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { subscribeToRiff } from "@/lib/supabase/realtime";
-import type { Answer, Player, Riff, Round, Score } from "@/lib/types";
+import type { Nudge, Player, Riff, Score } from "@/lib/types";
 
 export type GameSnapshot = {
   riff: Riff;
   players: Player[];
-  rounds: Round[];
-  answers: Answer[];
+  nudges: Nudge[]; // by number
   scores: Score[];
+  loaded: boolean; // false until the first full load, so existing scores don't pop in as new
 };
 
-const LIVE_TABLES = ["players", "rounds", "answers", "scores"] as const;
+const LIVE_TABLES = ["players", "nudges", "scores"] as const;
 
 /**
  * Live riff state. Child tables load in `subscribeToRiff`'s `onReady`.
@@ -21,30 +21,23 @@ const LIVE_TABLES = ["players", "rounds", "answers", "scores"] as const;
  * with the same ready-then-load rule.
  */
 export function useGameState(riffId: string, initial: { riff: Riff; players: Player[] }) {
-  const [snap, setSnap] = useState<GameSnapshot>({
-    riff: initial.riff,
-    players: initial.players,
-    rounds: [],
-    answers: [],
-    scores: [],
-  });
+  const [snap, setSnap] = useState<GameSnapshot>({ ...initial, nudges: [], scores: [], loaded: false });
 
   const reload = useCallback(async () => {
     const db = supabase();
-    const [riffRes, playersRes, roundsRes, answersRes, scoresRes] = await Promise.all([
+    const [riffRes, playersRes, nudgesRes, scoresRes] = await Promise.all([
       db.from("riffs").select("*").eq("id", riffId).maybeSingle<Riff>(),
       db.from("players").select("*").eq("riff_id", riffId).order("seat"),
-      db.from("rounds").select("*").eq("riff_id", riffId).order("number"),
-      db.from("answers").select("*").eq("riff_id", riffId),
-      db.from("scores").select("*").eq("riff_id", riffId),
+      db.from("nudges").select("*").eq("riff_id", riffId).order("number"),
+      db.from("scores").select("*").eq("riff_id", riffId).order("created_at"),
     ]);
     if (!riffRes.data) return;
     setSnap({
       riff: riffRes.data,
       players: (playersRes.data ?? []) as Player[],
-      rounds: (roundsRes.data ?? []) as Round[],
-      answers: (answersRes.data ?? []) as Answer[],
+      nudges: (nudgesRes.data ?? []) as Nudge[],
       scores: (scoresRes.data ?? []) as Score[],
+      loaded: true,
     });
   }, [riffId]);
 

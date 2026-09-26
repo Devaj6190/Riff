@@ -18,14 +18,14 @@ async function fetchView(code: string): Promise<View> {
     const user = await ensureSignedIn();
     const db = supabase();
     const { data: riff } = await db.from("riffs").select("*").eq("code", code.toUpperCase()).maybeSingle<Riff>();
-    if (!riff) return { status: "error", message: "Riff not found" };
+    if (!riff) return { status: "error", message: "Chat not found" };
     // RLS only returns players to members, so an empty list means we haven't joined yet.
     const { data } = await db.from("players").select("*").eq("riff_id", riff.id).order("seat");
     const players = (data ?? []) as Player[];
     const me = players.find((p) => p.user_id === user.id);
     return me ? { status: "in", riff, me, players } : { status: "join", riff };
   } catch (err) {
-    return { status: "error", message: err instanceof Error ? err.message : "Couldn't load the riff" };
+    return { status: "error", message: err instanceof Error ? err.message : "Couldn't load the chat" };
   }
 }
 
@@ -51,7 +51,7 @@ export default function RiffPage() {
   if (view.status === "join") {
     return (
       <main className="mx-auto flex w-full max-w-md flex-col gap-4 px-4 py-10">
-        <h1 className="text-2xl font-bold">Join riff {view.riff.code}</h1>
+        <h1 className="text-2xl font-bold">Join chat {view.riff.code}</h1>
         <ProfileForm submitLabel="Join" initial={loadProfile()} onSubmit={join} />
       </main>
     );

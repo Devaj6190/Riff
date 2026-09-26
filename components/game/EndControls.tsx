@@ -49,7 +49,7 @@ export function EndControls({ riffId, me, partner }: { riffId: string; me: Playe
     try {
       await endRiff(riffId, "end");
     } catch {
-      setNotice("Couldn't end the game");
+      setNotice("Couldn't end the match");
     } finally {
       setBusy(false);
       setOpen(false);
@@ -59,7 +59,7 @@ export function EndControls({ riffId, me, partner }: { riffId: string; me: Playe
 
   return (
     <>
-      <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="h-11 rounded-lg border border-current/20 px-3 text-sm">
+      <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="h-11 shrink-0 px-2 text-sm font-semibold text-primary">
         End
       </button>
       {(open || incoming || notice) && (
@@ -67,7 +67,7 @@ export function EndControls({ riffId, me, partner }: { riffId: string; me: Playe
           {open && (
             <div className="flex gap-2 rounded-2xl border border-current/15 bg-background p-3 shadow-lg">
               <button type="button" onClick={end} disabled={busy} className="h-11 flex-1 rounded-lg bg-primary font-semibold text-primary-foreground disabled:opacity-40">
-                End game now
+                End match
               </button>
               <button
                 type="button"
@@ -85,7 +85,7 @@ export function EndControls({ riffId, me, partner }: { riffId: string; me: Playe
           )}
           {incoming && (
             <div className="riff-pop flex flex-col gap-2 rounded-2xl border border-current/15 bg-background p-3 shadow-lg">
-              <p className="font-semibold">{partner?.name ?? "Your partner"} suggests ending the game</p>
+              <p className="font-semibold">{partner?.name ?? "Your partner"} wants to end the match</p>
               <div className="flex gap-2">
                 <button type="button" onClick={end} disabled={busy} className="h-11 flex-1 rounded-lg bg-primary font-semibold text-primary-foreground disabled:opacity-40">
                   End it

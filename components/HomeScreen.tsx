@@ -19,7 +19,7 @@ const PEOPLE: (Profile & { school: string })[] = [
 const chip = (on: boolean) =>
   `h-9 shrink-0 rounded-full px-4 text-sm ${on ? "bg-primary text-primary-foreground" : "bg-muted"}`;
 
-function Avatar({ name }: { name: string }) {
+export function Avatar({ name }: { name: string }) {
   return (
     <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
       {name.slice(0, 1).toUpperCase()}
@@ -60,7 +60,7 @@ export function HomeScreen() {
       if (error) throw new Error(error.message);
       router.push(`/r/${data}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Couldn't start a riff");
+      setError(err instanceof Error ? err.message : "Couldn't start a chat");
       setBusy(false);
     }
   }
@@ -83,7 +83,7 @@ export function HomeScreen() {
 
           <section className="flex flex-col gap-3">
             <button onClick={startRiff} disabled={busy} className="h-12 rounded-full bg-primary font-semibold text-primary-foreground disabled:opacity-40">
-              {busy ? "…" : "Start a riff"}
+              {busy ? "…" : "Start a chat"}
             </button>
             <form
               onSubmit={(e) => {
@@ -98,7 +98,7 @@ export function HomeScreen() {
                 maxLength={4}
                 placeholder="Have a code? ABCD"
                 autoCapitalize="characters"
-                aria-label="Riff code"
+                aria-label="Chat code"
                 className="h-12 min-w-0 flex-1 rounded-full bg-muted px-5 font-mono tracking-widest placeholder:font-sans placeholder:tracking-normal"
               />
               <button type="submit" disabled={code.length !== 4} className="h-12 rounded-full px-5 font-semibold text-primary disabled:opacity-40">

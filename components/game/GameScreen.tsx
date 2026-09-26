@@ -21,9 +21,9 @@ export function GameScreen({ me, riff, players }: Props) {
   const [sending, setSending] = useState(false);
 
   useEffect(() => {
-    if (snap.riff.phase !== "round_result") return;
-    navigator.vibrate?.(30);
-  }, [snap.riff.phase, round?.id]);
+    if (snap.riff.phase === "round_result") navigator.vibrate?.(30);
+    if (snap.riff.phase === "round_active" && round?.is_bonus) navigator.vibrate?.([60, 80, 60, 80, 120]);
+  }, [snap.riff.phase, round?.id, round?.is_bonus]);
 
   const partner = snap.players.find((p) => p.id !== me.id);
   const myAnswer = round ? snap.answers.find((a) => a.round_id === round.id && a.player_id === me.id) : undefined;
@@ -211,7 +211,10 @@ function ActiveRound({
         <Countdown deadline={round.ends_at} />
       </div>
       {round.is_bonus && (
-        <p className="px-4 pt-2 font-semibold">{turfName ? `🎁 Bonus Round — ${turfName}'s turf` : "🎁 Bonus Round"}</p>
+        <div className="riff-bonus-banner mx-4 mt-3 rounded-2xl px-4 py-3 text-black">
+          <p className="text-lg font-bold">{turfName ? `🎁 Bonus Round — ${turfName}'s turf` : "🎁 Bonus Round"}</p>
+          <p className="text-sm font-semibold opacity-80">{turfName ? `2× points for ${turfName} this round` : "2× points this round"}</p>
+        </div>
       )}
       <AnswerSlot round={round} submitted={submitted} busy={busy} error={error} onSubmit={onSubmit} />
     </section>

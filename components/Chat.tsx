@@ -6,10 +6,10 @@ import { supabase } from "@/lib/supabase/client";
 import { subscribeToRiff } from "@/lib/supabase/realtime";
 import type { Message, Player } from "@/lib/types";
 
-type Props = { riffId: string; me: Player; onTyping?: (typing: boolean) => void };
+type Props = { riffId: string; me: Player; onTyping?: (typing: boolean) => void; partnerTyping?: boolean };
 
 /** Real-time DM thread. History loads once the subscription is live, so nothing sent in between is lost. */
-export function Chat({ riffId, me, onTyping }: Props) {
+export function Chat({ riffId, me, onTyping, partnerTyping }: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +37,7 @@ export function Chat({ riffId, me, onTyping }: Props) {
 
   useEffect(() => {
     bottom.current?.scrollIntoView({ block: "end" }); // returns a Promise in newer browsers; must not be the cleanup
-  }, [messages]);
+  }, [messages, partnerTyping]);
 
   async function post(body: string) {
     const { error } = await supabase().from("messages").insert({ riff_id: riffId, player_id: me.id, body });
@@ -74,6 +74,7 @@ export function Chat({ riffId, me, onTyping }: Props) {
             </li>
           );
         })}
+        {partnerTyping && <li className="mt-3 self-start animate-pulse rounded-3xl bg-muted px-4 py-2 opacity-70">typing…</li>}
         <div ref={bottom} />
       </ul>
       {error && <p className="px-4 pb-1 text-sm text-red-500">{error}</p>}

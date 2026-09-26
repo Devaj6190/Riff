@@ -25,7 +25,7 @@ export function GameScreen({ me, riff, players }: Props) {
   const pops = useScorePops(snap.scores, snap.loaded);
   const [keptFor, setKeptFor] = useState<string | null>(null); // "Keep chatting" hides the end screen for this ending only
   const [restartError, setRestartError] = useState<string | null>(null);
-  const { isTyping, onTyping } = useTyping(snap.riff.id);
+  const { isTyping, onTyping, partnerTyping } = useTyping(snap.riff.id);
   useTick(snap.riff.id, phase === "chatting", reload, isTyping);
 
   const nameOf = (id: string) => (id === me.id ? "You" : (snap.players.find((p) => p.id === id)?.name ?? "?"));
@@ -83,7 +83,7 @@ export function GameScreen({ me, riff, players }: Props) {
       ) : (
         <>
           {phase === "chatting" && nudge && <NudgeBanner key={nudge.id} nudge={nudge} />}
-          <Chat riffId={snap.riff.id} me={me} onTyping={onTyping} />
+          <Chat riffId={snap.riff.id} me={me} onTyping={onTyping} partnerTyping={partnerTyping} />
         </>
       )}
 
@@ -236,23 +236,31 @@ function EndScreen({
 /**
  * Whether either player is typing, for pacing (the next nudge waits while someone's mid-message). My keystrokes are
  * shared over a Realtime broadcast, at most once a second; sending or clearing the message stops it straight away.
+ * `partnerTyping` drives the "typing…" bubble; it wears off if their keystrokes stop without a send.
  */
 function useTyping(riffId: string) {
   const mine = useRef(0); // last keystroke, ms; 0 = not typing
   const theirs = useRef(0);
   const sentAt = useRef(0);
   const channel = useRef<RealtimeChannel | null>(null);
+  const [partnerTyping, setPartnerTyping] = useState(false);
+  const wearOff = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
     const db = supabase();
     const ch = db
       .channel(`typing:${riffId}`)
       .on("broadcast", { event: "typing" }, ({ payload }) => {
-        theirs.current = payload?.typing ? Date.now() : 0;
+        const typing = !!payload?.typing;
+        theirs.current = typing ? Date.now() : 0;
+        setPartnerTyping(typing);
+        clearTimeout(wearOff.current);
+        if (typing) wearOff.current = setTimeout(() => setPartnerTyping(false), PACING.typingSeconds * 1000);
       })
       .subscribe();
     channel.current = ch;
     return () => {
+      clearTimeout(wearOff.current);
       void db.removeChannel(ch);
     };
   }, [riffId]);
@@ -266,7 +274,7 @@ function useTyping(riffId: string) {
   }, []);
 
   const isTyping = useCallback(() => Date.now() - Math.max(mine.current, theirs.current) < PACING.typingSeconds * 1000, []);
-  return { isTyping, onTyping };
+  return { isTyping, onTyping, partnerTyping };
 }
 
 /** While chatting, ask the server every second whether a nudge is due. It decides; this just keeps the clock going. */

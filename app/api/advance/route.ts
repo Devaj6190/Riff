@@ -1,4 +1,5 @@
 import { after } from "next/server";
+import { maybeBonus } from "@/lib/engine/bonus";
 import { nextPhase, phaseSeconds } from "@/lib/engine/clock";
 import { isGameOver, targetScore, totals, writeSummary } from "@/lib/engine/ending";
 import { judgeRound } from "@/lib/engine/judge";
@@ -95,7 +96,12 @@ export async function POST(req: Request) {
       .gt("ends_at", new Date().toISOString());
     if (closeError) throw closeError;
     // Scores land during round_result; the compare-and-set above guarantees one judge per round.
-    after(() => judgeRound(riffId, riff.round_number).catch((e) => console.error("judge failed", e)));
+    // A Bonus Round needs this round's scores; it's written during the result + talk window (≥ 26 s).
+    after(() =>
+      judgeRound(riffId, riff.round_number)
+        .then(() => maybeBonus(riffId, riff.round_number))
+        .catch((e) => console.error("judge/bonus failed", e)),
+    );
   }
 
   if (to === "ended") after(() => writeSummary(riffId).catch((e) => console.error("summary failed", e)));

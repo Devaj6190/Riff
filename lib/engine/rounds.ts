@@ -1,7 +1,7 @@
 // Round writing (SPEC §4.1, §4.2, §6). Rounds are written ahead into `queued_rounds` and promoted by /api/advance,
 // so a round never waits on a model call when it starts.
 import { supabaseAdmin } from "../supabase/admin";
-import type { Depth, Mechanic, Player, QueuedRound, RoundPayloads, Template } from "../types";
+import type { Depth, Mechanic, Player, QueuedRound, RoundPayloads, Seat, Template } from "../types";
 import allTemplates from "./templates.json";
 
 const TEMPLATES = allTemplates as Template[];
@@ -27,7 +27,7 @@ export type Writer<M extends Mechanic = Mechanic> = {
   fill(ctx: RoundContext): RoundPayloads[M]; // local template fill, instant
 };
 
-export type PlannedRound = { mechanic: Mechanic; depth: Depth; payload: RoundPayloads[Mechanic] };
+export type PlannedRound = { mechanic: Mechanic; depth: Depth; payload: RoundPayloads[Mechanic]; is_bonus: boolean; bonus_seat: Seat | null };
 
 /** SPEC §4.2. ponytail: "depth 2 earlier if talk windows are lively" skipped until talk scoring (#5) exists. */
 export function depthFor(number: number, bothConnected: boolean): Depth {
@@ -99,10 +99,13 @@ export async function roundFor(riffId: string, number: number): Promise<PlannedR
     .eq("riff_id", riffId)
     .eq("for_number", number)
     .maybeSingle<QueuedRound>();
-  if (data) return { mechanic: data.mechanic, depth: data.depth, payload: data.payload };
+  if (data) {
+    const { bonusSeat, ...payload } = data.payload as RoundPayloads[Mechanic] & { bonusSeat?: Seat }; // set by bonus.ts
+    return { mechanic: data.mechanic, depth: data.depth, payload, is_bonus: !!bonusSeat, bonus_seat: bonusSeat ?? null };
+  }
   const ctx = await loadContext(riffId, number);
   const writer = (await writerFor(ctx.templates[0].mechanic))!;
-  return { mechanic: ctx.templates[0].mechanic, depth: ctx.depth, payload: writer.fill(ctx) };
+  return { mechanic: ctx.templates[0].mechanic, depth: ctx.depth, payload: writer.fill(ctx), is_bonus: false, bonus_seat: null };
 }
 
 /** Write with the model; fall back to a local fill on any failure or timeout. */

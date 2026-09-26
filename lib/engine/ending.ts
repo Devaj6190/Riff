@@ -17,10 +17,15 @@ export function isGameOver(totals: number[], target: number, roundNumber: number
 }
 
 export async function totals(riffId: string): Promise<number[]> {
+  return [...(await totalsByPlayer(riffId)).values()];
+}
+
+/** Score so far per player id; a player with no scores yet is absent. */
+export async function totalsByPlayer(riffId: string): Promise<Map<string, number>> {
   const { data } = await supabaseAdmin().from("scores").select("player_id, total").eq("riff_id", riffId);
   const byPlayer = new Map<string, number>();
   for (const s of (data ?? []) as Pick<Score, "player_id" | "total">[]) byPlayer.set(s.player_id, (byPlayer.get(s.player_id) ?? 0) + s.total);
-  return [...byPlayer.values()];
+  return byPlayer;
 }
 
 /** Write one playful superlative per player into riffs.summary. Never throws. */

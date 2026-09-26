@@ -66,21 +66,20 @@ export function ProfileForm({ submitLabel, initial, onSubmit }: Props) {
   }
 
   return (
-    <form onSubmit={submit} className="flex flex-col gap-4">
-      <label className="flex flex-col gap-1">
-        <span className="text-sm opacity-70">Display name</span>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          maxLength={24}
-          required
-          className="h-11 rounded-lg border border-current/20 bg-transparent px-3"
-        />
-      </label>
+    <form onSubmit={submit} className="flex flex-col gap-5">
+      <input
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        maxLength={24}
+        required
+        placeholder="Your name"
+        aria-label="Your name"
+        className="h-12 rounded-2xl bg-muted px-4 text-lg"
+      />
 
       <div className="flex flex-col gap-2">
-        <span className="text-sm opacity-70">
-          Pick {INTERESTS_REQUIRED} interests ({picked.length}/{INTERESTS_REQUIRED})
+        <span className="text-sm text-foreground/60">
+          Pick {INTERESTS_REQUIRED} things you&apos;re into · {picked.length}/{INTERESTS_REQUIRED}
         </span>
         <div className="flex flex-wrap gap-2">
           {chips.map((chip) => {
@@ -92,31 +91,29 @@ export function ProfileForm({ submitLabel, initial, onSubmit }: Props) {
                 onClick={() => toggle(chip)}
                 aria-pressed={on}
                 disabled={!on && full}
-                className={`h-11 rounded-full border px-4 disabled:opacity-40 ${on ? "border-transparent bg-primary text-primary-foreground" : "border-current/20"}`}
+                className={`h-11 rounded-full px-4 transition-colors disabled:opacity-40 ${on ? "bg-primary text-primary-foreground" : "bg-muted"}`}
               >
                 {chip}
               </button>
             );
           })}
-        </div>
-        <div className="flex gap-2">
-          <input
-            value={custom}
-            onChange={(e) => setCustom(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                addCustom();
-              }
-            }}
-            placeholder="Or type your own"
-            maxLength={24}
-            disabled={full}
-            className="h-11 flex-1 rounded-lg border border-current/20 bg-transparent px-3 disabled:opacity-40"
-          />
-          <button type="button" onClick={addCustom} disabled={full || !custom.trim()} className="h-11 rounded-lg border border-current/20 px-4 disabled:opacity-40">
-            Add
-          </button>
+          {!full && (
+            <input
+              value={custom}
+              onChange={(e) => setCustom(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addCustom();
+                }
+              }}
+              onBlur={addCustom}
+              placeholder="+ your own"
+              aria-label="Add your own interest"
+              maxLength={24}
+              className="h-11 w-32 rounded-full border border-dashed border-current/25 bg-transparent px-4 placeholder:text-foreground/50 focus:border-primary"
+            />
+          )}
         </div>
       </div>
 
@@ -125,7 +122,7 @@ export function ProfileForm({ submitLabel, initial, onSubmit }: Props) {
       <button
         type="submit"
         disabled={busy || !name.trim() || picked.length < INTERESTS_REQUIRED}
-        className="h-12 rounded-lg bg-primary font-semibold text-primary-foreground disabled:opacity-40"
+        className="h-12 rounded-full bg-primary font-semibold text-primary-foreground disabled:opacity-40"
       >
         {busy ? "…" : submitLabel}
       </button>

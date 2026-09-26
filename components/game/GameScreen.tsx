@@ -20,7 +20,10 @@ export function GameScreen({ me, riff, players }: Props) {
   const { snap, reload } = useGameState(riff.id, { riff, players });
   const { phase } = snap.riff;
   const partner = snap.players.find((p) => p.id !== me.id);
-  const nudge = snap.nudges.at(-1);
+  const [expired, setExpired] = useState<string | null>(null); // id of the latest nudge once its countdown hits zero
+  const latest = snap.nudges.at(-1);
+  // The newest nudge sits pinned on top while its timer runs, then joins the thread with the others.
+  const liveNudge = phase === "chatting" && latest && !latest.scored_at && latest.id !== expired ? latest : undefined;
   const totals = totalsByPlayer(snap.scores);
   const pops = useScorePops(snap.scores, snap.loaded);
   const [keptFor, setKeptFor] = useState<string | null>(null); // "Keep chatting" hides the end screen for this ending only
@@ -41,88 +44,86 @@ export function GameScreen({ me, riff, players }: Props) {
   }
 
   return (
-    <main className="relative mx-auto flex h-dvh w-full max-w-md flex-col">
-      <header className="flex items-center gap-2 border-b border-current/10 py-2 pl-1 pr-3">
-        <Link href="/" aria-label="Back" className="flex size-11 shrink-0 items-center justify-center">
-          <ChevronLeft className="size-6" />
-        </Link>
-        <Avatar name={partner?.name ?? "?"} />
-        <div className="min-w-0 flex-1">
-          <p className="truncate font-semibold">{partner?.name ?? "New chat"}</p>
-          <p className="truncate text-xs opacity-60">
-            {phase === "lobby" ? (
-              <>
-                Code <span className="font-mono tracking-widest">{snap.riff.code}</span>
-              </>
-            ) : (
-              <>
-                You <b key={totals.get(me.id) ?? 0} className="riff-pop inline-block tabular-nums">{totals.get(me.id) ?? 0}</b>
-                {partner && (
-                  <>
-                    {" · "}
-                    {partner.name}{" "}
-                    <b key={totals.get(partner.id) ?? 0} className="riff-pop inline-block tabular-nums">{totals.get(partner.id) ?? 0}</b>
-                  </>
-                )}
-                {" · first to "}
-                {snap.riff.target_score}
-              </>
+    <div className="md:flex md:h-dvh md:items-center md:bg-[#f5f5f7] md:py-6">
+      {/* On wide screens the chat sits in a window-like card; on phones it's the whole screen. */}
+      <main className="relative mx-auto flex h-dvh w-full max-w-md flex-col overflow-hidden bg-background md:h-full md:max-h-[56rem] md:rounded-3xl md:shadow-[0_8px_40px_rgb(0_0_0/0.08)]">
+        <header className="grid grid-cols-[5.5rem_1fr_5.5rem] items-center border-b border-current/10 px-1 py-1.5">
+          <Link href="/" aria-label="Back" className="flex size-11 items-center justify-center text-primary">
+            <ChevronLeft className="size-7" />
+          </Link>
+          <div className="flex min-w-0 flex-col items-center">
+            <Avatar name={partner?.name ?? "?"} className="size-9 text-sm" />
+            <p className="mt-0.5 max-w-full truncate text-xs font-semibold">{partner?.name ?? "New chat"}</p>
+            {partner && phase !== "lobby" && (
+              <p className="text-[11px] tabular-nums text-foreground/50">
+                You <b key={`me-${totals.get(me.id) ?? 0}`} className="riff-pop inline-block text-foreground">{totals.get(me.id) ?? 0}</b>
+                {" · "}
+                <b key={`them-${totals.get(partner.id) ?? 0}`} className="riff-pop inline-block text-foreground">{totals.get(partner.id) ?? 0}</b> {partner.name}
+              </p>
             )}
-          </p>
-        </div>
-        {phase === "chatting" && <EndControls riffId={snap.riff.id} me={me} partner={partner} />}
-        {phase === "ended" && keptFor === snap.riff.ended_at && (
-          <button onClick={newMatch} className="h-11 shrink-0 px-2 text-sm font-semibold text-primary">
-            New match
-          </button>
-        )}
-      </header>
-
-      {phase === "lobby" ? (
-        <Lobby code={snap.riff.code} />
-      ) : (
-        <>
-          {phase === "chatting" && nudge && <NudgeBanner key={nudge.id} nudge={nudge} />}
-          <Chat riffId={snap.riff.id} me={me} onTyping={onTyping} partnerTyping={partnerTyping} />
-        </>
-      )}
-
-      <div className="pointer-events-none absolute inset-x-0 top-20 z-20 flex flex-col items-center gap-2" aria-live="polite">
-        {pops.map((s) => (
-          <div key={s.id} className="riff-burst flex items-center gap-3 rounded-full bg-primary px-4 py-2 text-primary-foreground shadow-lg">
-            <span className="font-bold">
-              {nameOf(s.player_id)} +{s.total}
-            </span>
-            <span className="flex items-center gap-2 text-xs opacity-80">
-              <span className="flex items-center gap-0.5" title="Speed">
-                <Zap className="size-3" aria-label="speed" />
-                {s.speed}
-              </span>
-              <span className="flex items-center gap-0.5" title="Quality">
-                <Sparkles className="size-3" aria-label="quality" />
-                {s.quality}
-              </span>
-              <span className="flex items-center gap-0.5" title="Connection">
-                <Heart className="size-3" aria-label="connection" />
-                {s.connection}
-              </span>
-            </span>
           </div>
-        ))}
-      </div>
+          <div className="flex justify-end">
+            {phase === "chatting" && <EndControls riffId={snap.riff.id} me={me} partner={partner} />}
+            {phase === "ended" && keptFor === snap.riff.ended_at && (
+              <button onClick={newMatch} className="h-11 whitespace-nowrap px-2 text-sm font-semibold text-primary">
+                New match
+              </button>
+            )}
+          </div>
+        </header>
 
-      {phase === "ended" && keptFor !== snap.riff.ended_at && (
-        <EndScreen
-          riff={snap.riff}
-          people={[me, partner].filter((p): p is Player => !!p)}
-          meId={me.id}
-          totals={totals}
-          error={restartError}
-          onNewMatch={newMatch}
-          onKeepChatting={() => setKeptFor(snap.riff.ended_at)}
-        />
-      )}
-    </main>
+        {phase === "lobby" ? (
+          <Lobby code={snap.riff.code} />
+        ) : (
+          <>
+            {liveNudge && <NudgeBanner key={liveNudge.id} nudge={liveNudge} onExpire={() => setExpired(liveNudge.id)} />}
+            <Chat
+              riffId={snap.riff.id}
+              me={me}
+              pastNudges={snap.nudges.filter((n) => n !== liveNudge)}
+              onTyping={onTyping}
+              partnerTyping={partnerTyping}
+            />
+          </>
+        )}
+
+        <div className="pointer-events-none absolute inset-x-0 top-20 z-20 flex flex-col items-center gap-2" aria-live="polite">
+          {pops.map((s) => (
+            <div key={s.id} className="riff-burst flex items-center gap-3 rounded-full bg-primary px-4 py-2 text-primary-foreground shadow-lg">
+              <span className="font-bold">
+                {nameOf(s.player_id)} +{s.total}
+              </span>
+              <span className="flex items-center gap-2 text-xs opacity-80">
+                <span className="flex items-center gap-0.5" title="Speed">
+                  <Zap className="size-3" aria-label="speed" />
+                  {s.speed}
+                </span>
+                <span className="flex items-center gap-0.5" title="Quality">
+                  <Sparkles className="size-3" aria-label="quality" />
+                  {s.quality}
+                </span>
+                <span className="flex items-center gap-0.5" title="Connection">
+                  <Heart className="size-3" aria-label="connection" />
+                  {s.connection}
+                </span>
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {phase === "ended" && keptFor !== snap.riff.ended_at && (
+          <EndScreen
+            riff={snap.riff}
+            people={[me, partner].filter((p): p is Player => !!p)}
+            meId={me.id}
+            totals={totals}
+            error={restartError}
+            onNewMatch={newMatch}
+            onKeepChatting={() => setKeptFor(snap.riff.ended_at)}
+          />
+        )}
+      </main>
+    </div>
   );
 }
 
@@ -149,13 +150,17 @@ function Lobby({ code }: { code: string }) {
 }
 
 /** The newest nudge, with a countdown bar. Keyed by id, so each nudge mounts fresh; gone when its timer ends. */
-function NudgeBanner({ nudge }: { nudge: Nudge }) {
+function NudgeBanner({ nudge, onExpire }: { nudge: Nudge; onExpire: () => void }) {
   const left = useMsLeft(nudge.ends_at);
   const span = Date.parse(nudge.ends_at) - Date.parse(nudge.created_at);
 
   useEffect(() => {
-    navigator.vibrate?.(40);
+    buzz(40);
   }, []);
+
+  useEffect(() => {
+    if (left <= 0) onExpire();
+  }, [left, onExpire]);
 
   if (left <= 0) return null;
   return (
@@ -164,6 +169,10 @@ function NudgeBanner({ nudge }: { nudge: Nudge }) {
         // eslint-disable-next-line @next/next/no-img-element -- remote generated image, no loader configured
         <img src={nudge.payload.imageUrl} alt="" className="mb-3 max-h-56 w-full rounded-2xl object-cover" />
       )}
+      <p className="mb-1 flex items-center gap-1 text-xs font-semibold text-primary">
+        <Sparkles className="size-3" aria-hidden />
+        Riff
+      </p>
       <p className="font-semibold">{nudge.payload.prompt}</p>
       {nudge.kind === "audio" && <audio src={nudge.payload.clipUrl} autoPlay controls className="mt-3 w-full" />}
       <div className="mt-3 flex items-center gap-3">
@@ -315,7 +324,7 @@ function useScorePops(scores: Score[], loaded: boolean) {
     if (!fresh.length) return;
     fresh.forEach((s) => known.add(s.id));
     setPops((p) => [...p, ...fresh]);
-    navigator.vibrate?.(30);
+    buzz(30);
     setTimeout(() => setPops((p) => p.filter((s) => !fresh.includes(s))), 3500);
   }, [scores, loaded]);
   return pops;
@@ -325,4 +334,9 @@ function totalsByPlayer(scores: Score[]) {
   const totals = new Map<string, number>();
   for (const s of scores) totals.set(s.player_id, (totals.get(s.player_id) ?? 0) + s.total);
   return totals;
+}
+
+/** Haptics, once the page may vibrate (browsers refuse before the first tap and log an error). */
+function buzz(pattern: number | number[]) {
+  if (navigator.userActivation?.hasBeenActive) navigator.vibrate?.(pattern);
 }

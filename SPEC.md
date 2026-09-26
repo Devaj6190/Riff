@@ -46,10 +46,11 @@ Voice notes are ordinary chat messages: record → transcribe → send.
 
 **Template shape:** `{ id, kind, tone: fun|deep|know, depth: 1–3, seed, tags[] }`. Aim for 50+. The AI may remix any template freely, within content guardrails.
 
-### 4.2 Depth ladder
-- **Depth 1** (light): nudges 1–3.
-- **Depth 2** (opinions, stories): from nudge 4.
-- **Depth 3** (deep/vulnerable): only after nudge 6 **and** once both players have earned connection points. Never an opener.
+### 4.2 Intro, then a depth arc
+- **Intro (nudges 1–2):** nudge 1 pops up the moment the chat starts: say hi, your name, where you're from. Nudge 2 is another easy intro ("what are you into lately?").
+- **Then an arc, not a ladder:** light → light → opinions → light → opinions → deep → light → opinions → deep, repeating. It climbs toward a deeper connection and drops back to fun in between, e.g. "favorite movie?" … "favorite childhood memory?".
+- **Deep (3)** only once both players have earned connection points; until then it stays at opinions. Never an opener.
+- The writer reads the live chat: if it's stalling, the nudge is easy and fun to answer.
 
 ### 4.3 Scoring (hidden, per player, per nudge)
 When a nudge pops up, the chat since the previous nudge is scored:
@@ -64,10 +65,11 @@ When a nudge pops up, the chat since the previous nudge is scored:
 - Trailing player earns **2× points** on the chat after it.
 - **The leader is never called out.** The connection score quietly rewards them for asking follow-ups.
 
-### 4.5 Pacing
-- **First nudge:** on the first lull (15 s of silence after someone speaks), or 30 s after the chat starts.
-- **Then:** on a lull (15 s quiet), but not within 30 s of the last nudge.
-- **Always:** at least one every 90 s, busy or silent.
+### 4.5 Pacing (follow the flow)
+- **Intro nudge** right away when the chat starts.
+- **While the conversation flows** (both talking back and forth), Riff stays out of the way.
+- **It nudges when the flow breaks:** 15 s of silence, one person carrying it (the other quiet for 30 s), or a nudge nobody answered for 45 s.
+- Never within 20 s of the last nudge; at least one every 3 min so the game keeps moving.
 - All numbers are placeholders to tune in playtesting (`lib/engine/pacing.ts`).
 
 ### 4.6 Ending
@@ -135,7 +137,7 @@ The AI:
 **MVP, in priority order:**
 1. Riff + join (interest chips)
 2. Real-time chat (Instagram-DM feel)
-3. Text nudges + pacing
+3. Intro nudges, text nudges + flow-aware pacing
 4. Hidden scoring + ending + end screen (keep chatting / new match)
 5. Bonus nudge
 6. Image nudges

@@ -1,16 +1,22 @@
 import { expect, test } from "vitest";
 import type { Player, Template } from "../types";
-import { depthFor, fillSeed, pickTemplates, writeOrFill, writerFor, type NudgeContext } from "./nudges";
+import { DEPTH_ARC, depthFor, fillSeed, pickTemplates, writeOrFill, writerFor, type NudgeContext } from "./nudges";
 import templates from "./templates.json";
 
 const player = (name: string, interests: string[]) => ({ name, interests, extracted_interests: [] }) as unknown as Player;
 
-test("depth ladder: light openers, depth 3 only after nudge 6 with both players connected", () => {
-  expect([1, 2, 3].map((n) => depthFor(n, true))).toEqual([1, 1, 1]);
-  expect(depthFor(4, false)).toBe(2);
-  expect(depthFor(6, true)).toBe(2);
-  expect(depthFor(7, false)).toBe(2);
-  expect(depthFor(7, true)).toBe(3);
+test("depth: light intro, then climbs and drops back to fun; deep only once both are connected", () => {
+  expect([1, 2].map((n) => depthFor(n, true))).toEqual([1, 1]);
+  expect([3, 4, 5, 6, 7, 8, 9, 10, 11].map((n) => depthFor(n, true))).toEqual(DEPTH_ARC);
+  expect([3, 4, 5, 6, 7, 8, 9, 10, 11].map((n) => depthFor(n, false))).not.toContain(3);
+  expect(depthFor(12, true)).toBe(DEPTH_ARC[0]); // the arc repeats
+});
+
+test("intro: nudge 1 says hi, nudge 2 is another intro, later nudges never are", () => {
+  const all = templates as Template[];
+  expect(pickTemplates(all, "riff-1", 1, 1).map((t) => t.id)).toEqual(["tx-intro-hi"]);
+  expect(pickTemplates(all, "riff-1", 2, 1).every((t) => t.tags.includes("intro") && t.id !== "tx-intro-hi")).toBe(true);
+  for (let n = 3; n < 20; n++) expect(pickTemplates(all, "riff-1", n, depthFor(n, true)).some((t) => t.tags.includes("intro"))).toBe(false);
 });
 
 test("text and image templates at every depth, unique ids", () => {
@@ -24,10 +30,10 @@ test("text and image templates at every depth, unique ids", () => {
 
 test("pickTemplates is stable per slot, matches depth and kind, and varies between nudges", () => {
   const all = templates as Template[];
-  const a = pickTemplates(all, "riff-1", 2, 1);
-  expect(pickTemplates(all, "riff-1", 2, 1)).toEqual(a);
+  const a = pickTemplates(all, "riff-1", 5, 1);
+  expect(pickTemplates(all, "riff-1", 5, 1)).toEqual(a);
   expect(a.every((t) => t.depth === 1 && t.kind === a[0].kind)).toBe(true);
-  expect(pickTemplates(all, "riff-1", 3, 1)[0]).not.toEqual(a[0]);
+  expect(pickTemplates(all, "riff-1", 6, 1)[0]).not.toEqual(a[0]);
 });
 
 test("fillSeed puts one of the pair's interests into the template", () => {

@@ -6,13 +6,14 @@ import { shouldNudge } from "@/lib/engine/pacing";
 import { scoreStretch } from "@/lib/engine/score";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { requirePlayer } from "@/lib/supabase/auth";
-import type { Nudge, Riff, RiffPhase, TickRequest, TickResponse } from "@/lib/types";
+import type { Nudge, Player, Riff, RiffPhase, TickRequest, TickResponse } from "@/lib/types";
 
 // ponytail: 60 s is the Hobby ceiling without Fluid compute; the after() work (scoring, image prefetch) needs it.
 export const maxDuration = 60;
 
 /**
- * Both clients call this every few seconds while chatting. If it's time (pacing.ts), the next nudge pops up.
+ * Both clients call this every few seconds while chatting. If it's time (pacing.ts), the next nudge pops up;
+ * the first one pops up as soon as the chat starts.
  * The unique (riff_id, number) on nudges makes every concurrent call but one a no-op.
  */
 export async function POST(req: Request) {
@@ -29,24 +30,31 @@ export async function POST(req: Request) {
   const db = supabaseAdmin();
   const [riff, players, last] = await Promise.all([
     db.from("riffs").select("*").eq("id", riffId).single<Riff>(),
-    db.from("players").select("joined_at").eq("riff_id", riffId).order("joined_at", { ascending: false }).limit(1),
+    db.from("players").select("id, seat, joined_at").eq("riff_id", riffId).order("joined_at", { ascending: false }),
     db.from("nudges").select("*").eq("riff_id", riffId).order("number", { ascending: false }).limit(1).maybeSingle<Nudge>(),
   ]);
   if (riff.error) throw riff.error;
   if (riff.data.phase !== "chatting") return reply(riff.data.phase, false);
 
   const lastNudge = last.data;
-  const since = lastNudge?.created_at ?? players.data?.[0]?.joined_at ?? riff.data.created_at; // chat starts when B joins
-  const { data: latest, count } = await db
+  const seated = (players.data ?? []) as Pick<Player, "id" | "seat" | "joined_at">[];
+  const since = lastNudge?.created_at ?? seated[0]?.joined_at ?? riff.data.created_at; // chat starts when B joins
+  // ponytail: the most recent 200 are plenty to judge the flow; older ones only matter to maxGapSeconds.
+  const { data: recent } = await db
     .from("messages")
-    .select("created_at", { count: "exact" })
+    .select("player_id, created_at")
     .eq("riff_id", riffId)
     .gt("created_at", since)
     .order("created_at", { ascending: false })
-    .limit(1);
+    .limit(200);
+  const seatOf = new Map(seated.map((p) => [p.id, p.seat]));
   const now = Date.now();
   const due = shouldNudge(
-    { since: Date.parse(since), first: !lastNudge, messagesSince: count ?? 0, lastMessageAt: latest?.[0] ? Date.parse(latest[0].created_at) : null },
+    {
+      shown: lastNudge?.number ?? 0,
+      since: Date.parse(since),
+      messages: (recent ?? []).reverse().map((m) => ({ seat: seatOf.get(m.player_id) ?? "A", at: Date.parse(m.created_at) })),
+    },
     now,
   );
   if (!due) return reply("chatting", false);

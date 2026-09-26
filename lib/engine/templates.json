@@ -1,4 +1,8 @@
 [
+  {"id": "tx-intro-hi", "kind": "text", "tone": "know", "depth": 1, "seed": "Say hi! Tell each other your name and where you're from.", "tags": ["intro"]},
+  {"id": "tx-intro-lately", "kind": "text", "tone": "know", "depth": 1, "seed": "What's something you've been really into lately?", "tags": ["intro"]},
+  {"id": "tx-intro-doing", "kind": "text", "tone": "know", "depth": 1, "seed": "What are you studying or working on right now, and do you actually like it?", "tags": ["intro"]},
+  {"id": "tx-intro-movie", "kind": "text", "tone": "fun", "depth": 1, "seed": "Quick one: what's your favorite movie?", "tags": ["intro"]},
   {"id": "tx-entrance-song", "kind": "text", "tone": "fun", "depth": 1, "seed": "What song should play every time you walk into a room?", "tags": ["music"]},
   {"id": "tx-hot-take", "kind": "text", "tone": "fun", "depth": 1, "seed": "What {interest} hot take would you defend forever?", "tags": ["opinions"]},
   {"id": "tx-useless-talent", "kind": "text", "tone": "fun", "depth": 1, "seed": "What's your most useless talent, and how did you get it?", "tags": ["skills"]},

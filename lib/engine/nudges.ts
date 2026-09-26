@@ -2,6 +2,7 @@
 // so a nudge never waits on a model when it pops up.
 import { supabaseAdmin } from "../supabase/admin";
 import type { Depth, NudgeKind, NudgePayloads, Player, QueuedNudge, Seat, Template } from "../types";
+import { PACING } from "./pacing";
 import allTemplates from "./templates.json";
 
 const TEMPLATES = allTemplates as Template[];
@@ -29,19 +30,28 @@ export type Writer<K extends NudgeKind = NudgeKind> = {
 
 export type PlannedNudge = { kind: NudgeKind; depth: Depth; payload: NudgePayloads[NudgeKind]; is_bonus: boolean; for_seat: Seat | null };
 
-/** SPEC §4.2. */
+/** SPEC §4.2 after the intro: climb light → opinions → deep, drop back to fun, climb again. */
+export const DEPTH_ARC: Depth[] = [1, 1, 2, 1, 2, 3, 1, 2, 3];
+
+/** Intro nudges are light; then the arc. Deep only once both players have earned connection points. */
 export function depthFor(number: number, bothConnected: boolean): Depth {
-  if (number <= 3) return 1;
-  return number > 6 && bothConnected ? 3 : 2;
+  if (number <= PACING.introNudges) return 1;
+  const depth = DEPTH_ARC[(number - PACING.introNudges - 1) % DEPTH_ARC.length];
+  return depth === 3 && !bothConnected ? 2 : depth;
 }
+
+export const isIntro = (number: number) => number <= PACING.introNudges;
 
 /**
  * Deterministic per riff + nudge number, so a slot looked at twice picks the same template, and consecutive
  * nudges walk the list instead of repeating. Returns up to 4 templates of the chosen one's kind, chosen first.
+ * Intro nudges use the `intro`-tagged templates: the first one ("say hi") for nudge 1, the others after it.
  */
 export function pickTemplates(templates: Template[], riffId: string, number: number, depth: Depth): Template[] {
-  const atDepth = templates.filter((t) => t.depth === depth);
-  const pool = atDepth.length ? atDepth : templates;
+  const intro = templates.filter((t) => t.tags.includes("intro"));
+  const rest = templates.filter((t) => !t.tags.includes("intro"));
+  const atDepth = rest.filter((t) => t.depth === depth);
+  const pool = isIntro(number) && intro.length > 1 ? (number === 1 ? intro.slice(0, 1) : intro.slice(1)) : atDepth.length ? atDepth : rest;
   const start = (hash(riffId) + number) % pool.length;
   const rotated = [...pool.slice(start), ...pool.slice(0, start)];
   return rotated.filter((t) => t.kind === rotated[0].kind).slice(0, 4);

@@ -1,0 +1,52 @@
+[
+  {
+    "id": "mountain-retreat",
+    "tags": [
+      "travel",
+      "outdoors",
+      "fitness",
+      "sports"
+    ],
+    "prompt": "A dream mountain retreat with a lakeside cabin, hammock, hiking trail and a canoe. Warm sunrise, playful editorial illustration.",
+    "url": "/images/pool/mountain-retreat.jpg",
+    "model": "grok-imagine-image-2.0",
+    "latencyMs": 19669
+  },
+  {
+    "id": "arcade-cafe",
+    "tags": [
+      "gaming",
+      "anime",
+      "tech",
+      "memes"
+    ],
+    "prompt": "A whimsical cozy arcade cafe with retro game consoles, a friendly little robot and colorful neon lights. Playful editorial illustration.",
+    "url": "/images/pool/arcade-cafe.jpg",
+    "model": "grok-imagine-image-2.0",
+    "latencyMs": 24314
+  },
+  {
+    "id": "rooftop-jam",
+    "tags": [
+      "music",
+      "art",
+      "fashion"
+    ],
+    "prompt": "A colorful rooftop hangout with acoustic guitars, a keyboard, murals and bright beanbags under fairy lights. Playful editorial illustration.",
+    "url": "/images/pool/rooftop-jam.jpg",
+    "model": "grok-imagine-image-2.0",
+    "latencyMs": 18653
+  },
+  {
+    "id": "reading-picnic",
+    "tags": [
+      "books",
+      "food",
+      "movies"
+    ],
+    "prompt": "A cozy garden picnic with books, pastries, tea and an outdoor movie screen under a leafy canopy. Playful editorial illustration.",
+    "url": "/images/pool/reading-picnic.jpg",
+    "model": "grok-imagine-image-2.0",
+    "latencyMs": 16756
+  }
+]

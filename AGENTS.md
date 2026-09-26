@@ -37,6 +37,7 @@ Three tools work at once, each in its own git worktree. Your lane comes from you
 - Stay in your lane's files. Need something outside it? Stop and say so.
 - `lib/types.ts`, `supabase/migrations/` and `package.json` change only on `main`. Need a new type, column or package? Stop and ask.
 - Run `git merge main` before starting each new issue.
+- Don't run `/code-review` or spawn sub-agents (this overrides the `implement` skill's review step). Review your own work instead: read `git diff main...HEAD` against the issue's acceptance criteria and fix what's missing before committing.
 
 ## Agent skills
 

@@ -2,11 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
+import { subscribeToRoom } from "@/lib/supabase/realtime";
 import type { Message, Player } from "@/lib/types";
 
 type Props = { roomId: string; me: Player; players: Player[] };
 
-/** Real-time room chat. Subscribes first, then loads history, so nothing sent in between is lost. */
+/** Real-time room chat. History loads once the subscription is live, so nothing sent in between is lost. */
 export function Chat({ roomId, me, players }: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState("");
@@ -14,30 +15,28 @@ export function Chat({ roomId, me, players }: Props) {
   const bottom = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const db = supabase();
     const merge = (incoming: Message[]) =>
       setMessages((prev) => {
         const byId = new Map([...prev, ...incoming].map((m) => [m.id, m]));
         return [...byId.values()].sort((a, b) => a.id - b.id);
       });
 
-    const channel = db
-      .channel(`messages:${roomId}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `room_id=eq.${roomId}` }, (payload) =>
-        merge([payload.new as Message]),
-      )
-      .subscribe(async (status) => {
-        if (status !== "SUBSCRIBED") return;
-        const { data } = await db.from("messages").select("*").eq("room_id", roomId).order("id");
+    return subscribeToRoom<Message>(
+      "messages",
+      roomId,
+      (payload) => {
+        if (payload.eventType === "INSERT") merge([payload.new]);
+      },
+      async () => {
+        const { data } = await supabase().from("messages").select("*").eq("room_id", roomId).order("id");
         merge((data ?? []) as Message[]);
-      });
-
-    return () => {
-      db.removeChannel(channel);
-    };
+      },
+    );
   }, [roomId]);
 
-  useEffect(() => bottom.current?.scrollIntoView({ block: "end" }), [messages]);
+  useEffect(() => {
+    bottom.current?.scrollIntoView({ block: "end" }); // returns a Promise in newer browsers; must not be the cleanup
+  }, [messages]);
 
   async function send(e: React.FormEvent) {
     e.preventDefault();

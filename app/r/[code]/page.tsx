@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Chat } from "@/components/Chat";
 import { ProfileForm } from "@/components/ProfileForm";
 import { ensureSignedIn, supabase } from "@/lib/supabase/client";
+import { subscribeToRoom } from "@/lib/supabase/realtime";
 import type { Player, Room } from "@/lib/types";
 
 type View =
@@ -42,14 +43,7 @@ export default function RoomPage() {
   const roomId = view.status === "in" ? view.room.id : null;
   useEffect(() => {
     if (!roomId) return;
-    const db = supabase();
-    const channel = db
-      .channel(`players:${roomId}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "players", filter: `room_id=eq.${roomId}` }, () => load())
-      .subscribe();
-    return () => {
-      db.removeChannel(channel);
-    };
+    return subscribeToRoom("players", roomId, () => load(), () => load());
   }, [roomId, load]);
 
   async function join(name: string, interests: string[]) {

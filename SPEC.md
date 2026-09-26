@@ -2,7 +2,7 @@
 *"For everything after hello."* HackGT 13 · solo build
 
 ## 1. One-liner & entries
-**Riff is an AI-hosted conversation game for two people** that turns the stalled second message into rounds of generated prompts, images and mini-games — rewarding players for being curious about each other, and teaching them to keep a conversation going.
+**Riff is an AI-hosted conversation game for two people** that turns the stalled second message into a normal chat where the AI drops in prompts, images and audio whenever it stalls — rewarding players for being curious about each other, and teaching them to keep a conversation going.
 
 - **Track:** Oracle of the Deep (ML/AI + visualization)
 - **Challenges:** Meta "Bringing People Closer Together with AI" (primary) · Create-X Startup Launch (opt in at submission)
@@ -21,61 +21,58 @@
 ## 3. Core flow
 
 **MVP**
-1. **Create a riff** → share link or 4-letter code.
-2. **Join:** display name + tap 3 interest chips (or type your own).
-3. **Rounds, back to back:** a round card drops in with a timer; both answer; the AI scores each answer with a one-line witty reason; points animate in.
-4. **Talk window:** after each round, free chat opens to react ("how dare you say that lol"); it extends while both are talking, up to a cap.
-5. **Bonus Round:** when one player falls behind, Riff gives them a round on their own turf with double points.
-6. **End:** first to the target score (100) finishes; end screen shows both scores, one superlative each, **Play again** / **Keep chatting**. Either player can end the game anytime or suggest ending.
+1. **Create a riff** → share link or 4-letter code. In the UI a riff is a **chat**.
+2. **Join:** display name + tap 3 interest chips (or type your own). The chat starts when the second player joins.
+3. **Chat like any messaging app** (think Instagram DMs): either person sends anytime. No rounds, no timers, no result screens.
+4. **Nudges:** pretty often, the AI pops a **nudge** into the top of the screen: a text prompt, an image or an audio clip, written for this pair from what they're talking about. Players respond by just chatting.
+5. **Hidden scoring:** the chat after each nudge is scored in the background. Points aren't shown yet (a points display comes later).
+6. **Bonus nudge:** when one player falls behind, the next nudge is on their turf, built from their own words, with double points.
+7. **End:** first to the target score (100; **Expo mode = 50**), or either player taps End. End screen shows superlatives; they can **keep chatting** (nudges stop) or start a **new match** in the same chat.
 
-**Phase 2** (spec'd now, built later): discovery search → Riff game → **Moment Card** (shared) + **private feedback** (8 sections) → **recommendations** for who to talk to next → rematch.
+**Phase 2** (spec'd now, built later): discovery search → Riff chat → **Moment Card** (shared) + **private feedback** (8 sections) → **recommendations** for who to talk to next → rematch.
 
 ## 4. Game design
 
-### 4.1 Mechanics (UI code) vs templates (data)
-Each mechanic is written as UI once. Templates are JSON entries, so there can be any number of them. The AI picks a template and rewrites it for the pair.
+### 4.1 Nudge kinds (UI code) vs templates (data)
+Each nudge kind is written as UI once. Templates are JSON entries, so there can be any number of them. The AI picks a template and rewrites it for the pair.
 
-| Mechanic | What happens | Scoring |
-|---|---|---|
-| **Open prompt** | Text answer; tone fun / deep / get-to-know. Improv templates ("finish the scene") use this mechanic. | AI judge |
-| **Two truths and a lie** | Each writes 3 statements; partner guesses the lie. | Rules: +10 for fooling, +10 for guessing right |
-| **AI image round** | Grok Imagine generates a scene from both players' interests ("your dream trip"); players react or answer. | AI judge |
-| **Pick** | 4 options — generated images ("where would you sleep the hardest?") or text (this-or-that); both pick. | Rules: match = +8 each; AI comments |
-| **Voice note** | Record a short answer → transcribed. | AI judge on transcript |
-| **Meme audio** | CC0/royalty-free clip plays; players name it or react. | Rules for recognition + AI for the reaction |
+| Kind | What pops up |
+|---|---|
+| **Text** | A prompt: fun / deep / get-to-know. Improv ("finish the scene") too. |
+| **Image** | Muse Image generates a scene from both players' interests or the chat, with a prompt about it ("you have one hour here, what first?"). |
+| **Audio** | A CC0/royalty-free meme clip plays with a prompt ("name it, or react"). Enabled once the clips library exists. |
 
-*Stretch mechanic:* **Guess my answer** — B predicts A's answer before A replies (rewards listening).
+Voice notes are ordinary chat messages: record → transcribe → send.
 
-**Template shape:** `{ id, mechanic, tone: fun|deep|know, depth: 1–3, seed, tags[] }`. Aim for 50+. The AI may remix any template freely, within content guardrails.
+**Template shape:** `{ id, kind, tone: fun|deep|know, depth: 1–3, seed, tags[] }`. Aim for 50+. The AI may remix any template freely, within content guardrails.
 
 ### 4.2 Depth ladder
-- **Depth 1** (light): rounds 1–3.
-- **Depth 2** (opinions, stories): from round 4, or earlier if talk windows are lively.
-- **Depth 3** (deep/vulnerable): only after round 6 **and** once both players have earned connection points. Never an opener.
+- **Depth 1** (light): nudges 1–3.
+- **Depth 2** (opinions, stories): from nudge 4.
+- **Depth 3** (deep/vulnerable): only after nudge 6 **and** once both players have earned connection points. Never an opener.
 
-### 4.3 Scoring (per player, per round)
-- **Speed:** 0–5, computed in code, linear over the timer.
-- **Quality:** 0–10, AI — specificity, effort, creativity. Opinions are never "right" or "wrong."
-- **Connection bonus:** 0–5, AI — follow-ups, callbacks to earlier messages, responding to the partner. Scored on round answers **and** talk-window messages.
-- The judge also returns a **one-line witty reason** per player.
-- ~20 max per round → 100 takes ~7–9 rounds.
+### 4.3 Scoring (hidden, per player, per nudge)
+When a nudge pops up, the chat since the previous nudge is scored:
+- **Quality:** 0–10, AI: specificity, effort, creativity, being real. Opinions are never "right" or "wrong."
+- **Connection:** 0–5, AI: follow-ups, callbacks to earlier messages, responding to the partner.
+- The scorer also returns a **one-line reason** per player, for the later points display.
+- Players don't have to answer the nudge; a good conversation that went elsewhere scores well. Saying nothing scores nothing.
 
-### 4.4 Bonus Round (catch-up)
-- **Trigger:** score gap ≥ **15 + random 0–5**; cooldown of 2 rounds after each Bonus Round.
-- **Content:** built from the trailing player's interests (chips + things they've said in chat).
-- **Label:** "🎁 Bonus Round — Sam's turf." Trailing player earns **2× points** that round.
-- **The leader is never called out.** The connection bonus quietly rewards them for asking follow-ups.
+### 4.4 Bonus nudge (catch-up)
+- **Trigger:** score gap ≥ **15 + random 0–5**; cooldown of 2 nudges after each Bonus nudge.
+- **Content:** quotes something the trailing player actually said and asks a follow-up on it, drawing on their interests.
+- Trailing player earns **2× points** on the chat after it.
+- **The leader is never called out.** The connection score quietly rewards them for asking follow-ups.
 
-### 4.5 Talk window
-- Opens for **min 20 s** after each round result.
-- **+8 s** per message while both players have posted within the last 10 s.
-- **Max 90 s**, then "Next round in 5…".
-- All numbers are placeholders to tune in playtesting.
+### 4.5 Pacing
+- **First nudge:** on the first lull (15 s of silence after someone speaks), or 30 s after the chat starts.
+- **Then:** on a lull (15 s quiet), but not within 30 s of the last nudge.
+- **Always:** at least one every 90 s, busy or silent.
+- All numbers are placeholders to tune in playtesting (`lib/engine/pacing.ts`).
 
-### 4.6 Timers & ending
-- **Timers:** text 30 s · two truths 45 s · pick 20 s · voice 45 s · audio 20 s. No answer = 0 for that round.
-- **End:** first to target score (100; configurable; **Expo mode = 50**). **Hidden cap:** after round 12, highest score wins.
-- **End / suggest end:** "End game" ends immediately; "Suggest ending" asks the partner, who can accept or decline.
+### 4.6 Ending
+- First to the target score (100; configurable; **Expo mode = 50**), checked each time a nudge pops up. Or either player taps **End**.
+- After the end the chat stays open: **keep chatting** (no more nudges) or **new match** (nudges and scores reset, chat kept).
 
 ### 4.7 Safety (MVP)
 - **AI output:** your guardrails — no violence, no NSFW.
@@ -86,18 +83,18 @@ Each mechanic is written as UI once. Templates are JSON entries, so there can be
 - Tap targets ≥ 44 px with spacing.
 - Input bar stays above the keyboard (`dvh` units / `visualViewport` API).
 - No hover-only controls.
-- Score-pop animations + haptics (`navigator.vibrate` on Android); match burst for Pick rounds; special entrance for the Bonus Round.
+- Nudge pop-in animation + haptics (`navigator.vibrate` on Android); special entrance for the Bonus nudge.
 
 ## 5. Why AI is essential
 **Without AI, Riff is a card deck:** generic prompts, no way to score opinions, no catch-up.
 
 The AI:
-1. **Writes each round** from the live chat, both players' interests and the current depth level.
-2. **Judges open-ended answers** for quality and connection — no rule-based system can score "Sharknado 3, unironically."
-3. **Builds the Bonus Round** from what the trailing player actually said.
-4. **Generates the images** for image and pick rounds.
+1. **Writes each nudge** from the live chat, both players' interests and the current depth level.
+2. **Scores the conversation** for quality and connection — no rule-based system can score "Sharknado 3, unironically."
+3. **Builds the Bonus nudge** from what the trailing player actually said.
+4. **Generates the images** for image nudges.
 
-**What's learned, honestly:** in the MVP, interests are extracted in-context from the conversation during play — not a trained model. The **Phase 2 bandit** (§7) adds real per-pair learning.
+**What's learned, honestly:** in the MVP, interests are extracted in-context from the conversation during the chat — not a trained model. The **Phase 2 bandit** (§7) adds real per-pair learning.
 
 ## 6. Architecture
 
@@ -106,28 +103,25 @@ The AI:
 **Models & APIs**
 | Job | Primary | Fallback |
 |---|---|---|
-| Round writing, talk-window scoring, superlatives | **Muse Spark 1.3** via OpenAI SDK → Meta Model API (~5–8 s; hidden by prefetch/background) | Grok, automatically on error |
-| Judging (players wait on it) | **Grok** (~1 s, fits the 6 s result screen) | Muse Spark, automatically on error |
-| Images | **Muse Image** (`muse-image-1.0`, $0.01/image, ~12–19 s; generated 2 rounds ahead) | Grok Imagine (~25 s), then the pre-generated tagged pool |
-| Speech-to-text | Grok STT if available, else a Whisper-class model | "Type instead" button |
-| Meme audio | `/public/clips` + `clips.json` (file, tags, answer, **license, source URL**) | Skip mechanic |
-| Round generation when slow | — | Fill a template locally without AI |
+| Nudge writing, superlatives | **Muse Spark 1.3** via OpenAI SDK → Meta Model API (~5–8 s; hidden by writing ahead) | Grok, automatically on error |
+| Scoring, Bonus nudge (time-boxed) | **Grok** (~1 s) | Muse Spark, automatically on error |
+| Images | **Muse Image** (`muse-image-1.0`, $0.01/image, ~12–19 s; written 2 nudges ahead) | Grok Imagine (~25 s), then the pre-generated tagged pool |
+| Speech-to-text (voice messages) | Grok STT | Type instead |
+| Meme audio | `/public/clips` + `clips.json` (file, tags, answer, **license, source URL**) | Skip the kind |
+| Nudge writing when slow | — | Fill a template locally without AI |
 
-**Data:** `riffs`, `players` (name, interests[], extracted_interests[]), `messages`, `rounds` (mechanic, payload, depth, is_bonus, ends_at), `answers`, `scores`.
+**Data:** `riffs` (phase `lobby → chatting → ended`), `players` (name, interests[], extracted_interests[]), `messages`, `nudges` (number, kind, payload, depth, is_bonus, for_seat), `queued_nudges` (server-only), `scores` (per nudge per player).
 
-**Game state:** `lobby → round_active → round_result → talk_window → countdown → round_active … → ended`
-- Deadlines live in the DB (`ends_at`); each client renders its countdown from that value.
-- On expiry, **whichever client notices first calls `/api/advance`**, which uses a conditional update so duplicate calls are no-ops. No client has to host the game clock.
+**Nudge clock:** there's no server clock. While chatting, **both clients call `/api/tick` every few seconds**; it asks `shouldNudge()` (§4.5) and, if due, shows the next nudge. `unique (riff_id, number)` on `nudges` makes concurrent ticks no-ops.
 
 **Routes:**
-- `/api/round` — write rounds **ahead of time** into a hidden queue (`queued_rounds`): text rounds 1 ahead, image rounds 2 ahead, each written from both players' profiles + the chat so far. Advancing promotes the next queued round, so rounds start instantly; an empty queue falls back to a local template fill. The Bonus Round is written when it triggers (during result + talk window) and jumps the queue.
-- `/api/judge` — score the round's answers.
-- `/api/talk` — score talk-window messages for connection; runs when the window closes, non-blocking.
-- `/api/image`, `/api/transcribe`, `/api/advance`.
+- `/api/tick` — show the next nudge when due: promote it from `queued_nudges` (text 1 ahead, image 2 ahead) or fill a template locally, so it never waits on a model. Then, in the background: score the chat since the previous nudge, end the game if someone reached the target, maybe queue a Bonus nudge, and write the next nudges ahead.
+- `/api/end` — end now, or start a new match (chat kept).
+- `/api/image`, `/api/transcribe`.
 
-**Known limit:** a round written ahead can't reference chat from after it was written (up to ~2 rounds for image rounds). Later fix: rewrite the head of the queue at window close if there's time.
+**Known limit:** a nudge written ahead can't reference chat from after it was written (up to 2 nudges for images).
 
-**Judge output (JSON):**
+**Scorer output (JSON):**
 ```json
 { "A": {"quality": 8, "connection": 3, "reason": "committing to Sharknado 3 is brave"},
   "B": {"quality": 4, "connection": 0, "reason": "safe pick. why Inception?"},
@@ -140,17 +134,15 @@ The AI:
 
 **MVP, in priority order:**
 1. Riff + join (interest chips)
-2. Real-time chat
-3. Open prompt round + AI judge
-4. Talk window
-5. Scoring + end screen
-6. Bonus Round
-7. Two truths and a lie
-8. Pick
-9. AI image round
-10. Voice note
-11. Meme audio
-12. Profanity masking + leave & report
+2. Real-time chat (Instagram-DM feel)
+3. Text nudges + pacing
+4. Hidden scoring + ending + end screen (keep chatting / new match)
+5. Bonus nudge
+6. Image nudges
+7. Voice messages
+8. Audio nudges (meme clips)
+9. Points display
+10. Profanity masking + leave & report
 
 If time runs short, cut from the bottom of this list.
 
@@ -159,7 +151,7 @@ If time runs short, cut from the bottom of this list.
 - **Moment Creation Engine:** top 2–3 moments quoted, rated top moment, inside joke born, superlatives, next-step hook (rematch or an in-person plan), shared moments history.
 - **Private feedback, 8 sections:** where you fell short · what was good · how many times you gave a better response · how quick you were · what to improve · did you get stuck on jokes · your improv · were you being real. Quotes your messages; the sections come from one editable list.
 - **Recommendations:** who to talk to next, based on who you connected well with.
-- **Bandit:** Thompson sampling over round types per pair; reward = talk-window length + connection points. The game learns what makes each pair click.
+- **Bandit:** Thompson sampling over nudge kinds per pair; reward = messages after the nudge + connection points. The game learns what makes each pair click.
 - **Partner double-tap reactions.**
 - **Jev** for fast per-message scoring, if its API proves reliable.
 
@@ -170,13 +162,13 @@ If time runs short, cut from the bottom of this list.
 **Video (~2:30), story order:**
 1. **0:00–0:20 Hook:** "Everyone solves the first message. Nobody solves the second." Dead chat: "hey" → "hey" → silence.
 2. **0:20–0:35 Find:** discovery if built; otherwise sending a riff link.
-3. **0:35–1:55 Play:** two windows side by side. Open prompt → image pick match burst → talk-window argument earning connection points → **Bonus Round rescue**: Sam falls behind, Riff builds a round from something Sam said earlier, Sam catches up, Alex's follow-up earns a connection bonus.
+3. **0:35–1:55 Play:** two phones side by side, chatting normally. The chat stalls → a text nudge pops in → an image nudge sparks an argument → **Bonus nudge rescue**: Sam falls behind, Riff quotes something Sam said earlier, Sam catches up, Alex's follow-up earns connection points.
 4. **1:55–2:15 After:** end screen; feedback and recommendations **only if they're real.**
 5. **2:15–2:30 Why AI + vision:** "AI isn't your friend here — it's the referee between two humans."
 
-**Expo, live:** hand two phones to two judges, Expo mode (first to 50), let them play. Keep a backup recording.
+**Expo, live:** hand two phones to two judges, Expo mode (first to 50), let them chat. Keep a backup recording.
 
-**The one moment to remember:** the Bonus Round quoting the trailing player's own words back to them.
+**The one moment to remember:** the Bonus nudge quoting the trailing player's own words back to them.
 
 ## 9. Risks & open questions
 - **Muse Spark:** latency and JSON-schema support. It's a reasoning model and may be slow. Test first; fallback is an env-var swap.
@@ -186,12 +178,12 @@ If time runs short, cut from the bottom of this list.
 - **Domain prize:** which challenge offers it? Ask at the opening ceremony.
 - **SpaceXAI:** confirm the "built with Cursor" requirement fits your workflow.
 - **CastChat:** closest existing app (matches strangers into voice chat with mini-games). Know how Riff differs.
-- **AI scoring fairness:** the judge's reason must always explain the score, so a low score reads as feedback, not an insult.
+- **AI scoring fairness:** the scorer's reason must always explain the score, so a low score reads as feedback, not an insult.
 
 ## 10. Vision (Create-X / write-up)
 Riff becomes **the layer for everything after hello**:
 1. A standalone app for students, starting at Georgia Tech, with discovery, feedback and the Moment Card.
-2. **Riff for platforms:** friend and dating apps (Bumble BFF, Timeleft, Hinge) embed Riff games in their chats — each loses users when conversations die.
+2. **Riff for platforms:** friend and dating apps (Bumble BFF, Timeleft, Hinge) embed Riff nudges in their chats — each loses users when conversations die.
 3. Data advantage: per-pair learning of what makes people click, which platforms bolting on games won't have.
 
 **North-star metric:** % of pairs who rematch or meet in person — *not* time spent in the app.

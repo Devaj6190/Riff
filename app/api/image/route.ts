@@ -2,7 +2,7 @@ import { requirePlayer } from "../../../lib/supabase/auth";
 import type { ImageRequest } from "../../../lib/types";
 import { generateImage } from "./generate";
 
-export const maxDuration = 60; // generation can take ~40 s; see advance/route.ts
+export const maxDuration = 60; // generation can take ~40 s; see tick/route.ts
 
 function isImageRequest(value: unknown): value is ImageRequest {
   if (!value || typeof value !== "object") return false;

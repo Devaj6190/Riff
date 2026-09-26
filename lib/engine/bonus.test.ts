@@ -11,7 +11,7 @@ test("trigger: gap of at least 15 + jitter", () => {
   expect(shouldBonus(20, 5, 4, null)).toBe(true);
 });
 
-test("cooldown: the 2 rounds after a Bonus Round can't be one", () => {
+test("cooldown: the 2 nudges after a Bonus nudge can't be one", () => {
   expect(shouldBonus(30, 0, 6, 5)).toBe(false);
   expect(shouldBonus(30, 0, 7, 5)).toBe(false);
   expect(shouldBonus(30, 0, 8, 5)).toBe(true);

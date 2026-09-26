@@ -1,10 +1,11 @@
 # Riff — glossary
 
-- **Riff**: the product, and also one two-player game session that players create and share by link or 4-letter code (`riffs` table, `/r/<code>`). Never "room".
+- **Riff**: the product, and also one two-person chat that players create and share by link or 4-letter code (`riffs` table, `/r/<code>`). Shown as a **chat** in the UI. Never "room".
 - **Player**: one of the two people in a riff, sitting in **seat** `A` (creator) or `B` (joiner).
-- **Round**: one timed prompt both players answer, of one **mechanic** (open prompt, two truths, image, pick, voice, meme audio).
-- **Template**: a JSON seed the AI rewrites into a round for this pair.
-- **Talk window**: the free-chat gap after each round's result.
-- **Bonus Round**: a catch-up round on the trailing player's turf, worth 2×.
-- **Depth**: how personal a round is, 1 (light) to 3 (deep). Rises over the riff.
-- **Connection points**: judge points for follow-ups and callbacks, in rounds and talk windows.
+- **Nudge**: an AI pop-up at the top of the chat (a text prompt, an image or an audio clip) of one **kind**. Players respond by chatting. There are no rounds.
+- **Template**: a JSON seed the AI rewrites into a nudge for this pair.
+- **Stretch**: the chat from one nudge to the next; it's what gets scored.
+- **Bonus nudge**: a catch-up nudge on the trailing player's turf, quoting their own words; the chat after it counts 2× for them.
+- **Depth**: how personal a nudge is, 1 (light) to 3 (deep). Rises over the riff.
+- **Connection points**: scorer points for follow-ups and callbacks.
+- **Match**: one run to the target score inside a riff. A new match resets nudges and scores; the chat is kept.

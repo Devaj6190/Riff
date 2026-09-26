@@ -1,4 +1,4 @@
-// One OpenAI-compatible client for round writing, judging and talk scoring (SPEC §6).
+// One OpenAI-compatible client for nudge writing, scoring and superlatives (SPEC §6).
 // Primary = META_BASE_URL + META_API_KEY + LLM_MODEL (Muse Spark). If it errors (e.g. Meta billing 402),
 // the same call retries on Grok via XAI_API_KEY + LLM_FALLBACK_MODEL, so the game keeps real AI.
 import OpenAI from "openai";
@@ -30,7 +30,7 @@ export const GUARDRAILS = [
 
 /**
  * Ask the model for a JSON object, falling back to the next provider on error. Throws if all fail.
- * `fast`: try Grok first (~1 s vs Muse Spark's ~5–8 s), for calls players wait on, like judging.
+ * `fast`: try Grok first (~1 s vs Muse Spark's ~5–8 s), for time-boxed calls, like scoring.
  */
 export async function llmJson(system: string, user: string, timeoutMs: number, { fast = false } = {}): Promise<unknown> {
   let lastError: unknown = new Error("No LLM provider configured");

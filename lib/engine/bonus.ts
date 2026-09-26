@@ -1,29 +1,28 @@
-// Bonus Round (SPEC §4.4): when one player falls far enough behind, the next round is written from their own
-// words and interests, and their score for it counts double (judge.ts applies the multiplier).
+// Bonus nudge (SPEC §4.4): when one player falls far enough behind, the next nudge is written from their own
+// words and interests, and their score for the chat after it counts double (score.ts applies the multiplier).
 import { supabaseAdmin } from "../supabase/admin";
-import type { Answer, Player } from "../types";
+import type { Player } from "../types";
 import { totalsByPlayer } from "./ending";
-import { answerText } from "./judge";
 import { llmJson } from "./llm";
-import { MODEL_TIMEOUT_MS } from "./rounds";
+import { MODEL_TIMEOUT_MS } from "./nudges";
 
 export const BONUS_GAP = 15;
-export const BONUS_COOLDOWN = 2; // rounds after a Bonus Round that can't be one
+export const BONUS_COOLDOWN = 2; // nudges after a Bonus nudge that can't be one
 
-/** SPEC §4.4 trigger. `jitter` is the random 0–5 on top of the gap; `lastBonus` the latest Bonus Round's number. */
+/** SPEC §4.4 trigger. `jitter` is the random 0–5 on top of the gap; `lastBonus` the latest Bonus nudge's number. */
 export function shouldBonus(gap: number, jitter: number, next: number, lastBonus: number | null): boolean {
   return gap >= BONUS_GAP + jitter && (lastBonus === null || next - lastBonus > BONUS_COOLDOWN);
 }
 
 /**
- * Run once round `current` is judged. If the trailing player qualifies, write round current+1 for them and put it
- * in the queue slot, replacing whatever prefetch wrote there. Never throws for model problems.
+ * Run once the chat before nudge `current` is scored. If the trailing player qualifies, write nudge current+1 for
+ * them into the queue, replacing whatever prefetch wrote there. Never throws for model problems.
  */
 export async function maybeBonus(riffId: string, current: number): Promise<void> {
   const db = supabaseAdmin();
   const [players, last, totals] = await Promise.all([
     db.from("players").select("*").eq("riff_id", riffId).order("seat"),
-    db.from("rounds").select("number").eq("riff_id", riffId).eq("is_bonus", true).order("number", { ascending: false }).limit(1).maybeSingle(),
+    db.from("nudges").select("number").eq("riff_id", riffId).eq("is_bonus", true).order("number", { ascending: false }).limit(1).maybeSingle(),
     totalsByPlayer(riffId),
   ]);
   const seated = (players.data ?? []) as Player[];
@@ -34,28 +33,23 @@ export async function maybeBonus(riffId: string, current: number): Promise<void>
 
   const trailing = a < b ? seated[0] : seated[1];
   const prompt = await writeBonus(trailing, seated.find((p) => p !== trailing)!, await ownWords(riffId, trailing.id));
-
-  // Too slow: the round already started without it.
-  const { data: riff } = await db.from("riffs").select("round_number").eq("id", riffId).single();
-  if (riff?.round_number !== current) return;
-  // ponytail: whose turf rides in the payload; roundFor moves it to rounds.bonus_seat. A queued_rounds.bonus_seat
-  // column is the clean version if the queue ever needs to be read elsewhere.
-  const { error } = await db.from("queued_rounds").upsert(
-    { riff_id: riffId, for_number: next, mechanic: "open_prompt", depth: 2, payload: { prompt, bonusSeat: trailing.seat } },
+  const { error } = await db.from("queued_nudges").upsert(
+    { riff_id: riffId, for_number: next, kind: "text", depth: 2, payload: { prompt }, is_bonus: true, for_seat: trailing.seat },
     { onConflict: "riff_id,for_number" },
   );
   if (error) throw error;
 }
 
-/** What the player actually said: their chat messages and round answers, most recent first. */
+/** What the player actually said, most recent first. */
 async function ownWords(riffId: string, playerId: string): Promise<string[]> {
-  const db = supabaseAdmin();
-  const [messages, answers] = await Promise.all([
-    db.from("messages").select("body").eq("riff_id", riffId).eq("player_id", playerId).order("created_at", { ascending: false }).limit(20),
-    db.from("answers").select("*").eq("player_id", playerId).order("submitted_at", { ascending: false }).limit(10),
-  ]);
-  const lines = [...(messages.data ?? []).map((m) => m.body as string), ...((answers.data ?? []) as Answer[]).map((a) => answerText(a))];
-  return lines.filter((l): l is string => typeof l === "string" && l.trim().split(/\s+/).length >= 3).map((l) => l.trim());
+  const { data } = await supabaseAdmin()
+    .from("messages")
+    .select("body")
+    .eq("riff_id", riffId)
+    .eq("player_id", playerId)
+    .order("created_at", { ascending: false })
+    .limit(30);
+  return (data ?? []).map((m) => (m.body as string).trim()).filter((l) => l.split(/\s+/).length >= 3);
 }
 
 export async function writeBonus(turf: Player, other: Player, words: string[]): Promise<string> {
@@ -63,11 +57,11 @@ export async function writeBonus(turf: Player, other: Player, words: string[]): 
     try {
       const out = (await llmJson(
         [
-          `You write the Bonus Round in a two-player conversation game. It is ${turf.name}'s turf.`,
+          `Two people are texting in a chat app. You write a bonus nudge on ${turf.name}'s turf.`,
           `Pick the most fun thing ${turf.name} said (copy it exactly from theirWords; trim to under 90 characters if long)`,
-          `and write one open follow-up question on it that both players can answer, drawing on ${turf.name}'s interests.`,
+          `and write one open follow-up question on it that both of them can answer, drawing on ${turf.name}'s interests.`,
           "Under 140 characters, warm and playful, no quote marks in the question.",
-          "Never mention scores, points, who is ahead or behind, or how anyone is doing in the game.",
+          "Never mention scores, points, who is ahead or behind, or how anyone is doing.",
           'JSON shape: {"quote": string, "question": string}',
         ].join(" "),
         JSON.stringify({ turf: { name: turf.name, interests: interestsOf(turf), theirWords: words }, otherPlayer: other.name }),

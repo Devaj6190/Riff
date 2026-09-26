@@ -22,7 +22,7 @@ calls to `grok-imagine-image-2.0`: 19,669 / 24,314 / 18,653 / 16,756 ms; mean
 All exceeded the runtime budget, supporting the use of the local fallback pool.
 
 The runtime requests URL output. Provider URLs are temporary and intended for the
-current round; the checked-in fallback assets remain available indefinitely.
+current nudge; the checked-in fallback assets remain available indefinitely.
 API reference: https://docs.x.ai/developers/model-capabilities/images/generation
 
 Tests exercise auth rejection, success, timeouts (including a stalled body),

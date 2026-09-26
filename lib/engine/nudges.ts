@@ -87,7 +87,7 @@ async function loadContext(riffId: string, number: number): Promise<NudgeContext
   const [players, messages, nudges, scores, totals] = await Promise.all([
     db.from("players").select("*").eq("riff_id", riffId).order("seat"),
     db.from("messages").select("player_id, body").eq("riff_id", riffId).order("created_at", { ascending: false }).limit(40),
-    db.from("nudges").select("payload").eq("riff_id", riffId).order("number"),
+    db.from("nudges").select("number, for_seat, payload").eq("riff_id", riffId).lt("number", number).order("number", { ascending: false }),
     db.from("scores").select("player_id, connection").eq("riff_id", riffId).gt("connection", 0),
     totalsByPlayer(riffId),
   ]);
@@ -100,9 +100,10 @@ async function loadContext(riffId: string, number: number): Promise<NudgeContext
     depth,
     players: seated,
     chat: (messages.data ?? []).reverse().map((m) => `${name.get(m.player_id) ?? "?"}: ${m.body}`),
-    previousPrompts: (nudges.data ?? []).map((n) => n.payload?.prompt).filter((p): p is string => typeof p === "string"),
+    previousPrompts: (nudges.data ?? []).map((n) => n.payload?.prompt).filter((p): p is string => typeof p === "string").reverse(),
     templates: pickTemplates(await playableTemplates(), riffId, number, depth),
-    turf: isIntro(number) ? null : turfFor(seated, totals),
+    // ponytail: a slot written 2 ahead (images) can't see the nudge between; refreshTurf corrects the next one.
+    turf: isIntro(number) ? null : turfFor(seated, totals, nudges.data ?? []),
   };
 }
 

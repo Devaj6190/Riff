@@ -60,9 +60,10 @@ Points come **only from answering nudges**. A player's answer is what they text 
 - ~20 max per nudge → 100 takes ~7–9 nudges. No answer = no points.
 
 ### 4.4 Bonus mode (catch-up)
-- **Trigger:** while one player trails by **15+** points.
+- **Trigger:** one player trails by **25+** points.
 - **What happens:** the conversation shifts toward the trailing player. Nudges are written around their interests and things they've said. Example: Sam likes gaming, Alex likes movies, Alex is winning → the nudges turn game-heavy, so Sam can answer better and is encouraged to.
-- Both players still answer every nudge, and scoring is unchanged. It switches off once the gap closes.
+- **Lasts 2 or 3 nudges**, whatever the scores do meanwhile. Then at least one normal nudge before it can switch on again.
+- Both players still answer every nudge, and scoring is unchanged.
 - **Nobody is called out.** Nudges never mention scores or who the topic is for.
 
 ### 4.5 Pacing (follow the flow)

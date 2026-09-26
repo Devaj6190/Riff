@@ -5,7 +5,7 @@
 - **Nudge**: an AI pop-up at the top of the chat (a text prompt, an image or an audio clip) of one **kind**, with a countdown. There are no rounds.
 - **Answer**: what a player texts while a nudge's timer runs. The only thing that earns points.
 - **Template**: a JSON seed the AI rewrites into a nudge for this pair.
-- **Bonus mode**: while one player trails by 15+, nudges lean toward their interests so they can answer better. Scoring is unchanged.
+- **Bonus mode**: when one player trails by 25+, the next 2 or 3 nudges lean toward their interests so they can answer better. Scoring is unchanged.
 - **Depth**: how personal a nudge is, 1 (light) to 3 (deep). Rises over the riff.
 - **Connection points**: scorer points for follow-ups and callbacks.
 - **Match**: one run to the target score inside a riff. A new match resets nudges and scores; the chat is kept.

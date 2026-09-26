@@ -1,11 +1,11 @@
 -- Riff schema. Run once in the Supabase SQL editor.
--- Clients read through RLS + Realtime and write only chat messages, answers and room creation/joining.
--- Game-state writes (rooms.phase, rounds, scores) go through API routes using the service role, which bypasses RLS.
+-- Clients read through RLS + Realtime and write only chat messages, answers and riff creation/joining.
+-- Game-state writes (riffs.phase, rounds, scores) go through API routes using the service role, which bypasses RLS.
 
 create type game_phase as enum ('lobby', 'round_active', 'round_result', 'talk_window', 'countdown', 'ended');
 create type mechanic as enum ('open_prompt', 'two_truths', 'image', 'pick', 'voice', 'meme_audio');
 
-create table rooms (
+create table riffs (
   id uuid primary key default gen_random_uuid(),
   code text not null unique check (code ~ '^[A-Z]{4}$'),
   phase game_phase not null default 'lobby',
@@ -18,29 +18,29 @@ create table rooms (
 
 create table players (
   id uuid primary key default gen_random_uuid(),
-  room_id uuid not null references rooms on delete cascade,
+  riff_id uuid not null references riffs on delete cascade,
   user_id uuid not null references auth.users on delete cascade,
   seat text not null check (seat in ('A', 'B')),
   name text not null check (char_length(name) between 1 and 24),
   interests text[] not null check (cardinality(interests) between 1 and 3),
   extracted_interests text[] not null default '{}',
   joined_at timestamptz not null default now(),
-  unique (room_id, seat), -- two seats = max two players, enforced by the DB
-  unique (room_id, user_id)
+  unique (riff_id, seat), -- two seats = max two players, enforced by the DB
+  unique (riff_id, user_id)
 );
 
 create table messages (
   id bigint generated always as identity primary key,
-  room_id uuid not null references rooms on delete cascade,
+  riff_id uuid not null references riffs on delete cascade,
   player_id uuid not null references players on delete cascade,
   body text not null check (char_length(body) between 1 and 500),
   created_at timestamptz not null default now()
 );
-create index on messages (room_id, created_at);
+create index on messages (riff_id, created_at);
 
 create table rounds (
   id uuid primary key default gen_random_uuid(),
-  room_id uuid not null references rooms on delete cascade,
+  riff_id uuid not null references riffs on delete cascade,
   number int not null,
   mechanic mechanic not null,
   depth int not null check (depth between 1 and 3),
@@ -49,12 +49,12 @@ create table rounds (
   payload jsonb not null, -- mechanic-specific content (prompt text, options, image URLs, ...)
   starts_at timestamptz not null default now(),
   ends_at timestamptz not null,
-  unique (room_id, number)
+  unique (riff_id, number)
 );
 
 create table answers (
   id uuid primary key default gen_random_uuid(),
-  room_id uuid not null references rooms on delete cascade, -- denormalised for Realtime filters
+  riff_id uuid not null references riffs on delete cascade, -- denormalised for Realtime filters
   round_id uuid not null references rounds on delete cascade,
   player_id uuid not null references players on delete cascade,
   payload jsonb not null,
@@ -64,7 +64,7 @@ create table answers (
 
 create table scores (
   id uuid primary key default gen_random_uuid(),
-  room_id uuid not null references rooms on delete cascade, -- denormalised for Realtime filters
+  riff_id uuid not null references riffs on delete cascade, -- denormalised for Realtime filters
   round_id uuid not null references rounds on delete cascade,
   player_id uuid not null references players on delete cascade,
   kind text not null default 'round' check (kind in ('round', 'talk')), -- 'talk' = connection points from the talk window after this round
@@ -80,84 +80,84 @@ create table scores (
 
 -- RLS ------------------------------------------------------------------------
 
-create function is_room_member(r uuid) returns boolean
+create function is_riff_member(r uuid) returns boolean
 language sql stable security definer set search_path = public as $$
-  select exists (select 1 from players where room_id = r and user_id = auth.uid());
+  select exists (select 1 from players where riff_id = r and user_id = auth.uid());
 $$;
 
-alter table rooms enable row level security;
+alter table riffs enable row level security;
 alter table players enable row level security;
 alter table messages enable row level security;
 alter table rounds enable row level security;
 alter table answers enable row level security;
 alter table scores enable row level security;
 
--- Rooms hold no private data; anyone signed in can look one up by code to join it.
-create policy "read rooms" on rooms for select to authenticated using (true);
-create policy "members read players" on players for select to authenticated using (is_room_member(room_id));
-create policy "members read messages" on messages for select to authenticated using (is_room_member(room_id));
+-- Riffs hold no private data; anyone signed in can look one up by code to join it.
+create policy "read riffs" on riffs for select to authenticated using (true);
+create policy "members read players" on players for select to authenticated using (is_riff_member(riff_id));
+create policy "members read messages" on messages for select to authenticated using (is_riff_member(riff_id));
 create policy "members send messages" on messages for insert to authenticated
-  with check (player_id in (select id from players where user_id = auth.uid() and room_id = messages.room_id));
-create policy "members read rounds" on rounds for select to authenticated using (is_room_member(room_id));
+  with check (player_id in (select id from players where user_id = auth.uid() and riff_id = messages.riff_id));
+create policy "members read rounds" on rounds for select to authenticated using (is_riff_member(riff_id));
 -- Your own answers always; your partner's only once the round is over, so nobody copies.
 create policy "read answers" on answers for select to authenticated using (
   player_id in (select id from players where user_id = auth.uid())
-  or (is_room_member(room_id) and exists (select 1 from rounds where id = answers.round_id and ends_at <= now()))
+  or (is_riff_member(riff_id) and exists (select 1 from rounds where id = answers.round_id and ends_at <= now()))
 );
 create policy "submit own answer" on answers for insert to authenticated with check (
-  player_id in (select id from players where user_id = auth.uid() and room_id = answers.room_id)
-  and exists (select 1 from rounds where id = answers.round_id and room_id = answers.room_id and now() < ends_at)
+  player_id in (select id from players where user_id = auth.uid() and riff_id = answers.riff_id)
+  and exists (select 1 from rounds where id = answers.round_id and riff_id = answers.riff_id and now() < ends_at)
 );
-create policy "members read scores" on scores for select to authenticated using (is_room_member(room_id));
+create policy "members read scores" on scores for select to authenticated using (is_riff_member(riff_id));
 
--- Room create / join ---------------------------------------------------------
+-- Riff create / join ---------------------------------------------------------
 
-create function create_room(p_name text, p_interests text[]) returns text
+create function create_riff(p_name text, p_interests text[]) returns text
 language plpgsql security definer set search_path = public as $$
 declare
   v_code text;
-  v_room uuid;
+  v_riff uuid;
 begin
   if auth.uid() is null then raise exception 'not signed in'; end if;
   loop
     v_code := (select string_agg(chr(65 + floor(random() * 26)::int), '') from generate_series(1, 4));
     begin
-      insert into rooms (code) values (v_code) returning id into v_room;
+      insert into riffs (code) values (v_code) returning id into v_riff;
       exit;
     exception when unique_violation then
       -- code taken, try another
     end;
   end loop;
-  insert into players (room_id, user_id, seat, name, interests)
-  values (v_room, auth.uid(), 'A', trim(p_name), p_interests);
+  insert into players (riff_id, user_id, seat, name, interests)
+  values (v_riff, auth.uid(), 'A', trim(p_name), p_interests);
   return v_code;
 end $$;
 
--- Returns the caller's player id. Rejoining the same room (e.g. after a reload) returns the existing seat.
-create function join_room(p_code text, p_name text, p_interests text[]) returns uuid
+-- Returns the caller's player id. Rejoining the same riff (e.g. after a reload) returns the existing seat.
+create function join_riff(p_code text, p_name text, p_interests text[]) returns uuid
 language plpgsql security definer set search_path = public as $$
 declare
-  v_room uuid;
+  v_riff uuid;
   v_player uuid;
 begin
   if auth.uid() is null then raise exception 'not signed in'; end if;
-  select id into v_room from rooms where code = upper(p_code);
-  if v_room is null then raise exception 'room not found'; end if;
-  select id into v_player from players where room_id = v_room and user_id = auth.uid();
+  select id into v_riff from riffs where code = upper(p_code);
+  if v_riff is null then raise exception 'riff not found'; end if;
+  select id into v_player from players where riff_id = v_riff and user_id = auth.uid();
   if v_player is not null then return v_player; end if;
   begin
-    insert into players (room_id, user_id, seat, name, interests)
-    values (v_room, auth.uid(), 'B', trim(p_name), p_interests)
+    insert into players (riff_id, user_id, seat, name, interests)
+    values (v_riff, auth.uid(), 'B', trim(p_name), p_interests)
     returning id into v_player;
   exception when unique_violation then
-    raise exception 'room is full';
+    raise exception 'riff is full';
   end;
   return v_player;
 end $$;
 
-revoke execute on function create_room, join_room, is_room_member from public, anon;
-grant execute on function create_room, join_room, is_room_member to authenticated;
+revoke execute on function create_riff, join_riff, is_riff_member from public, anon;
+grant execute on function create_riff, join_riff, is_riff_member to authenticated;
 
 -- Realtime -------------------------------------------------------------------
 
-alter publication supabase_realtime add table rooms, players, messages, rounds, answers, scores;
+alter publication supabase_realtime add table riffs, players, messages, rounds, answers, scores;

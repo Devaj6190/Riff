@@ -21,7 +21,7 @@
 ## 3. Core flow
 
 **MVP**
-1. **Create a room** → share link or 4-letter code.
+1. **Create a riff** → share link or 4-letter code.
 2. **Join:** display name + tap 3 interest chips (or type your own).
 3. **Rounds, back to back:** a round card drops in with a timer; both answer; the AI scores each answer with a one-line witty reason; points animate in.
 4. **Talk window:** after each round, free chat opens to react ("how dare you say that lol"); it extends while both are talking, up to a cap.
@@ -80,7 +80,7 @@ Each mechanic is written as UI once. Templates are JSON entries, so there can be
 ### 4.7 Safety (MVP)
 - **AI output:** your guardrails — no violence, no NSFW.
 - **Player messages:** profanity masking (`f***`).
-- **Leave & report button** (recommended; cut if you disagree): ends the game and logs the room.
+- **Leave & report button** (recommended; cut if you disagree): ends the game and logs the riff.
 
 ### 4.8 Mobile / web feel
 - Tap targets ≥ 44 px with spacing.
@@ -112,7 +112,7 @@ The AI:
 | Meme audio | `/public/clips` + `clips.json` (file, tags, answer, **license, source URL**) | Skip mechanic |
 | Round generation when slow | — | Fill a template locally without AI |
 
-**Data:** `rooms`, `players` (name, interests[], extracted_interests[]), `messages`, `rounds` (mechanic, payload, depth, is_bonus, ends_at), `answers`, `scores`.
+**Data:** `riffs`, `players` (name, interests[], extracted_interests[]), `messages`, `rounds` (mechanic, payload, depth, is_bonus, ends_at), `answers`, `scores`.
 
 **Game state:** `lobby → round_active → round_result → talk_window → countdown → round_active … → ended`
 - Deadlines live in the DB (`ends_at`); each client renders its countdown from that value.
@@ -138,7 +138,7 @@ The AI:
 ## 7. Scope phases (features only; no schedule)
 
 **MVP, in priority order:**
-1. Room + join (interest chips)
+1. Riff + join (interest chips)
 2. Real-time chat
 3. Open prompt round + AI judge
 4. Talk window
@@ -168,7 +168,7 @@ If time runs short, cut from the bottom of this list.
 
 **Video (~2:30), story order:**
 1. **0:00–0:20 Hook:** "Everyone solves the first message. Nobody solves the second." Dead chat: "hey" → "hey" → silence.
-2. **0:20–0:35 Find:** discovery if built; otherwise sending a room link.
+2. **0:20–0:35 Find:** discovery if built; otherwise sending a riff link.
 3. **0:35–1:55 Play:** two windows side by side. Open prompt → image pick match burst → talk-window argument earning connection points → **Bonus Round rescue**: Sam falls behind, Riff builds a round from something Sam said earlier, Sam catches up, Alex's follow-up earns a connection bonus.
 4. **1:55–2:15 After:** end screen; feedback and recommendations **only if they're real.**
 5. **2:15–2:30 Why AI + vision:** "AI isn't your friend here — it's the referee between two humans."

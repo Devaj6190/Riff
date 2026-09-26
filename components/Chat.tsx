@@ -2,13 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
-import { subscribeToRoom } from "@/lib/supabase/realtime";
+import { subscribeToRiff } from "@/lib/supabase/realtime";
 import type { Message, Player } from "@/lib/types";
 
-type Props = { roomId: string; me: Player; players: Player[] };
+type Props = { riffId: string; me: Player; players: Player[] };
 
-/** Real-time room chat. History loads once the subscription is live, so nothing sent in between is lost. */
-export function Chat({ roomId, me, players }: Props) {
+/** Real-time riff chat. History loads once the subscription is live, so nothing sent in between is lost. */
+export function Chat({ riffId, me, players }: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -21,18 +21,18 @@ export function Chat({ roomId, me, players }: Props) {
         return [...byId.values()].sort((a, b) => a.id - b.id);
       });
 
-    return subscribeToRoom<Message>(
+    return subscribeToRiff<Message>(
       "messages",
-      roomId,
+      riffId,
       (payload) => {
         if (payload.eventType === "INSERT") merge([payload.new]);
       },
       async () => {
-        const { data } = await supabase().from("messages").select("*").eq("room_id", roomId).order("id");
+        const { data } = await supabase().from("messages").select("*").eq("riff_id", riffId).order("id");
         merge((data ?? []) as Message[]);
       },
     );
-  }, [roomId]);
+  }, [riffId]);
 
   useEffect(() => {
     bottom.current?.scrollIntoView({ block: "end" }); // returns a Promise in newer browsers; must not be the cleanup
@@ -43,7 +43,7 @@ export function Chat({ roomId, me, players }: Props) {
     const body = draft.trim();
     if (!body) return;
     setDraft("");
-    const { error } = await supabase().from("messages").insert({ room_id: roomId, player_id: me.id, body });
+    const { error } = await supabase().from("messages").insert({ riff_id: riffId, player_id: me.id, body });
     setError(error ? "Message didn't send" : null);
     if (error) setDraft(body);
   }

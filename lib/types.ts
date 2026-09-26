@@ -12,7 +12,7 @@ export type Depth = 1 | 2 | 3;
 
 // DB rows ---------------------------------------------------------------------
 
-export type Room = {
+export type Riff = {
   id: string;
   code: string;
   phase: GamePhase;
@@ -25,7 +25,7 @@ export type Room = {
 
 export type Player = {
   id: string;
-  room_id: string;
+  riff_id: string;
   user_id: string;
   seat: Seat;
   name: string;
@@ -36,7 +36,7 @@ export type Player = {
 
 export type Message = {
   id: number;
-  room_id: string;
+  riff_id: string;
   player_id: string;
   body: string;
   created_at: string;
@@ -44,7 +44,7 @@ export type Message = {
 
 type RoundBase = {
   id: string;
-  room_id: string;
+  riff_id: string;
   number: number;
   depth: Depth;
   is_bonus: boolean;
@@ -58,7 +58,7 @@ export type Round = { [M in Mechanic]: RoundBase & { mechanic: M; payload: Round
 
 export type Answer<M extends Mechanic = Mechanic> = {
   id: string;
-  room_id: string;
+  riff_id: string;
   round_id: string;
   player_id: string;
   payload: AnswerPayloads[M];
@@ -67,7 +67,7 @@ export type Answer<M extends Mechanic = Mechanic> = {
 
 export type Score = {
   id: string;
-  room_id: string;
+  riff_id: string;
   round_id: string;
   player_id: string;
   kind: "round" | "talk";

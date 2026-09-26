@@ -9,9 +9,9 @@ export default function Home() {
   const router = useRouter();
   const [code, setCode] = useState("");
 
-  async function createRoom(name: string, interests: string[]) {
+  async function createRiff(name: string, interests: string[]) {
     await ensureSignedIn();
-    const { data, error } = await supabase().rpc("create_room", { p_name: name, p_interests: interests });
+    const { data, error } = await supabase().rpc("create_riff", { p_name: name, p_interests: interests });
     if (error) throw new Error(error.message);
     router.push(`/r/${data}`);
   }
@@ -24,8 +24,8 @@ export default function Home() {
       </header>
 
       <section className="flex flex-col gap-3">
-        <h2 className="text-lg font-semibold">Start a room</h2>
-        <ProfileForm submitLabel="Create room" onSubmit={createRoom} />
+        <h2 className="text-lg font-semibold">Start a riff</h2>
+        <ProfileForm submitLabel="Create riff" onSubmit={createRiff} />
       </section>
 
       <section className="flex flex-col gap-3">

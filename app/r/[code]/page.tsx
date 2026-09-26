@@ -5,32 +5,32 @@ import { useCallback, useEffect, useState } from "react";
 import { Chat } from "@/components/Chat";
 import { ProfileForm } from "@/components/ProfileForm";
 import { ensureSignedIn, supabase } from "@/lib/supabase/client";
-import { subscribeToRoom } from "@/lib/supabase/realtime";
-import type { Player, Room } from "@/lib/types";
+import { subscribeToRiff } from "@/lib/supabase/realtime";
+import type { Player, Riff } from "@/lib/types";
 
 type View =
   | { status: "loading" }
   | { status: "error"; message: string }
-  | { status: "join"; room: Room }
-  | { status: "in"; room: Room; me: Player; players: Player[] };
+  | { status: "join"; riff: Riff }
+  | { status: "in"; riff: Riff; me: Player; players: Player[] };
 
 async function fetchView(code: string): Promise<View> {
   try {
     const user = await ensureSignedIn();
     const db = supabase();
-    const { data: room } = await db.from("rooms").select("*").eq("code", code.toUpperCase()).maybeSingle<Room>();
-    if (!room) return { status: "error", message: "Room not found" };
+    const { data: riff } = await db.from("riffs").select("*").eq("code", code.toUpperCase()).maybeSingle<Riff>();
+    if (!riff) return { status: "error", message: "Riff not found" };
     // RLS only returns players to members, so an empty list means we haven't joined yet.
-    const { data } = await db.from("players").select("*").eq("room_id", room.id).order("seat");
+    const { data } = await db.from("players").select("*").eq("riff_id", riff.id).order("seat");
     const players = (data ?? []) as Player[];
     const me = players.find((p) => p.user_id === user.id);
-    return me ? { status: "in", room, me, players } : { status: "join", room };
+    return me ? { status: "in", riff, me, players } : { status: "join", riff };
   } catch (err) {
-    return { status: "error", message: err instanceof Error ? err.message : "Couldn't load the room" };
+    return { status: "error", message: err instanceof Error ? err.message : "Couldn't load the riff" };
   }
 }
 
-export default function RoomPage() {
+export default function RiffPage() {
   const { code } = useParams<{ code: string }>();
   const [view, setView] = useState<View>({ status: "loading" });
   const load = useCallback(() => fetchView(code).then(setView), [code]);
@@ -40,14 +40,14 @@ export default function RoomPage() {
   }, [code]);
 
   // Refresh the player list when the partner joins.
-  const roomId = view.status === "in" ? view.room.id : null;
+  const riffId = view.status === "in" ? view.riff.id : null;
   useEffect(() => {
-    if (!roomId) return;
-    return subscribeToRoom("players", roomId, () => load(), () => load());
-  }, [roomId, load]);
+    if (!riffId) return;
+    return subscribeToRiff("players", riffId, () => load(), () => load());
+  }, [riffId, load]);
 
   async function join(name: string, interests: string[]) {
-    const { error } = await supabase().rpc("join_room", { p_code: code, p_name: name, p_interests: interests });
+    const { error } = await supabase().rpc("join_riff", { p_code: code, p_name: name, p_interests: interests });
     if (error) throw new Error(error.message);
     await load();
   }
@@ -58,7 +58,7 @@ export default function RoomPage() {
   if (view.status === "join") {
     return (
       <main className="mx-auto flex w-full max-w-md flex-col gap-4 px-4 py-10">
-        <h1 className="text-2xl font-bold">Join room {view.room.code}</h1>
+        <h1 className="text-2xl font-bold">Join riff {view.riff.code}</h1>
         <ProfileForm submitLabel="Join" onSubmit={join} />
       </main>
     );
@@ -71,7 +71,7 @@ export default function RoomPage() {
         <div>
           <div className="font-semibold">{partner ? `You & ${partner.name}` : "Waiting for someone to join…"}</div>
           <div className="text-sm opacity-60">
-            Room <span className="font-mono tracking-widest">{view.room.code}</span>
+            Riff <span className="font-mono tracking-widest">{view.riff.code}</span>
           </div>
         </div>
         {!partner && (
@@ -83,7 +83,7 @@ export default function RoomPage() {
           </button>
         )}
       </header>
-      <Chat roomId={view.room.id} me={view.me} players={view.players} />
+      <Chat riffId={view.riff.id} me={view.me} players={view.players} />
     </main>
   );
 }

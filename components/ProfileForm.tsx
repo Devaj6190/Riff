@@ -8,7 +8,7 @@ type Props = {
   onSubmit: (name: string, interests: string[]) => Promise<void>;
 };
 
-/** Display name + pick 3 interest chips (or type your own). Used to create and to join a room. */
+/** Display name + pick 3 interest chips (or type your own). Used to create and to join a riff. */
 export function ProfileForm({ submitLabel, onSubmit }: Props) {
   const [name, setName] = useState("");
   const [picked, setPicked] = useState<string[]>([]);

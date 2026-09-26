@@ -1,4 +1,4 @@
-import { afterEach, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { POST } from "./route";
 import { poolImage } from "./generate";
 import pool from "./pool.json";
@@ -7,6 +7,8 @@ import { readFileSync } from "node:fs";
 const { requirePlayer } = vi.hoisted(() => ({ requirePlayer: vi.fn() }));
 vi.mock("../../../lib/supabase/auth", () => ({ requirePlayer }));
 
+// Muse is only in the chain when its key is set; most tests below exercise the Grok leg alone.
+beforeEach(() => { vi.stubEnv("META_API_KEY", ""); });
 afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); vi.unstubAllEnvs(); vi.useRealTimers(); requirePlayer.mockReset(); });
 
 function request() {
@@ -89,6 +91,35 @@ test("deadline includes reading a stalled response body", async () => {
   const pending = POST(request());
   await vi.advanceTimersByTimeAsync(5000);
   expect((await (await pending).json()).fromPool).toBe(true);
+});
+
+test("Muse Image is tried first, with a style-only prompt", async () => {
+  requirePlayer.mockResolvedValue({ id: "player-1" });
+  vi.stubEnv("META_API_KEY", "meta-key");
+  vi.stubEnv("META_BASE_URL", "https://api.meta.ai/v1");
+  vi.stubEnv("XAI_API_KEY", "test-key");
+  const fetch = vi.fn().mockResolvedValue(Response.json({ data: [{ url: "https://scontent.fbcdn.net/scene.jpg" }] }));
+  vi.stubGlobal("fetch", fetch);
+  expect(await (await POST(request())).json()).toEqual({ url: "https://scontent.fbcdn.net/scene.jpg", fromPool: false });
+  expect(fetch).toHaveBeenCalledTimes(1);
+  const [url, init] = fetch.mock.calls[0];
+  expect(url).toBe("https://api.meta.ai/v1/images/generations");
+  const body = JSON.parse(init.body);
+  expect(body.model).toBe("muse-image-1.0");
+  expect(body.prompt).toContain("A dream trip");
+  expect(body.prompt).not.toMatch(/conversation game/i);
+});
+
+test("a failing Muse call falls through to Grok", async () => {
+  requirePlayer.mockResolvedValue({ id: "player-1" });
+  vi.stubEnv("META_API_KEY", "meta-key");
+  vi.stubEnv("XAI_API_KEY", "test-key");
+  const fetch = vi.fn()
+    .mockResolvedValueOnce(new Response("Billing verification failed", { status: 402 }))
+    .mockResolvedValueOnce(Response.json({ data: [{ url: "https://imgen.x.ai/scene.jpg" }] }));
+  vi.stubGlobal("fetch", fetch);
+  expect(await (await POST(request())).json()).toEqual({ url: "https://imgen.x.ai/scene.jpg", fromPool: false });
+  expect(fetch.mock.calls[1][0]).toBe("https://api.x.ai/v1/images/generations");
 });
 
 test("tag matching normalizes input and prefers maximum overlap", () => {

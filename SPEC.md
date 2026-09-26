@@ -106,8 +106,9 @@ The AI:
 **Models & APIs**
 | Job | Primary | Fallback |
 |---|---|---|
-| Round writing, judging, talk-window scoring | **Muse Spark 1.3** via OpenAI SDK → Meta Model API | Any fast OpenAI-compatible model, switched by env var |
-| Images | **Grok Imagine** (~$0.04/image) | Pre-generated, tagged image pool |
+| Round writing, talk-window scoring, superlatives | **Muse Spark 1.3** via OpenAI SDK → Meta Model API (~5–8 s; hidden by prefetch/background) | Grok, automatically on error |
+| Judging (players wait on it) | **Grok** (~1 s, fits the 6 s result screen) | Muse Spark, automatically on error |
+| Images | **Muse Image** (`muse-image-1.0`, $0.01/image, ~12–19 s; generated 2 rounds ahead) | Grok Imagine (~25 s), then the pre-generated tagged pool |
 | Speech-to-text | Grok STT if available, else a Whisper-class model | "Type instead" button |
 | Meme audio | `/public/clips` + `clips.json` (file, tags, answer, **license, source URL**) | Skip mechanic |
 | Round generation when slow | — | Fill a template locally without AI |

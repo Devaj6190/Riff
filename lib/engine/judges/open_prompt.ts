@@ -26,6 +26,7 @@ const judge: Judge = {
         recentChat: ctx.chat,
       }),
       JUDGE_TIMEOUT_MS,
+      { fast: true }, // scores must land inside the 6 s result screen
     ),
 };
 

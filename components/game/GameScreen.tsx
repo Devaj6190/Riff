@@ -71,7 +71,7 @@ export function GameScreen({ me, riff, players }: Props) {
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          {deadline && snap.riff.phase !== "round_active" && snap.riff.phase !== "countdown" && <Countdown deadline={deadline} />}
+          {deadline && snap.riff.phase !== "round_active" && snap.riff.phase !== "talk_window" && snap.riff.phase !== "countdown" && <Countdown deadline={deadline} />}
           {!partner && (
             <button type="button" onClick={() => navigator.clipboard?.writeText(location.href)} className="h-11 rounded-lg border border-current/20 px-4 text-sm">
               Copy link
@@ -145,14 +145,19 @@ function PhaseBody({
     case "talk_window":
       return (
         <div className="flex min-h-0 flex-1 flex-col">
-          <p className="px-4 pt-3 text-sm font-semibold">Talk it out</p>
+          <div className="flex items-center justify-between gap-2 px-4 pt-3">
+            <p className="text-sm font-semibold">Talk it out</p>
+            {deadline && <Countdown deadline={deadline} />}
+          </div>
           <Chat riffId={snap.riff.id} me={me} players={snap.players} />
         </div>
       );
     case "countdown":
       return (
         <div className="flex min-h-0 flex-1 flex-col">
-          <p className="px-4 pt-6 text-center text-lg font-semibold">Next round in {deadline ? <Countdown deadline={deadline} prominent /> : "…"}</p>
+          <p className="px-4 pt-6 text-center text-lg font-semibold">
+            Next round in {deadline ? <Countdown deadline={deadline} prominent suffix="…" /> : "…"}
+          </p>
           <Chat riffId={snap.riff.id} me={me} players={snap.players} />
         </div>
       );
@@ -279,6 +284,12 @@ function Ended({ snap, me }: { snap: GameSnapshot; me: Player }) {
 
 function ScoreBar({ players, scores, target, meId }: { players: Player[]; scores: Score[]; target: number; meId: string }) {
   const totals = totalsByPlayer(scores);
+  const talkTotal = scores.reduce((sum, score) => sum + (score.kind === "talk" ? score.total : 0), 0);
+  const seenTalk = useRef<number | null>(null);
+  useEffect(() => {
+    if (seenTalk.current !== null && talkTotal > seenTalk.current) navigator.vibrate?.(20);
+    seenTalk.current = talkTotal;
+  }, [talkTotal]);
   return (
     <div className="flex flex-col gap-2 border-b border-current/10 px-4 py-3">
       {players.map((player) => {
@@ -289,7 +300,9 @@ function ScoreBar({ players, scores, target, meId }: { players: Player[]; scores
             <div className="flex justify-between text-sm">
               <span>{player.id === meId ? "You" : player.name}</span>
               <span className="tabular-nums">
-                {score}
+                <span key={score} className="riff-pop">
+                  {score}
+                </span>
                 <span className="opacity-50"> / {target}</span>
               </span>
             </div>
@@ -303,11 +316,11 @@ function ScoreBar({ players, scores, target, meId }: { players: Player[]; scores
   );
 }
 
-function Countdown({ deadline, prominent = false }: { deadline: string; prominent?: boolean }) {
+function Countdown({ deadline, prominent = false, suffix = "s" }: { deadline: string; prominent?: boolean; suffix?: string }) {
   const seconds = useSecondsLeft(deadline);
   return (
     <span className={`tabular-nums ${prominent ? "text-3xl font-bold" : "text-sm"}`} aria-live="polite">
-      {seconds == null ? "…" : `${seconds}s`}
+      {seconds == null ? "…" : `${seconds}${suffix}`}
     </span>
   );
 }

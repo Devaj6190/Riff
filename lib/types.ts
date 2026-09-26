@@ -42,25 +42,26 @@ export type Message = {
   created_at: string;
 };
 
-export type Round = {
+type RoundBase = {
   id: string;
   room_id: string;
   number: number;
-  mechanic: Mechanic;
   depth: Depth;
   is_bonus: boolean;
   bonus_seat: Seat | null;
-  payload: Record<string, unknown>; // shape depends on mechanic
   starts_at: string;
   ends_at: string;
 };
 
-export type Answer = {
+/** A round; narrowing on `mechanic` narrows `payload`. */
+export type Round = { [M in Mechanic]: RoundBase & { mechanic: M; payload: RoundPayloads[M] } }[Mechanic];
+
+export type Answer<M extends Mechanic = Mechanic> = {
   id: string;
   room_id: string;
   round_id: string;
   player_id: string;
-  payload: Record<string, unknown>;
+  payload: AnswerPayloads[M];
   submitted_at: string;
 };
 
@@ -77,6 +78,42 @@ export type Score = {
   total: number; // (speed + quality + connection) * multiplier, computed by the DB
   reason: string | null;
   created_at: string;
+};
+
+// Round + answer payloads (rounds.payload / answers.payload) -------------------
+// Engine writes round payloads, UI renders them and writes answer payloads. Answer keys never go in a round payload.
+
+export type TwoTruthsStatements = [string, string, string];
+export type PickOption = { label: string; imageUrl?: string };
+
+export type RoundPayloads = {
+  open_prompt: { prompt: string };
+  // Two rounds: both write, then both guess. The guess round shows statements only; lies stay in the write answers.
+  // ponytail: write answers become readable once that round ends, so a devtools user could peek. Fine for a demo.
+  two_truths: { stage: "write"; prompt: string } | { stage: "guess"; statements: Record<Seat, TwoTruthsStatements> };
+  image: { prompt: string; imageUrl: string };
+  pick: { prompt: string; options: PickOption[] }; // 4 options
+  voice: { prompt: string };
+  meme_audio: { prompt: string; clipId: string; clipUrl: string }; // the answer lives in clips.json, looked up by clipId
+};
+
+export type AnswerPayloads = {
+  open_prompt: { text: string };
+  two_truths: { statements: TwoTruthsStatements; lieIndex: 0 | 1 | 2 } | { guess: 0 | 1 | 2 };
+  image: { text: string };
+  pick: { choice: number }; // index into options
+  voice: { transcript: string; audioPath?: string }; // audioPath (Supabase Storage) is absent when typed instead
+  meme_audio: { guess: string; reaction: string };
+};
+
+/** An entry in clips.json (SPEC §6). */
+export type Clip = {
+  id: string;
+  file: string; // path under /public/clips
+  tags: string[];
+  answer: string;
+  license: string;
+  sourceUrl: string;
 };
 
 // Game content ----------------------------------------------------------------

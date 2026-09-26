@@ -3,7 +3,7 @@
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { GameScreen } from "@/components/game/GameScreen";
-import { ProfileForm } from "@/components/ProfileForm";
+import { loadProfile, ProfileForm, saveProfile } from "@/components/ProfileForm";
 import { ensureSignedIn, supabase } from "@/lib/supabase/client";
 import type { Player, Riff } from "@/lib/types";
 
@@ -39,6 +39,7 @@ export default function RiffPage() {
   }, [code]);
 
   async function join(name: string, interests: string[]) {
+    saveProfile({ name, interests });
     const { error } = await supabase().rpc("join_riff", { p_code: code, p_name: name, p_interests: interests });
     if (error) throw new Error(error.message);
     await load();
@@ -51,7 +52,7 @@ export default function RiffPage() {
     return (
       <main className="mx-auto flex w-full max-w-md flex-col gap-4 px-4 py-10">
         <h1 className="text-2xl font-bold">Join riff {view.riff.code}</h1>
-        <ProfileForm submitLabel="Join" onSubmit={join} />
+        <ProfileForm submitLabel="Join" initial={loadProfile()} onSubmit={join} />
       </main>
     );
   }

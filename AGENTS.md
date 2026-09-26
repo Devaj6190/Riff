@@ -19,6 +19,7 @@ Next.js 16 App Router + TypeScript + Tailwind 4 · Supabase (Postgres, Realtime,
 - Schema + RLS: `supabase/migrations/`. Shared types: `lib/types.ts`.
 - Browser DB access: `supabase()` / `ensureSignedIn()` from `lib/supabase/client.ts`. API routes: `supabaseAdmin()` from `lib/supabase/admin.ts` (service role; server only).
 - Live updates: `subscribeToRiff()` from `lib/supabase/realtime.ts`. Load state in its `onReady`, never on SUBSCRIBED.
+- API routes: call with `callApi()` (`lib/api.ts`); guard every route with `requirePlayer()` (`lib/supabase/auth.ts`). Request/response types are in `lib/types.ts`.
 - Checks: `npm run typecheck`, `npm test` (Vitest), `npm run lint`.
 
 ## Parallel work: lanes

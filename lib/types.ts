@@ -21,7 +21,11 @@ export type Riff = {
   target_score: number;
   created_at: string;
   ended_at: string | null;
+  summary: RiffSummary | null; // written by the engine when the riff ends
+  reported_at: string | null;
 };
+
+export type RiffSummary = { superlatives: Record<Seat, string> };
 
 export type Player = {
   id: string;
@@ -115,6 +119,25 @@ export type Clip = {
   license: string;
   sourceUrl: string;
 };
+
+// API contracts ---------------------------------------------------------------
+// Every route takes JSON (except /api/transcribe) plus `Authorization: Bearer <supabase access token>`.
+// Call them with callApi() from lib/api.ts; guard them with requirePlayer() from lib/supabase/auth.ts.
+
+/** POST /api/advance: start the game from the lobby, or move past an expired/complete phase. Idempotent. */
+export type AdvanceRequest = { riffId: string };
+export type AdvanceResponse = { phase: GamePhase; advanced: boolean };
+
+/** POST /api/end: end the riff now, or start a fresh game in it (chat is kept). */
+export type EndRequest = { riffId: string; action: "end" | "restart" };
+export type EndResponse = { phase: GamePhase };
+
+/** POST /api/image: generate one image (Grok Imagine), falling back to the pre-generated pool. */
+export type ImageRequest = { riffId: string; prompt: string; tags: string[] };
+export type ImageResponse = { url: string; fromPool: boolean };
+
+/** POST /api/transcribe: multipart form with `riffId` and `audio` (a file). */
+export type TranscribeResponse = { transcript: string };
 
 // Game content ----------------------------------------------------------------
 

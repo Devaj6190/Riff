@@ -22,6 +22,7 @@ export type NudgeContext = {
   past: Partial<Record<Seat, UserProfile>>; // from their earlier chats with other people: steer only, never quote
   templates: Template[]; // shortlist for this kind and depth
   turf: Player | null; // bonus mode (bonus.ts): lean this nudge toward this player's interests
+  fast?: boolean; // write with Grok first (~1 s): a rewrite racing the next pop-up (refreshNext)
 };
 
 /**
@@ -116,7 +117,7 @@ async function loadContext(riffId: string, number: number): Promise<NudgeContext
       .reverse(),
     past: Object.fromEntries(seated.filter((p) => profileOf.has(p.user_id)).map((p) => [p.seat, profileOf.get(p.user_id)!])),
     templates: pickTemplates(await playableTemplates(), riffId, number, depth),
-    // ponytail: a slot written 2 ahead (images) can't see the nudge between; refreshTurf corrects the next one.
+    // ponytail: a slot written 2 ahead (images) can't see the nudge between; refreshNext corrects the next one.
     turf: isIntro(number) ? null : turfFor(seated, totals, nudges.data ?? []),
   };
 }
@@ -165,29 +166,32 @@ export async function prefetchNudges(riffId: string, current: number): Promise<v
 }
 
 /**
- * Run once nudge `current` is scored. If bonus mode just switched on, off or to the other player, rewrite the next
- * queued nudge so the conversation shifts now rather than a nudge later. Too slow → nudgeFor fills it locally.
+ * Run once nudge `current` is scored. The next nudge was written when `current` popped up, before anyone answered:
+ * rewrite it with Grok now that the answers and their scores are in. Image slots only when bonus mode just switched
+ * on, off or to the other player (too slow otherwise). The queued one stays until the rewrite replaces it, so a
+ * pop-up mid-rewrite still gets a written nudge.
  */
-export async function refreshTurf(riffId: string, current: number): Promise<void> {
-  const db = supabaseAdmin();
+export async function refreshNext(riffId: string, current: number): Promise<void> {
   const number = current + 1;
   const [{ data: queued }, ctx] = await Promise.all([
-    db.from("queued_nudges").select("for_seat").eq("riff_id", riffId).eq("for_number", number).maybeSingle(),
+    supabaseAdmin().from("queued_nudges").select("for_seat").eq("riff_id", riffId).eq("for_number", number).maybeSingle(),
     loadContext(riffId, number),
   ]);
-  if (queued && queued.for_seat === (ctx.turf?.seat ?? null)) return;
-  if (queued) await db.from("queued_nudges").delete().eq("riff_id", riffId).eq("for_number", number);
-  await writeSlot(riffId, ctx, 1);
+  if (ctx.templates[0].kind !== "text" && queued && queued.for_seat === (ctx.turf?.seat ?? null)) return;
+  await writeSlot(riffId, { ...ctx, fast: true }, 1, true);
 }
 
-async function writeSlot(riffId: string, ctx: NudgeContext, ahead: 1 | 2): Promise<void> {
+async function writeSlot(riffId: string, ctx: NudgeContext, ahead: 1 | 2, replace = false): Promise<void> {
   const kind = ctx.templates[0].kind;
   const writer = (await writerFor(kind))!;
   if (writer.lead < ahead) return;
-  const payload = await writeOrFill(writer, ctx);
-  const { error } = await supabaseAdmin()
-    .from("queued_nudges")
-    .insert({ riff_id: riffId, for_number: ctx.number, kind, depth: ctx.depth, payload, ...bonusFields(ctx) });
+  // A failed rewrite keeps what's queued; a local fill would be worse than it.
+  const payload = replace ? await writer.write(ctx).catch((e) => void console.warn(`nudge ${ctx.number}: rewrite failed`, e instanceof Error ? e.message : e)) : await writeOrFill(writer, ctx);
+  if (!payload) return;
+  const row = { riff_id: riffId, for_number: ctx.number, kind, depth: ctx.depth, payload, ...bonusFields(ctx) };
+  const queue = supabaseAdmin().from("queued_nudges");
+  // ponytail: a replace landing after the pop-up leaves an unused row for a shown number; harmless, restart clears it.
+  const { error } = await (replace ? queue.upsert(row, { onConflict: "riff_id,for_number" }) : queue.insert(row));
   if (error && error.code !== "23505") throw error; // 23505: a concurrent write got this slot first
 }
 

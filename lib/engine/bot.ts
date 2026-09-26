@@ -14,19 +14,21 @@ const PERSONAS = [
   { name: "Leo", interests: ["fitness", "outdoors", "food"] },
 ];
 
-/** Seat the bot as player B and start the chat (what join_riff does for a human). */
-export async function seatBot(riffId: string): Promise<void> {
+/** Seat the bot as player B (a random persona unless given) and start the chat (what join_riff does for a human). */
+export async function seatBot(riffId: string, persona = PERSONAS[Math.floor(Math.random() * PERSONAS.length)]): Promise<void> {
   const db = supabaseAdmin();
   const created = await db.auth.admin.createUser({ id: BOT_USER_ID, email: "bot@riffapp.tech", email_confirm: true });
   if (created.error && !/already|exists/i.test(created.error.message)) throw created.error;
-  const p = PERSONAS[Math.floor(Math.random() * PERSONAS.length)];
-  const { error } = await db.from("players").insert({ riff_id: riffId, user_id: BOT_USER_ID, seat: "B", ...p });
+  const { error } = await db.from("players").insert({ riff_id: riffId, user_id: BOT_USER_ID, seat: "B", ...persona });
   if (error && error.code !== "23505") throw error; // 23505: seat already taken (reload, or a human joined)
   await db.from("riffs").update({ phase: "chatting" }).eq("id", riffId).eq("phase", "lobby");
 }
 
-/** Reply if the human said something, or a nudge popped up, since the bot last spoke. */
-export async function botTurn(riffId: string): Promise<void> {
+/**
+ * Reply if the human said something, or a nudge popped up, since the bot last spoke. `persona` swaps in another
+ * system prompt (the coach, coach.ts); that bot also opens the chat and may ask questions.
+ */
+export async function botTurn(riffId: string, persona?: (bot: Player, human: Player) => Promise<string>): Promise<void> {
   const db = supabaseAdmin();
   const [players, messages, nudge] = await Promise.all([
     db.from("players").select("*").eq("riff_id", riffId),
@@ -42,14 +44,14 @@ export async function botTurn(riffId: string): Promise<void> {
   const botLast = at(chat.findLast((m) => m.player_id === bot.id)?.created_at);
   const humanLast = at(chat.findLast((m) => m.player_id !== bot.id)?.created_at);
   const liveNudge = nudge.data && Date.now() < at(nudge.data.ends_at) ? nudge.data : null;
-  const trigger = Math.max(humanLast, at(liveNudge?.created_at));
+  const trigger = Math.max(humanLast, at(liveNudge?.created_at), persona && !chat.length ? 1 : 0);
   if (trigger <= botLast) return;
   // Like a person: reads once they've stopped typing (people double-text), then takes a moment. Ticks come every
   // few seconds, so a fresh random gate each tick spreads the reply time out.
   if (Date.now() - trigger < 3000 + Math.random() * 4000) return;
   const botLastBody = chat.findLast((m) => m.player_id === bot.id)?.body ?? "";
 
-  const system = `${GUARDRAILS} You are ${bot.name}, a college student into ${bot.interests.join(", ")}, texting ${human.name} (into ${human.interests.join(", ")}), someone you just met on Riff. Text like a real person in a DM, not an assistant:
+  const system = persona ? await persona(bot, human) : `${GUARDRAILS} You are ${bot.name}, a college student into ${bot.interests.join(", ")}, texting ${human.name} (into ${human.interests.join(", ")}), someone you just met on Riff. Text like a real person in a DM, not an assistant:
 - casual, mostly lowercase, little punctuation; vary length: sometimes 2–4 words ("lmao no way", "wait same"), sometimes 1–2 sentences
 - react, share your own opinions and small stories, tease a little, disagree sometimes; don't be over-eager or agreeable
 - do NOT end every message with a question; most messages have none
@@ -68,7 +70,7 @@ Return JSON: {"reply": "..."}`;
   if (!reply) return;
   // Grok follows "don't always ask" loosely: after a message with a question, drop the question sentences.
   const noQuestions = reply.split(/(?<=[.!?])\s+/).filter((part) => !part.endsWith("?")).join(" ");
-  const text = botLastBody.includes("?") && noQuestions ? noQuestions : reply;
+  const text = !persona && botLastBody.includes("?") && noQuestions ? noQuestions : reply;
   // Typing time at fast-thumbs speed (~12 chars/s), capped.
   await new Promise((r) => setTimeout(r, Math.min(8000, 1000 + text.length * 80)));
 

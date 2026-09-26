@@ -39,9 +39,10 @@ export async function totalsByPlayer(riffId: string): Promise<Map<string, number
 /** Write one playful superlative per player into riffs.summary. Never throws. */
 export async function writeSummary(riffId: string): Promise<void> {
   const db = supabaseAdmin();
-  const [players, messages] = await Promise.all([
+  const [players, messages, known] = await Promise.all([
     db.from("players").select("*").eq("riff_id", riffId),
     db.from("messages").select("player_id, body").eq("riff_id", riffId).order("created_at", { ascending: false }).limit(60),
+    loadChatContext(riffId),
   ]);
   const seated = (players.data ?? []) as Player[];
   const name = new Map(seated.map((p) => [p.id, p.name]));
@@ -51,6 +52,8 @@ export async function writeSummary(riffId: string): Promise<void> {
       [
         "Two people just finished a chat. Give each player one playful superlative based on what they actually said,",
         'like "Most likely to defend Sharknado 3 in court". Kind, specific, under 10 words, starting with "Most likely to".',
+        "notes has what each player shared over the whole chat and thread has its running jokes: the best ones call back to a",
+        "running joke or the most them thing they said. Never about scores, and nothing they'd be embarrassed to see.",
         'JSON shape: {"A": string, "B": string}',
       ].join(" "),
       JSON.stringify({
@@ -58,7 +61,9 @@ export async function writeSummary(riffId: string): Promise<void> {
           seat: p.seat,
           name: p.name,
           interests: [...p.interests, ...p.extracted_interests],
+          notes: known.notes[p.seat],
         })),
+        thread: known.thread,
         chat: (messages.data ?? []).reverse().map((m) => `${name.get(m.player_id) ?? "?"}: ${m.body}`),
       }),
       SCORE_TIMEOUT_MS,
@@ -81,7 +86,8 @@ export async function endRiff(riff: Riff): Promise<RiffPhase> {
     .neq("phase", "ended")
     .select("id");
   if (data?.length) {
-    after(() => saveHistory(riff.id).catch((e) => console.error("chat history failed", e)));
+    // ponytail: coach chats don't feed the profile, so a miss stays until a later real chat stops showing it.
+    if (riff.kind !== "coach") after(() => saveHistory(riff.id).catch((e) => console.error("chat history failed", e)));
     await writeSummary(riff.id);
   }
   return "ended";

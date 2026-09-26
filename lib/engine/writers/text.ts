@@ -20,6 +20,7 @@ const writer: Writer<"text"> = {
       ].join(" "),
       userMessage(ctx),
       MODEL_TIMEOUT_MS,
+      { fast: ctx.fast },
     )) as { prompt?: unknown };
     const prompt = typeof out.prompt === "string" ? out.prompt.trim() : "";
     if (!prompt || prompt.length > 200) throw new Error(`bad prompt from model: ${JSON.stringify(out)}`);

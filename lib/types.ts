@@ -4,6 +4,8 @@ export type Seat = "A" | "B";
 
 export type RiffPhase = "lobby" | "chatting" | "ended";
 
+export type RiffKind = "game" | "coach"; // coach: a 1:1 with the AI coach on references the player missed; no nudges
+
 export type NudgeKind = "text" | "image" | "audio";
 
 export type Tone = "fun" | "deep" | "know";
@@ -15,6 +17,7 @@ export type Depth = 1 | 2 | 3;
 export type Riff = {
   id: string;
   code: string;
+  kind: RiffKind;
   phase: RiffPhase; // lobby until the second player joins; ended by score or by a player, chat stays open
   target_score: number;
   created_at: string;
@@ -130,6 +133,16 @@ export type TickRequest = { riffId: string; typing?: boolean };
 /** Test mode: seat the AI as player B in the caller's riff. */
 export type BotRequest = { code: string };
 export type TickResponse = { phase: RiffPhase; nudged: boolean };
+
+/** POST /api/match: join the Match me queue, then poll every 2 s. `code` is the new riff once paired; stop polling
+ *  to leave the queue. `name` and `interests` are the caller's profile, as for create_riff. */
+export type MatchRequest = { name: string; interests: string[] };
+export type MatchResponse = { code: string | null };
+
+/** POST /api/coach: start a coach riff (the AI catches the caller up on references they missed). 404 if there's
+ *  nothing to catch up on yet (no finished chats). */
+export type CoachRequest = { name: string; interests: string[] };
+export type CoachResponse = { code: string };
 
 /** POST /api/end: end the riff now, or start a new match in it (chat is kept). */
 export type EndRequest = { riffId: string; action: "end" | "restart" };

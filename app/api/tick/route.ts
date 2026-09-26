@@ -1,7 +1,8 @@
 import { after } from "next/server";
 import { BOT_USER_ID, botTurn } from "@/lib/engine/bot";
+import { coachSystem } from "@/lib/engine/coach";
 import { endIfWon } from "@/lib/engine/ending";
-import { nudgeFor, prefetchNudges, refreshTurf } from "@/lib/engine/nudges";
+import { nudgeFor, prefetchNudges, refreshNext } from "@/lib/engine/nudges";
 import { readChat } from "@/lib/engine/reader";
 import { mayClose, shouldNudge, timerSeconds, type PaceState } from "@/lib/engine/pacing";
 import { closeIfAnswered, scoreNudge } from "@/lib/engine/score";
@@ -38,11 +39,16 @@ export async function POST(req: Request) {
   ]);
   if (riff.error) throw riff.error;
   if (riff.data.phase !== "chatting") return reply(riff.data.phase, false);
+  // Coach riff (coach.ts): just the coach bot's turn; no nudges, scores or chat reading.
+  if (riff.data.kind === "coach") {
+    after(() => botTurn(riffId, coachSystem).catch((e) => console.error("coach failed", e)));
+    return reply("chatting", false);
+  }
   const lastNudge = last.data;
   const now = Date.now();
 
-  // Timer ran out: score the answers, then end the game if someone reached the target, else switch bonus mode
-  // (nudges lean toward the trailing player) if the scores call for it.
+  // Timer ran out: score the answers, then end the game if someone reached the target, else rewrite the next nudge
+  // with these answers in view (and bonus mode, which leans nudges toward the trailing player, if it switched).
   if (lastNudge && !lastNudge.scored_at && now >= Date.parse(lastNudge.ends_at)) {
     const { data: claimed } = await db
       .from("nudges")
@@ -54,7 +60,7 @@ export async function POST(req: Request) {
       after(async () => {
         try {
           await scoreNudge(riffId, lastNudge);
-          if (!(await endIfWon(riffId))) await refreshTurf(riffId, lastNudge.number);
+          if (!(await endIfWon(riffId))) await refreshNext(riffId, lastNudge.number);
         } catch (e) {
           console.error("score/bonus failed", e);
         }

@@ -157,7 +157,7 @@ export function HomeScreen() {
           </section>
         </div>
 
-        <aside id="profile" className="flex scroll-mt-8 flex-col gap-4 md:sticky md:top-12 md:self-start md:rounded-3xl md:bg-muted/50 md:p-6">
+        <aside id="profile" className="flex scroll-mt-8 flex-col gap-4 md:sticky md:top-12 rounded-3xl bg-muted/50 p-5 md:self-start md:p-6">
           {profile ? (
             <div className="flex items-center gap-3">
               <Avatar name={profile.name} />

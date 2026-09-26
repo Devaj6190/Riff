@@ -5,6 +5,7 @@ import { Chat } from "@/components/Chat";
 import { callApi } from "@/lib/api";
 import { supabase } from "@/lib/supabase/client";
 import type { AdvanceRequest, AdvanceResponse, Answer, GamePhase, Player, Riff, Round, Score, Seat } from "@/lib/types";
+import { EndControls, endRiff } from "./EndControls";
 import { mechanicAnswers } from "./mechanicAnswers";
 import { useGameState, type GameSnapshot } from "./useGameState";
 
@@ -19,6 +20,7 @@ export function GameScreen({ me, riff, players }: Props) {
   const [startError, setStartError] = useState<string | null>(null);
   const [answerError, setAnswerError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const [chatOnly, setChatOnly] = useState(false);
 
   useEffect(() => {
     if (snap.riff.phase === "round_result") navigator.vibrate?.(30);
@@ -72,6 +74,7 @@ export function GameScreen({ me, riff, players }: Props) {
         </div>
         <div className="flex shrink-0 items-center gap-2">
           {deadline && snap.riff.phase !== "round_active" && snap.riff.phase !== "talk_window" && snap.riff.phase !== "countdown" && <Countdown deadline={deadline} />}
+          {partner && snap.riff.phase !== "lobby" && snap.riff.phase !== "ended" && <EndControls riffId={snap.riff.id} me={me} partner={partner} />}
           {!partner && (
             <button type="button" onClick={() => navigator.clipboard?.writeText(location.href)} className="h-11 rounded-lg border border-current/20 px-4 text-sm">
               Copy link
@@ -80,9 +83,13 @@ export function GameScreen({ me, riff, players }: Props) {
         </div>
       </header>
 
-      {snap.riff.phase !== "lobby" && <ScoreBar players={snap.players} scores={snap.scores} target={snap.riff.target_score} meId={me.id} />}
+      {chatOnly && snap.riff.phase === "ended" ? (
+        <Chat riffId={snap.riff.id} me={me} players={snap.players} />
+      ) : (
+        <>
+          {snap.riff.phase !== "lobby" && <ScoreBar players={snap.players} scores={snap.scores} target={snap.riff.target_score} meId={me.id} />}
 
-      <PhaseBody
+          <PhaseBody
         snap={snap}
         me={me}
         round={round}
@@ -92,9 +99,12 @@ export function GameScreen({ me, riff, players }: Props) {
         startError={startError}
         answerError={answerError}
         sending={sending}
-        onStart={start}
-        onSubmit={submitAnswer}
-      />
+            onStart={start}
+            onSubmit={submitAnswer}
+            onKeepChatting={() => setChatOnly(true)}
+          />
+        </>
+      )}
       {advanceError && <p className="px-4 pb-3 text-sm text-red-500">{advanceError}</p>}
     </main>
   );
@@ -112,6 +122,7 @@ function PhaseBody({
   sending,
   onStart,
   onSubmit,
+  onKeepChatting,
 }: {
   snap: GameSnapshot;
   me: Player;
@@ -124,6 +135,7 @@ function PhaseBody({
   sending: boolean;
   onStart: () => void;
   onSubmit: (payload: Answer["payload"]) => Promise<void>;
+  onKeepChatting: () => void;
 }) {
   const phase: GamePhase = snap.riff.phase;
   switch (phase) {
@@ -169,7 +181,7 @@ function PhaseBody({
         </div>
       );
     case "ended":
-      return <Ended snap={snap} me={me} />;
+      return <Ended snap={snap} me={me} onKeepChatting={onKeepChatting} />;
     default: {
       const unreachable: never = phase;
       return unreachable;
@@ -285,23 +297,41 @@ function Result({
   );
 }
 
-function Ended({ snap, me }: { snap: GameSnapshot; me: Player }) {
+function Ended({ snap, me, onKeepChatting }: { snap: GameSnapshot; me: Player; onKeepChatting: () => void }) {
   const totals = totalsByPlayer(snap.scores);
+  const [a, b] = snap.players.map((p) => ({ player: p, total: totals.get(p.id) ?? 0 }));
+  const winner = a && b && a.total !== b.total ? (a.total > b.total ? a.player : b.player) : null;
+  const [restarting, setRestarting] = useState(false);
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
       <div className="flex flex-col gap-3 px-4 py-4">
-        <h2 className="text-xl font-bold">Game over</h2>
+        <h2 className="riff-pop text-2xl font-bold">{winner ? (winner.id === me.id ? "You win! 🏆" : `${winner.name} wins! 🏆`) : "It's a tie! 🤝"}</h2>
         {snap.players.map((player) => (
           <div key={player.id} className="rounded-2xl border border-current/15 p-4">
             <div className="flex items-baseline justify-between">
               <span className="font-semibold">{player.id === me.id ? "You" : player.name}</span>
               <span className="text-2xl font-bold tabular-nums">{totals.get(player.id) ?? 0}</span>
             </div>
-            {snap.riff.summary?.superlatives[player.seat] && <p className="mt-1 text-sm">{snap.riff.summary.superlatives[player.seat]}</p>}
+            <p className="mt-1 text-sm">{snap.riff.summary?.superlatives[player.seat] ?? "Writing your superlative…"}</p>
           </div>
         ))}
+        <div className="flex gap-2">
+          <button
+            type="button"
+            disabled={restarting}
+            onClick={async () => {
+              setRestarting(true);
+              await endRiff(snap.riff.id, "restart").catch(() => setRestarting(false));
+            }}
+            className="h-12 flex-1 rounded-full bg-foreground font-semibold text-background disabled:opacity-40"
+          >
+            {restarting ? "…" : "Play again"}
+          </button>
+          <button type="button" onClick={onKeepChatting} className="h-12 flex-1 rounded-full border border-current/20 font-semibold">
+            Keep chatting
+          </button>
+        </div>
       </div>
-      <Chat riffId={snap.riff.id} me={me} players={snap.players} />
     </div>
   );
 }

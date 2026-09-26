@@ -57,7 +57,7 @@ export function Chat({ riffId, me, players, onSent }: Props) {
         {messages.map((m) => {
           const mine = m.player_id === me.id;
           return (
-            <li key={m.id} className={`max-w-[80%] rounded-2xl px-3 py-2 ${mine ? "self-end bg-foreground text-background" : "self-start bg-current/10"}`}>
+            <li key={m.id} className={`max-w-[80%] rounded-2xl px-3 py-2 ${mine ? "self-end bg-primary text-primary-foreground" : "self-start bg-muted"}`}>
               {!mine && <div className="text-xs opacity-60">{nameOf(m.player_id)}</div>}
               {m.body}
             </li>
@@ -74,7 +74,7 @@ export function Chat({ riffId, me, players, onSent }: Props) {
           placeholder="Say something…"
           className="h-11 flex-1 rounded-full border border-current/20 bg-transparent px-4"
         />
-        <button type="submit" disabled={!draft.trim()} className="h-11 rounded-full bg-foreground px-5 font-semibold text-background disabled:opacity-40">
+        <button type="submit" disabled={!draft.trim()} className="h-11 rounded-full bg-primary px-5 font-semibold text-primary-foreground disabled:opacity-40">
           Send
         </button>
       </form>

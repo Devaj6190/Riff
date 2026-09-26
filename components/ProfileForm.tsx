@@ -3,15 +3,38 @@
 import { useState } from "react";
 import { INTEREST_CHIPS, INTERESTS_REQUIRED, normalizeInterest, normalizeInterests } from "@/lib/interests";
 
+export type Profile = { name: string; interests: string[] };
+
+const PROFILE_KEY = "riff-profile";
+
+/** The profile saved on this device, or null. Client-only. */
+export function loadProfile(): Profile | null {
+  try {
+    const p = JSON.parse(localStorage.getItem(PROFILE_KEY) ?? "null");
+    return typeof p?.name === "string" && Array.isArray(p.interests) ? p : null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveProfile(profile: Profile) {
+  try {
+    localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+  } catch {
+    // ponytail: storage blocked (private mode); the profile just won't persist.
+  }
+}
+
 type Props = {
   submitLabel: string;
+  initial?: Profile | null;
   onSubmit: (name: string, interests: string[]) => Promise<void>;
 };
 
-/** Display name + pick 3 interest chips (or type your own). Used to create and to join a riff. */
-export function ProfileForm({ submitLabel, onSubmit }: Props) {
-  const [name, setName] = useState("");
-  const [picked, setPicked] = useState<string[]>([]);
+/** Display name + pick 3 interest chips (or type your own). Used for the home profile and to join a riff. */
+export function ProfileForm({ submitLabel, initial, onSubmit }: Props) {
+  const [name, setName] = useState(initial?.name ?? "");
+  const [picked, setPicked] = useState<string[]>(initial?.interests ?? []);
   const [custom, setCustom] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,6 +60,7 @@ export function ProfileForm({ submitLabel, onSubmit }: Props) {
       await onSubmit(name.trim(), normalizeInterests(picked));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
       setBusy(false);
     }
   }
@@ -68,7 +92,7 @@ export function ProfileForm({ submitLabel, onSubmit }: Props) {
                 onClick={() => toggle(chip)}
                 aria-pressed={on}
                 disabled={!on && full}
-                className={`h-11 rounded-full border px-4 disabled:opacity-40 ${on ? "border-transparent bg-foreground text-background" : "border-current/20"}`}
+                className={`h-11 rounded-full border px-4 disabled:opacity-40 ${on ? "border-transparent bg-primary text-primary-foreground" : "border-current/20"}`}
               >
                 {chip}
               </button>
@@ -101,7 +125,7 @@ export function ProfileForm({ submitLabel, onSubmit }: Props) {
       <button
         type="submit"
         disabled={busy || !name.trim() || picked.length < INTERESTS_REQUIRED}
-        className="h-12 rounded-lg bg-foreground font-semibold text-background disabled:opacity-40"
+        className="h-12 rounded-lg bg-primary font-semibold text-primary-foreground disabled:opacity-40"
       >
         {busy ? "…" : submitLabel}
       </button>

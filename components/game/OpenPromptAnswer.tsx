@@ -35,7 +35,7 @@ export function OpenPromptAnswer({ round, submitted, busy, error, onSubmit }: Me
           <button
             type="submit"
             disabled={busy || !text.trim()}
-            className="h-11 rounded-full bg-foreground px-5 font-semibold text-background disabled:opacity-40"
+            className="h-11 rounded-full bg-primary px-5 font-semibold text-primary-foreground disabled:opacity-40"
           >
             {busy ? "…" : "Send"}
           </button>

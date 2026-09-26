@@ -195,7 +195,7 @@ function Lobby({ ready, starting, error, onStart, chat }: { ready: boolean; star
       <div className="flex flex-col items-center gap-3 px-4 py-6 text-center">
         <p>{ready ? "Both players are in." : "Share the code and wait for them."}</p>
         {ready && (
-          <button type="button" onClick={onStart} disabled={starting} className="h-12 min-w-44 rounded-full bg-foreground px-6 font-semibold text-background disabled:opacity-40">
+          <button type="button" onClick={onStart} disabled={starting} className="h-12 min-w-44 rounded-full bg-primary px-6 font-semibold text-primary-foreground disabled:opacity-40">
             {starting ? "Starting…" : "Start"}
           </button>
         )}
@@ -265,7 +265,7 @@ function Result({
   return (
     <ul className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-4">
       {matched && round?.mechanic === "pick" && (
-        <li key={`${popKey}:match`} className="riff-burst rounded-2xl bg-foreground p-4 text-center text-background">
+        <li key={`${popKey}:match`} className="riff-burst rounded-2xl bg-primary p-4 text-center text-primary-foreground">
           <p className="text-2xl font-bold">It&apos;s a match! 🎉</p>
           <p className="text-sm opacity-80">You both picked {round.payload.options[picks[0]!]?.label}</p>
         </li>
@@ -323,7 +323,7 @@ function Ended({ snap, me, onKeepChatting }: { snap: GameSnapshot; me: Player; o
               setRestarting(true);
               await endRiff(snap.riff.id, "restart").catch(() => setRestarting(false));
             }}
-            className="h-12 flex-1 rounded-full bg-foreground font-semibold text-background disabled:opacity-40"
+            className="h-12 flex-1 rounded-full bg-primary font-semibold text-primary-foreground disabled:opacity-40"
           >
             {restarting ? "…" : "Play again"}
           </button>
@@ -361,7 +361,7 @@ function ScoreBar({ players, scores, target, meId }: { players: Player[]; scores
               </span>
             </div>
             <div className="mt-1 h-2 overflow-hidden rounded-full bg-current/10">
-              <div className="h-full rounded-full bg-foreground transition-[width] duration-500" style={{ width: `${width}%` }} />
+              <div className="h-full rounded-full bg-primary transition-[width] duration-500" style={{ width: `${width}%` }} />
             </div>
           </div>
         );

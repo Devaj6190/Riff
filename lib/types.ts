@@ -102,6 +102,8 @@ export type Clip = {
 
 /** POST /api/tick: call every few seconds while chatting. Shows the next nudge if it's time. Idempotent. */
 export type TickRequest = { riffId: string };
+/** Test mode: seat the AI as player B in the caller's riff. */
+export type BotRequest = { code: string };
 export type TickResponse = { phase: RiffPhase; nudged: boolean };
 
 /** POST /api/end: end the riff now, or start a new match in it (chat is kept). */

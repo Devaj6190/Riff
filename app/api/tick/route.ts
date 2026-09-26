@@ -1,4 +1,5 @@
 import { after } from "next/server";
+import { BOT_USER_ID, botTurn } from "@/lib/engine/bot";
 import { endIfWon } from "@/lib/engine/ending";
 import { nudgeFor, prefetchNudges, refreshTurf } from "@/lib/engine/nudges";
 import { shouldNudge, timerSeconds } from "@/lib/engine/pacing";
@@ -29,7 +30,7 @@ export async function POST(req: Request) {
   const db = supabaseAdmin();
   const [riff, players, last] = await Promise.all([
     db.from("riffs").select("*").eq("id", riffId).single<Riff>(),
-    db.from("players").select("id, seat, joined_at").eq("riff_id", riffId).order("joined_at", { ascending: false }),
+    db.from("players").select("id, seat, joined_at, user_id").eq("riff_id", riffId).order("joined_at", { ascending: false }),
     db.from("nudges").select("*").eq("riff_id", riffId).order("number", { ascending: false }).limit(1).maybeSingle<Nudge>(),
   ]);
   if (riff.error) throw riff.error;
@@ -58,7 +59,9 @@ export async function POST(req: Request) {
     }
   }
 
-  const seated = (players.data ?? []) as Pick<Player, "id" | "seat" | "joined_at">[];
+  const seated = (players.data ?? []) as Pick<Player, "id" | "seat" | "joined_at" | "user_id">[];
+  // Test mode: the AI in seat B takes its turn in the background (it replies only if there's something new).
+  if (seated.some((p) => p.user_id === BOT_USER_ID)) after(() => botTurn(riffId).catch((e) => console.error("bot failed", e)));
   const poppedAt = lastNudge?.created_at ?? seated[0]?.joined_at ?? riff.data.created_at; // chat starts when B joins
   // ponytail: the most recent 200 are plenty to judge the flow.
   const { data: recent } = await db

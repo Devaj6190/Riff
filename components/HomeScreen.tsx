@@ -3,7 +3,9 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { loadProfile, ProfileForm, saveProfile, type Profile } from "@/components/ProfileForm";
+import { callApi } from "@/lib/api";
 import { INTEREST_CHIPS } from "@/lib/interests";
+import type { BotRequest } from "@/lib/types";
 import { ensureSignedIn, supabase } from "@/lib/supabase/client";
 
 // ponytail: template people until Phase 2 discovery has a backend (SPEC §7).
@@ -50,7 +52,7 @@ export function HomeScreen() {
     document.getElementById("profile")?.scrollIntoView({ behavior: "smooth" });
   }
 
-  async function startRiff() {
+  async function startRiff(withBot = false) {
     if (!profile) return openProfile();
     setBusy(true);
     setError(null);
@@ -58,6 +60,7 @@ export function HomeScreen() {
       await ensureSignedIn();
       const { data, error } = await supabase().rpc("create_riff", { p_name: profile.name, p_interests: profile.interests });
       if (error) throw new Error(error.message);
+      if (withBot) await callApi("/api/bot", { code: data } satisfies BotRequest);
       router.push(`/r/${data}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Couldn't start a chat");
@@ -82,8 +85,11 @@ export function HomeScreen() {
           </header>
 
           <section className="flex flex-col gap-3">
-            <button onClick={startRiff} disabled={busy} className="h-12 rounded-full bg-primary font-semibold text-primary-foreground disabled:opacity-40">
+            <button onClick={() => startRiff()} disabled={busy} className="h-12 rounded-full bg-primary font-semibold text-primary-foreground disabled:opacity-40">
               {busy ? "…" : "Start a chat"}
+            </button>
+            <button onClick={() => startRiff(true)} disabled={busy} className="h-11 rounded-full text-sm font-semibold text-primary disabled:opacity-40">
+              Test with AI
             </button>
             <form
               onSubmit={(e) => {

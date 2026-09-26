@@ -12,8 +12,10 @@ const ROUND_SECONDS: Record<Mechanic, number> = {
   meme_audio: 20,
 };
 
-// ponytail: talk window is the fixed 20 s minimum; extension rules land with /api/talk (#5).
-const PHASE_SECONDS = { round_result: 6, talk_window: 20, countdown: 5 };
+/** Talk-window numbers (SPEC §4.5), in one place for tuning. Extensions are computed in talk.ts. */
+export const TALK = { minSeconds: 20, perMessageSeconds: 8, bothActiveWithinSeconds: 10, maxSeconds: 90 };
+
+const PHASE_SECONDS = { round_result: 6, talk_window: TALK.minSeconds, countdown: 5 };
 
 const AFTER: Partial<Record<GamePhase, GamePhase>> = {
   round_active: "round_result",

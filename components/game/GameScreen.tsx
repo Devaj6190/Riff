@@ -150,7 +150,13 @@ function PhaseBody({
             <p className="text-sm font-semibold">Talk it out</p>
             {deadline && <Countdown deadline={deadline} />}
           </div>
-          <Chat riffId={snap.riff.id} me={me} players={snap.players} />
+          {/* Each message may extend the window; the engine recomputes and publishes the new deadline. */}
+          <Chat
+            riffId={snap.riff.id}
+            me={me}
+            players={snap.players}
+            onSent={() => void callApi<AdvanceResponse>("/api/advance", { riffId: snap.riff.id } satisfies AdvanceRequest).catch(() => {})}
+          />
         </div>
       );
     case "countdown":

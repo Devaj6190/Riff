@@ -1,6 +1,7 @@
 import { after } from "next/server";
 import { nextPhase, phaseSeconds } from "@/lib/engine/clock";
 import { judgeRound } from "@/lib/engine/judge";
+import { loadWindow, scoreTalk, talkDeadline } from "@/lib/engine/talk";
 import { prefetchRounds, roundFor } from "@/lib/engine/rounds";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { requirePlayer } from "@/lib/supabase/auth";
@@ -25,10 +26,27 @@ export async function POST(req: Request) {
   if (error) throw error;
   const reply = (phase: GamePhase, advanced: boolean) => Response.json({ phase, advanced } satisfies AdvanceResponse);
 
+  // Talk window: the real deadline comes from the messages (talk.ts). It never shrinks; extensions are
+  // published so clients reschedule, and the phase only moves on once it has passed.
+  let phaseEndsAt = riff.phase_ends_at ? new Date(riff.phase_ends_at) : null;
+  if (riff.phase === "talk_window") {
+    const w = await loadWindow(riffId, riff.round_number);
+    const computed = w ? talkDeadline(w.start, w.messages) : 0;
+    if (phaseEndsAt && computed > phaseEndsAt.getTime() && computed > Date.now()) {
+      phaseEndsAt = new Date(computed);
+      await db
+        .from("riffs")
+        .update({ phase_ends_at: phaseEndsAt.toISOString() })
+        .eq("id", riffId)
+        .eq("phase", "talk_window")
+        .eq("round_number", riff.round_number);
+    }
+  }
+
   const next = nextPhase(
     {
       phase: riff.phase,
-      phaseEndsAt: riff.phase_ends_at ? new Date(riff.phase_ends_at) : null,
+      phaseEndsAt,
       seats: riff.phase === "lobby" ? await count(db.from("players").select("*", { count: "exact", head: true }).eq("riff_id", riffId)) : 0,
       answers: riff.phase === "round_active" ? await countAnswers(riffId, riff.round_number) : 0,
     },
@@ -65,6 +83,9 @@ export async function POST(req: Request) {
     // Scores land during round_result; the compare-and-set above guarantees one judge per round.
     after(() => judgeRound(riffId, riff.round_number).catch((e) => console.error("judge failed", e)));
   }
+
+  if (next === "talk_window") after(() => prefetchRounds(riffId, riff.round_number).catch((e) => console.error("prefetch top-up failed", e)));
+  if (riff.phase === "talk_window") after(() => scoreTalk(riffId, riff.round_number).catch((e) => console.error("talk scoring failed", e)));
 
   // If this insert fails the riff sits in round_active without a round; its deadline still passes, so it recovers.
   if (round) {

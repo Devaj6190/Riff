@@ -205,10 +205,11 @@ function EndScreen({
   const [busy, setBusy] = useState(false);
   const winner = people.find((p) => (totals.get(p.id) ?? 0) >= riff.target_score);
   const title = !winner ? "Match over" : winner.id === meId ? "You won" : `${winner.name} won`;
-  const superlatives = riff.summary?.superlatives;
+  const moments = riff.summary?.moments; // undefined while the AI is still picking them
+  const nameOf = (seat: string) => (people.find((p) => p.seat === seat)?.id === meId ? "You" : people.find((p) => p.seat === seat)?.name);
 
   return (
-    <div className="riff-pop absolute inset-0 z-30 flex flex-col justify-center gap-6 bg-background/95 px-6 backdrop-blur">
+    <div className="riff-pop absolute inset-0 z-30 flex flex-col gap-6 overflow-y-auto bg-background/95 px-6 py-10 backdrop-blur">
       <h2 className="text-center text-3xl font-bold">{title}</h2>
       <ul className="flex flex-col gap-3">
         {people.map((p) => (
@@ -217,10 +218,23 @@ function EndScreen({
               <span className="font-semibold">{p.id === meId ? "You" : p.name}</span>
               <span className="text-2xl font-bold tabular-nums">{totals.get(p.id) ?? 0}</span>
             </div>
-            <p className={`mt-1 ${superlatives ? "" : "animate-pulse opacity-50"}`}>{superlatives?.[p.seat] ?? "…"}</p>
           </li>
         ))}
       </ul>
+      {!moments && <p className="animate-pulse text-center text-sm opacity-50">Picking your best moments…</p>}
+      {moments?.map((m, i) => (
+        <section key={i} className="riff-pop rounded-3xl border border-primary/20 p-4" style={{ animationDelay: `${i * 150}ms` }}>
+          <p className="text-xs font-semibold uppercase tracking-wide text-primary">{m.title}</p>
+          <div className="mt-2 flex flex-col gap-1">
+            {m.lines.map((l, j) => (
+              <p key={j} className="text-sm">
+                <span className="font-semibold">{nameOf(l.seat)}:</span> {l.body}
+              </p>
+            ))}
+          </div>
+          <p className="mt-2 text-sm italic opacity-70">{m.caption}</p>
+        </section>
+      ))}
       {error && <p className="text-center text-sm text-red-500">{error}</p>}
       <div className="flex flex-col gap-2">
         <button

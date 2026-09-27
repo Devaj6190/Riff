@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { GameScreen } from "@/components/game/GameScreen";
 import { loadProfile, Onboarding, saveProfile, type Profile } from "@/components/Onboarding";
 import { ensureSignedIn, supabase } from "@/lib/supabase/client";
+import { normalizeInterests } from "@/lib/interests";
 import type { Player, Riff } from "@/lib/types";
 
 type View =
@@ -20,7 +21,7 @@ const FRIENDLY: Record<string, string> = {
 };
 
 async function joinAs(code: string, profile: Profile) {
-  const { error } = await supabase().rpc("join_riff", { p_code: code, p_name: profile.name, p_interests: profile.interests });
+  const { error } = await supabase().rpc("join_riff", { p_code: code, p_name: profile.name, p_interests: normalizeInterests(profile.interests) }); // a chat takes 3 (DB check)
   if (error) throw new Error(FRIENDLY[error.message] ?? error.message);
 }
 

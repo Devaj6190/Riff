@@ -145,8 +145,28 @@ export type TickResponse = { phase: RiffPhase; nudged: boolean };
 
 /** POST /api/match: join the Match me queue, then poll every 2 s. `code` is the new riff once paired; stop polling
  *  to leave the queue. `name` and `interests` are the caller's profile, as for create_riff. */
-export type MatchRequest = { name: string; interests: string[] };
-export type MatchResponse = { code: string | null };
+export type MatchRequest = { name: string; interests: string[]; mode?: QueueMode };
+/** `invites`: live ones sent to me, oldest first (pop one at a time). `sent`: my live invites by person id; a
+ *  passed one stays "passed" until it expires (60 s). Both empty in match mode. */
+export type MatchResponse = { code: string | null; invites: Invite[]; sent: Record<string, "pending" | "passed"> };
+
+/** match: Match me (auto-paired). browse: search (SPEC §7 Discovery), only paired by an invite or a tap. Poll
+ *  /api/match every 2 s in either; stop polling to leave the queue. */
+export type QueueMode = "match" | "browse";
+
+/** Someone findable in search: a real person in the queue (id = user id) or a seeded persona (id = "seed:<n>"). */
+export type SearchPerson = { id: string; name: string; interests: string[]; mode: QueueMode; seed: boolean; school?: string; bio?: string };
+export type Invite = { id: number; from: SearchPerson };
+
+/** POST /api/search, while polling /api/match in browse mode. Empty query = ranked by fit to me, real people first.
+ *  `noMatch`: nobody really fits the query (still ranked, show "No one like that is on right now"). */
+export type SearchRequest = { query: string };
+export type SearchResponse = { people: SearchPerson[]; noMatch: boolean };
+
+/** POST /api/invite. send: `code` right away if they're in match mode or a seed (the frontend adds the "beat"),
+ *  else null and the invite waits (watch `sent` and `code` in /api/match). answer: `code` if accepted. */
+export type InviteRequest = { action: "send"; to: string } | { action: "answer"; id: number; accept: boolean };
+export type InviteResponse = { code: string | null };
 
 /** POST /api/coach: start a coach riff (the AI catches the caller up on references they missed). 404 if there's
  *  nothing to catch up on yet (no finished chats). */

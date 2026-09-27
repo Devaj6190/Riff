@@ -152,7 +152,12 @@ The AI:
 If time runs short, cut from the bottom of this list.
 
 **Phase 2:**
-- **Discovery:** interest / school / radius filters; no-photo profiles; seeded users for the demo.
+- **Discovery (search the live queue, ranked by Jev):**
+  - **The queue:** starting a chat or Match me puts you in the queue in *match* mode, which auto-pairs you as today. Opening search puts you in it in *browse* mode: you're never auto-paired, only pulled into a chat by an invite. On Home you're in neither, so you get no invites.
+  - **Who's findable:** everyone in the queue (both modes), plus ~100 seeded personas (name, school, 3 interests, one-line bio) that are always in it, in browse mode.
+  - **Ranking (Jev, TypeSafe's System One model):** with an empty box, the queue is ranked by fit to you (interests + hidden profile), real people above seeds. Plain-English queries ("someone to debate Marvel vs DC") re-rank it, and a yes/no check says when nobody really matches. Interest chips just fill in the query. If Jev fails, fall back to word overlap.
+  - **Tap a person:** match mode → paired instantly, no invite. Browse mode → invite. A seed → the invite is auto-accepted after a beat, and the bot plays that persona.
+  - **Invites:** send as many as you like. Each lasts 60 s or until either person leaves the queue. The first yes starts the chat and cancels the rest. Received invites pop one at a time mid-screen: swipe right to accept, left to pass (the sender sees "passed").
 - **Moment Creation Engine:** top 2–3 moments quoted, rated top moment, inside joke born, superlatives, next-step hook (rematch or an in-person plan), shared moments history.
 - **Private feedback, 8 sections:** where you fell short · what was good · how many times you gave a better response · how quick you were · what to improve · did you get stuck on jokes · your improv · were you being real. Quotes your messages; the sections come from one editable list.
 - **Recommendations:** who to talk to next, based on who you connected well with.

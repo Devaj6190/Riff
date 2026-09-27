@@ -1,15 +1,18 @@
 // Match me: players wait in match_queue, polling /api/match. Whoever polls pairs themselves with the waiting player
 // they're most likely to click with (hidden profiles from ending.ts), and pair_up (0009) seats both in a new riff.
 import { supabaseAdmin } from "../supabase/admin";
-import type { UserProfile } from "../types";
+import type { QueueMode, UserProfile } from "../types";
 import { llmJson } from "./llm";
 
 export const FRESH_MS = 8_000; // polled within this = still waiting (clients poll every 2 s)
 
 type Waiting = { user_id: string; name: string; interests: string[] };
 
-/** Queue the caller (or refresh their spot) and try to pair them. Returns the new riff's code once matched. */
-export async function matchMe(userId: string, name: string, interests: string[]): Promise<string | null> {
+/**
+ * Queue the caller (or refresh their spot) and, in match mode, try to pair them with another match-mode player.
+ * Browse mode (search) only refreshes the spot: invites and taps pair them (search.ts). Returns the riff code once paired.
+ */
+export async function matchMe(userId: string, name: string, interests: string[], mode: QueueMode = "match"): Promise<string | null> {
   const db = supabaseAdmin();
   const { data: mine } = await db.from("match_queue").select("riff_code, seen_at").eq("user_id", userId).maybeSingle();
   if (mine?.riff_code) {
@@ -18,13 +21,15 @@ export async function matchMe(userId: string, name: string, interests: string[])
     if (Date.parse(mine.seen_at) > Date.now() - FRESH_MS) return mine.riff_code;
   }
   // No riff_code here: a concurrent pair_up may have just set it.
-  const { error } = await db.from("match_queue").upsert({ user_id: userId, name, interests, seen_at: new Date().toISOString() });
+  const { error } = await db.from("match_queue").upsert({ user_id: userId, name, interests, mode, seen_at: new Date().toISOString() });
   if (error) throw error;
+  if (mode === "browse") return null;
 
   const { data: waiting } = await db
     .from("match_queue")
     .select("user_id, name, interests")
     .is("riff_code", null)
+    .eq("mode", "match")
     .neq("user_id", userId)
     .gt("seen_at", new Date(Date.now() - FRESH_MS).toISOString())
     .limit(20);
@@ -64,12 +69,17 @@ async function bestFit(me: Waiting, waiting: Waiting[]): Promise<Waiting> {
 
 /** The candidate whose terms share the most words with `mine` (first wins ties). */
 export function byOverlap<T>(mine: string[], theirs: string[][], candidates: T[]): T {
-  const words = (terms: string[]) => new Set(terms.flatMap((t) => t.toLowerCase().split(/\W+/)).filter((w) => w.length > 2));
-  const me = words(mine);
-  const score = (terms: string[]) => [...words(terms)].filter((w) => me.has(w)).length;
+  const score = overlap(mine);
   let best = 0;
   theirs.forEach((t, i) => {
     if (score(t) > score(theirs[best])) best = i;
   });
   return candidates[best];
+}
+
+/** Scorer: how many words each list of terms shares with `mine` (words over 2 letters, case-insensitive). */
+export function overlap(mine: string[]): (terms: string[]) => number {
+  const words = (terms: string[]) => new Set(terms.flatMap((t) => t.toLowerCase().split(/\W+/)).filter((w) => w.length > 2));
+  const me = words(mine);
+  return (terms) => [...words(terms)].filter((w) => me.has(w)).length;
 }

@@ -3,6 +3,7 @@
 import { supabaseAdmin } from "../supabase/admin";
 import type { Nudge, Player } from "../types";
 import { GUARDRAILS, llmJson } from "./llm";
+import { seedFor } from "./personas";
 
 // ponytail: one shared auth user for every bot seat; players is unique on (riff_id, user_id), not user_id.
 export const BOT_USER_ID = "00000000-0000-4000-8000-00000000b075";
@@ -22,6 +23,14 @@ export async function seatBot(riffId: string, persona = PERSONAS[Math.floor(Math
   const { error } = await db.from("players").insert({ riff_id: riffId, user_id: BOT_USER_ID, seat: "B", ...persona });
   if (error && error.code !== "23505") throw error; // 23505: seat already taken (reload, or a human joined)
   await db.from("riffs").update({ phase: "chatting" }).eq("id", riffId).eq("phase", "lobby");
+}
+
+/** When the bot plays a search seed: its public profile, so it stays consistent with what the human read. */
+function seedProfile(bot: Player): string {
+  const seed = seedFor(bot);
+  if (!seed) return "";
+  const lines = [seed.from && `from ${seed.from}`, ...seed.prompts.map((p) => `${p.prompt} ${p.answer}`), ...seed.favorites.map((f) => `favorite ${f.kind}: ${f.value}`)];
+  return ` Your public profile, which they may have read (stay consistent with it): ${lines.filter(Boolean).join("; ")}.`;
 }
 
 /**
@@ -62,7 +71,7 @@ async function turn(riffId: string, persona?: (bot: Player, human: Player) => Pr
   if (Date.now() - trigger < 1500 + Math.random() * 2000) return;
   const botLastBody = chat.findLast((m) => m.player_id === bot.id)?.body ?? "";
 
-  const system = persona ? await persona(bot, human) : `${GUARDRAILS} You are ${bot.name}, a college student into ${bot.interests.join(", ")}, texting ${human.name} (into ${human.interests.join(", ")}), someone you just met on Riff. Text like a real person in a DM, not an assistant:
+  const system = persona ? await persona(bot, human) : `${GUARDRAILS} You are ${bot.name}, a college student into ${bot.interests.join(", ")}, texting ${human.name} (into ${human.interests.join(", ")}), someone you just met on Riff.${seedProfile(bot)} Text like a real person in a DM, not an assistant:
 - casual, mostly lowercase, little punctuation; vary length: sometimes 2–4 words ("lmao no way", "wait same"), sometimes 1–2 sentences
 - react, share your own opinions and small stories, tease a little, disagree sometimes; don't be over-eager or agreeable
 - do NOT end every message with a question; most messages have none

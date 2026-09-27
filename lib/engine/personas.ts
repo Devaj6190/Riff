@@ -1,7 +1,11 @@
 // Seeded people for search (SPEC §7 Discovery): always in the queue in browse mode. Inviting one seats the bot as them.
 // [name, school, 3 interests, bio]. Ids are "seed:<index>"; keep the order stable.
 
-export type Persona = { id: string; name: string; school: string; interests: string[]; bio: string };
+import type { PublicProfile } from "../types";
+import EXTRAS from "./persona-profiles.json"; // hometown, prompts, favorites by index (scripts/seed-profiles.ts)
+
+type Extra = Pick<PublicProfile, "from" | "prompts" | "favorites">;
+export type Persona = { id: string; name: string; school: string; interests: string[]; bio: string } & Extra;
 
 const RAW: [string, string, string, string][] = [
   ["Maya", "Georgia Tech", "anime, ramen, solo travel", "Will rank every Studio Ghibli movie if you let me"],
@@ -312,4 +316,9 @@ export const PERSONAS: Persona[] = RAW.map(([name, school, interests, bio], i) =
   school,
   interests: interests.split(", "),
   bio,
+  ...((EXTRAS as (Extra | null)[])[i] ?? { from: "", prompts: [], favorites: [] }),
 }));
+
+/** The seed a bot player is playing (seatBot copies its name and interests), if any. Names are unique. */
+export const seedFor = (player: { name: string; interests: string[] }): Persona | undefined =>
+  PERSONAS.find((s) => s.name === player.name && s.interests.join() === player.interests.join());

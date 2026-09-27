@@ -1,9 +1,10 @@
 // Nudge writing (SPEC §4.1, §4.2, §6). Nudges are written ahead into `queued_nudges` and shown by /api/tick,
 // so a nudge never waits on a model when it pops up.
 import { supabaseAdmin } from "../supabase/admin";
-import type { ChatContext, Depth, NudgeKind, NudgePayloads, Player, QueuedNudge, Seat, Template, UserProfile } from "../types";
+import type { ChatContext, Depth, NudgeKind, NudgePayloads, Player, PublicProfile, QueuedNudge, Seat, Template, UserProfile } from "../types";
 import { turfFor } from "./bonus";
 import { totalsByPlayer } from "./ending";
+import { profileOfPlayer, publicProfiles } from "./profiles";
 import { PACING } from "./pacing";
 import { loadChatContext } from "./reader";
 import allTemplates from "./templates.json";
@@ -20,6 +21,7 @@ export type NudgeContext = {
   known: ChatContext; // what the chat has revealed about each player, and the thread they're on (reader.ts)
   earlier: { prompt: string; quality: Record<string, number> }[]; // oldest first; quality 0-10 by name, absent = no answer
   past: Partial<Record<Seat, UserProfile>>; // from their earlier chats with other people: steer only, never quote
+  shown: Partial<Record<Seat, Pick<PublicProfile, "from" | "prompts" | "favorites">>>; // their public profiles: fair to reference
   templates: Template[]; // shortlist for this kind and depth
   turf: Player | null; // bonus mode (bonus.ts): lean this nudge toward this player's interests
   fast?: boolean; // write with Grok first (~1 s): a rewrite racing the next pop-up (refreshNext)
@@ -99,7 +101,8 @@ async function loadContext(riffId: string, number: number): Promise<NudgeContext
   const seated = (players.data ?? []) as Player[];
   const name = new Map(seated.map((p) => [p.id, p.name]));
   const connected = new Set((scores.data ?? []).filter((s) => s.connection > 0).map((s) => s.player_id));
-  const { data: profiles } = await db.from("user_profiles").select("user_id, profile").in("user_id", seated.map((p) => p.user_id));
+  const ids = seated.map((p) => p.user_id);
+  const [{ data: profiles }, saved] = await Promise.all([db.from("user_profiles").select("user_id, profile").in("user_id", ids), publicProfiles(ids)]);
   const profileOf = new Map((profiles ?? []).map((r) => [r.user_id, r.profile as UserProfile]));
   const depth = depthFor(number, seated.length === 2 && seated.every((p) => connected.has(p.id)));
   return {
@@ -116,6 +119,12 @@ async function loadContext(riffId: string, number: number): Promise<NudgeContext
       }))
       .reverse(),
     past: Object.fromEntries(seated.filter((p) => profileOf.has(p.user_id)).map((p) => [p.seat, profileOf.get(p.user_id)!])),
+    shown: Object.fromEntries(
+      seated.map((p) => {
+        const { from, prompts, favorites } = profileOfPlayer(p, saved);
+        return [p.seat, { from, prompts, favorites }];
+      }),
+    ),
     templates: pickTemplates(await playableTemplates(), riffId, number, depth),
     // ponytail: a slot written 2 ahead (images) can't see the nudge between; refreshNext corrects the next one.
     turf: isIntro(number) ? null : turfFor(seated, totals, nudges.data ?? []),

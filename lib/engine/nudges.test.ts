@@ -61,6 +61,7 @@ test("a failed model write falls back to a local fill, with a pool image for ima
     known: EMPTY_CONTEXT,
     earlier: [],
     past: {},
+    shown: {},
     templates: [{ id: "t", kind, tone: "fun", depth: 1, seed: "Best {interest} spot?", tags: [] }],
     turf: null,
   });

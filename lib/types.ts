@@ -155,8 +155,23 @@ export type MatchResponse = { code: string | null; invites: Invite[]; sent: Reco
 export type QueueMode = "match" | "browse";
 
 /** Someone findable in search: a real person in the queue (id = user id) or a seeded persona (id = "seed:<n>"). */
-export type SearchPerson = { id: string; name: string; interests: string[]; mode: QueueMode; seed: boolean; school?: string; bio?: string };
+export type SearchPerson = { id: string; name: string; interests: string[]; mode: QueueMode; seed: boolean; school?: string; bio?: string } & Partial<Pick<PublicProfile, "from" | "prompts" | "favorites">>;
 export type Invite = { id: number; from: SearchPerson };
+
+/** Public profiles (SPEC §7 Profiles; lists and shape check in lib/profile.ts). */
+export type ProfilePrompt = { prompt: string; answer: string }; // prompt: one of PROMPTS; answer ≤ 80 chars
+export type Favorite = { kind: string; value: string }; // kind: one of FAVORITE_KINDS, each once
+/** What other people (search, your chat partner) and Jev see. */
+export type PublicProfile = { name: string; from: string; interests: string[]; prompts: ProfilePrompt[]; favorites: Favorite[] };
+/** Mine: also the private fields, never sent to anyone else or to Jev. */
+export type MyProfile = PublicProfile & { lastName: string; age: number };
+/**
+ * POST /api/profile. get: mine (null until first saved). partner: the other player in `riffId` (a bot playing a seed
+ * gets the seed's). save: 400 on a bad shape; `errors` by field ("from", "prompts.1", "favorites.0") when a Jev check
+ * fails, and nothing is saved; else the saved (trimmed) profile. Onboarding saves too.
+ */
+export type ProfileRequest = { action: "get" } | { action: "partner"; riffId: string } | { action: "save"; profile: MyProfile };
+export type ProfileResponse = { profile: MyProfile | PublicProfile | null; errors?: Record<string, string> };
 
 /** Onboarding hometown check (/api/place, Jev). */
 export type PlaceRequest = { place: string };

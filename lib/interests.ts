@@ -67,3 +67,10 @@ export function normalizeInterest(raw: string): string {
 export function normalizeInterests(raw: string[]): string[] {
   return [...new Set(raw.map(normalizeInterest).filter(Boolean))].slice(0, INTERESTS_REQUIRED);
 }
+
+/** Scorer: how many words each list of terms shares with `mine` (words over 2 letters, case-insensitive). */
+export function overlap(mine: string[]): (terms: string[]) => number {
+  const words = (terms: string[]) => new Set(terms.flatMap((t) => t.toLowerCase().split(/\W+/)).filter((w) => w.length > 2));
+  const me = words(mine);
+  return (terms) => [...words(terms)].filter((w) => me.has(w)).length;
+}

@@ -1,10 +1,10 @@
-import { matchMe } from "@/lib/engine/match";
-import { inviteState } from "@/lib/engine/search";
+import { matchMe, partnerIn } from "@/lib/engine/match";
+import { inviteState, matchSeed } from "@/lib/engine/search";
 import { readProfile, requireUser } from "@/lib/supabase/auth";
 import type { MatchResponse } from "@/lib/types";
 
 /** Match me / search: join the queue / poll it. Returns the new riff's code once paired (lib/engine/match.ts), and
- *  in browse mode the invite inbox (lib/engine/search.ts). */
+ *  in browse mode the invite inbox (lib/engine/search.ts). Match me's settle poll takes a seed if nobody real is there. */
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   const profile = readProfile(body);
@@ -17,7 +17,9 @@ export async function POST(req: Request) {
     if (e instanceof Response) return e;
     throw e;
   }
-  const code = await matchMe(userId, profile.name, profile.interests, mode);
+  let code = await matchMe(userId, profile.name, profile.interests, mode);
+  if (!code && mode === "match" && body?.settle === true) code = await matchSeed(userId);
   const inbox = mode === "browse" && !code ? await inviteState(userId) : { invites: [], sent: {} };
-  return Response.json({ code, ...inbox } satisfies MatchResponse);
+  const partner = code ? await partnerIn(code, userId) : null;
+  return Response.json({ code, ...inbox, partner } satisfies MatchResponse);
 }

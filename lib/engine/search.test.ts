@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { PERSONAS } from "./personas";
-import { rankPeople } from "./search";
+import { rankPeople, seedShortlist } from "./search";
 import type { SearchPerson } from "../types";
 
 const p = (id: string, seed: boolean): SearchPerson => ({ id, name: id, interests: ["x"], mode: "browse", seed });
@@ -24,4 +24,18 @@ test("300 seeds with unique ids and names that fit the players table", () => {
     expect(s.name.length).toBeLessThanOrEqual(24);
     expect(s.interests).toHaveLength(3);
   }
+});
+
+test("Match me's seeds: something shared and something new first, skipping recent partners and flat topics", () => {
+  const seed = (name: string, interests: string[]): SearchPerson => ({ id: name, name, interests, mode: "browse", seed: true });
+  const seeds = [
+    seed("Same", ["anime", "ramen"]), // nothing new
+    seed("Stranger", ["golf", "opera"]), // nothing shared
+    seed("Recent", ["anime", "jazz"]), // chatted just now
+    seed("Flat", ["anime", "fantasy football"]), // football fell flat
+    seed("Mix", ["anime films", "bouldering"]),
+  ];
+  const order = seedShortlist(seeds, ["anime", "ramen"], ["football"], new Set(["Recent"])).map((s) => s.name);
+  expect(order).toEqual(["Mix", "Same", "Stranger"]);
+  expect(seedShortlist(seeds.slice(2, 4), ["anime"], ["football"], new Set(["Recent"])).map((s) => s.name)).toEqual(["Recent", "Flat"]); // everyone filtered: keep the ranking
 });

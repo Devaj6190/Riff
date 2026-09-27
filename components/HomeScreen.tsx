@@ -11,8 +11,8 @@ import { addFriend, chatsWith, loadFriends, personaOf, photoOf, removeFriend, se
 import { BOUNCY, calm, markMatched } from "@/components/motion";
 import { useQueue } from "@/components/useQueue";
 import { callApi } from "@/lib/api";
-import { normalizeInterests } from "@/lib/interests";
-import type { BotRequest, InviteRequest, InviteResponse, ProfileRequest, ProfileResponse } from "@/lib/types";
+import { normalizeInterests, overlap } from "@/lib/interests";
+import type { BotRequest, InviteRequest, InviteResponse, MatchPartner, ProfileRequest, ProfileResponse } from "@/lib/types";
 import { ensureSignedIn, supabase } from "@/lib/supabase/client";
 
 /** Apple-style contact avatar: grey gradient, white initial. The AI's people have a photo (photos.ts) instead. */
@@ -49,6 +49,8 @@ const card = "flex items-center gap-4 rounded-3xl p-5 text-left lg:gap-5 lg:p-7"
 const lift = "transition-[translate,scale,opacity] duration-200 hover:-translate-y-0.5 active:scale-[0.98]"; // cards rise under the pointer, sink when pressed
 const dimmed = "opacity-35"; // the rest of Start talking while Match me searches
 const option = "flex h-12 items-center justify-center gap-2 rounded-full font-semibold";
+/** Match me's reveal, in ms after pairing: their interests fly in, then it all springs into the card, then the chat. */
+const REVEAL = { collapse: 1100, open: 1750 };
 
 /** Start talking (Match me, search) and friends side by side on desktop, your profile centered below. */
 export function HomeScreen({ profile, onProfile }: { profile: Profile; onProfile: (p: Profile) => void }) {
@@ -60,7 +62,7 @@ export function HomeScreen({ profile, onProfile }: { profile: Profile; onProfile
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const [found, setFound] = useState(false);
+  const [found, setFound] = useState<MatchPartner | null>(null);
   const matchCard = useRef<HTMLDivElement>(null);
 
   // The server's copy of my profile wins. None yet: this device's profile moves up (people from before profiles).
@@ -79,14 +81,15 @@ export function HomeScreen({ profile, onProfile }: { profile: Profile; onProfile
     void syncProfile();
   }, []);
 
-  // Paired: the orbit pulls in and bursts, the card bumps, then the chat opens (and plays "It's a match").
+  // Paired (a real person, or a seed after ~3 s): their interests fly into the orbit, it pulls in and bursts, the card
+  // bumps, then the chat opens (and plays "It's a match").
   useQueue(profile, "match", matching && !found, (res) => {
     if (!res.code) return;
     const code = res.code;
-    setFound(true);
+    setFound(res.partner ?? { name: "", interests: [] });
     markMatched(code);
-    matchCard.current?.animate([{ transform: "scale(1)" }, { transform: "scale(1.04)" }, { transform: "scale(1)" }], { duration: 500, delay: 300, easing: BOUNCY });
-    setTimeout(() => router.push(`/r/${code}`), calm() ? 0 : 900);
+    matchCard.current?.animate([{ transform: "scale(1)" }, { transform: "scale(1.04)" }, { transform: "scale(1)" }], { duration: 500, delay: REVEAL.collapse + 300, easing: BOUNCY });
+    setTimeout(() => router.push(`/r/${code}`), calm() ? 0 : REVEAL.open);
   });
 
   async function matchMe() {
@@ -139,7 +142,7 @@ export function HomeScreen({ profile, onProfile }: { profile: Profile; onProfile
             </h2>
             {matching ? (
               <div className="relative">
-                <Orbit interests={profile.interests} found={found} />
+                <Orbit interests={profile.interests} partner={found} />
                 <div ref={matchCard} className={`${card} relative z-[1] bg-primary text-primary-foreground`} aria-live="polite">
                   <span className="relative flex size-12 shrink-0 items-center justify-center gap-1 rounded-full bg-primary-foreground/10 lg:size-14">
                     {found ? (
@@ -149,7 +152,7 @@ export function HomeScreen({ profile, onProfile }: { profile: Profile; onProfile
                     )}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-lg font-semibold lg:text-xl">{found ? "Matched" : "Finding someone…"}</p>
+                    <p className="truncate text-lg font-semibold lg:text-xl">{found ? (found.name ? `Matched with ${found.name}` : "Matched") : "Finding someone…"}</p>
                     <p className="text-sm opacity-70 lg:text-base">{found ? "Opening your chat" : "You'll jump in as soon as they're there"}</p>
                   </div>
                   {!found && (
@@ -257,43 +260,91 @@ export function HomeScreen({ profile, onProfile }: { profile: Profile; onProfile
 
 /**
  * Match me's search: your interests orbit the card on a flat ellipse that stays inside its width (the front half passes
- * over the card, the back half behind it). Found: they spring into the middle and a ring bursts out.
+ * over the card, the back half behind it). Paired: their interests fly in from the right, one after another, in
+ * lavender. One you share lands on yours, which pops and glows; a new one takes a spot between yours. Then everything
+ * springs into the middle and a ring bursts out.
  */
-function Orbit({ interests, found }: { interests: string[]; found: boolean }) {
+function Orbit({ interests, partner }: { interests: string[]; partner: MatchPartner | null }) {
   const layer = useRef<HTMLDivElement>(null);
   const pills = useRef<(HTMLSpanElement | null)[]>([]);
+  const theirs = useRef<(HTMLSpanElement | null)[]>([]);
   const ring = useRef<HTMLSpanElement>(null);
   const sim = useRef({ r: 0, v: 0, a: 0 }); // radius 0..1 (a spring, so it overshoots), angle
   const shown = interests.slice(0, 6);
+  const incoming = partner?.interests.slice(0, 3) ?? [];
 
   useEffect(() => {
     if (calm()) return;
+    const shown = interests.slice(0, 6);
     const box = layer.current!.getBoundingClientRect();
     const rx = Math.max(60, box.width / 2 - 24); // pills stay inside the card's width: nothing sticks out past the page
     const ry = box.height / 2 + 22;
-    const target = found ? 0 : 1;
+    const step = (Math.PI * 2) / Math.max(1, shown.length);
+
+    // Where each of theirs lands, as an orbit slot (mine sit on 0, 1, 2…): on mine if we share a word, else in a gap.
+    const sharedWith = (t: string) => shown.findIndex((m) => overlap([m])([t]) > 0);
+    const landing = (partner?.interests.slice(0, 3) ?? []).map(sharedWith);
+    const gaps = landing.filter((mine) => mine < 0).length;
+    let k = 0;
+    const flights = landing.map((mine) => {
+      const n = shown.length;
+      const slot = mine >= 0 ? mine : n >= gaps ? Math.floor((k * n) / gaps) + 0.5 : ((k + 0.5) * n) / gaps;
+      if (mine < 0) k++;
+      return { mine, slot, p: 0, v: 0, landed: false };
+    });
+    const pop = shown.map(() => ({ s: 0, v: 0 })); // a shared pill's springy pop when theirs lands on it
+
+    const start = performance.now();
     let raf = 0;
-    const tick = () => {
+    const tick = (now: number) => {
+      const t = now - start;
       const s = sim.current;
+      const target = partner && t >= REVEAL.collapse ? 0 : 1;
       s.v = (s.v + (target - s.r) * 0.06) * 0.82;
       s.r += s.v;
       s.a += 0.01;
+      const size = 0.4 + 0.6 * Math.max(0, s.r);
+      const fade = String(Math.min(1, Math.max(0, s.r * 1.5)));
+      const place = (el: HTMLElement, slot: number, offset = "", scale = size) => {
+        const ang = s.a + slot * step;
+        el.style.transform = `translate(-50%, -50%) translate(${Math.cos(ang) * s.r * rx}px, ${Math.sin(ang) * s.r * ry}px)${offset} scale(${scale})`;
+        el.style.zIndex = Math.sin(ang) > 0 ? "2" : "0"; // the card is z-1
+      };
       pills.current.forEach((p, i) => {
         if (!p) return;
-        const ang = s.a + (i * Math.PI * 2) / shown.length;
-        p.style.transform = `translate(-50%, -50%) translate(${Math.cos(ang) * s.r * rx}px, ${Math.sin(ang) * s.r * ry}px) scale(${0.4 + 0.6 * Math.max(0, s.r)})`;
-        p.style.opacity = String(Math.min(1, Math.max(0, s.r * 1.5)));
-        p.style.zIndex = Math.sin(ang) > 0 ? "2" : "0"; // the card is z-1
+        const b = pop[i];
+        b.v = (b.v - b.s * 0.12) * 0.8;
+        b.s += b.v;
+        place(p, i, "", size * (1 + b.s));
+        p.style.opacity = fade;
+      });
+      theirs.current.forEach((p, j) => {
+        const f = flights[j];
+        if (!p || !f || t < j * 140) return; // one after another
+        f.v = (f.v + (1 - f.p) * 0.07) * 0.8;
+        f.p += f.v;
+        // From off the card's top right to its slot: an offset that shrinks to 0 as the spring lands (and overshoots).
+        const off = 1 - f.p;
+        place(p, f.slot, ` translate(${off * (rx + 160)}px, ${off * -ry}px) rotate(${off * 30}deg)`);
+        if (f.mine >= 0 && !f.landed && f.p > 0.92) {
+          f.landed = true;
+          pop[f.mine].v += 0.12;
+          pills.current[f.mine]?.animate(
+            [{ boxShadow: "0 0 0 0 rgb(201 184 255 / 0)" }, { boxShadow: "0 0 0 2px #c9b8ff, 0 0 22px 6px rgb(201 184 255 / .7)" }, { boxShadow: "0 0 0 2px #c9b8ff, 0 0 12px 2px rgb(201 184 255 / .35)" }],
+            { duration: 650, easing: "ease-out", fill: "forwards" },
+          );
+        }
+        p.style.opacity = f.landed ? "0" : f.mine >= 0 ? "1" : String(Math.min(1, f.p * 3, Math.max(0, s.r * 1.5)));
       });
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
-    const burst = found ? setTimeout(() => ring.current?.animate([{ transform: "translate(-50%,-50%) scale(.5)", opacity: 0.9 }, { transform: "translate(-50%,-50%) scale(5)", opacity: 0 }], { duration: 700, easing: "ease-out" }), 250) : undefined;
+    const burst = partner ? setTimeout(() => ring.current?.animate([{ transform: "translate(-50%,-50%) scale(.5)", opacity: 0.9 }, { transform: "translate(-50%,-50%) scale(5)", opacity: 0 }], { duration: 700, easing: "ease-out" }), REVEAL.collapse + 250) : undefined;
     return () => {
       cancelAnimationFrame(raf);
       clearTimeout(burst);
     };
-  }, [found, shown.length]);
+  }, [partner, interests]);
 
   return (
     <div ref={layer} aria-hidden className="pointer-events-none absolute inset-0">
@@ -305,6 +356,17 @@ function Orbit({ interests, found }: { interests: string[]; found: boolean }) {
               pills.current[i] = el;
             }}
             className="absolute top-0 left-0 rounded-full bg-[#2a3456] px-3 py-1 text-sm whitespace-nowrap text-foreground opacity-0"
+          >
+            {t}
+          </span>
+        ))}
+        {incoming.map((t, j) => (
+          <span
+            key={t}
+            ref={(el) => {
+              theirs.current[j] = el;
+            }}
+            className="absolute top-0 left-0 rounded-full bg-[#c9b8ff] px-3 py-1 text-sm font-semibold whitespace-nowrap text-navy opacity-0"
           >
             {t}
           </span>

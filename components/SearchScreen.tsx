@@ -3,8 +3,9 @@
 import { ChevronLeft, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { Avatar } from "@/components/HomeScreen";
+import { useEffect, useRef, useState, ViewTransition } from "react";
+import { Avatar, stagger } from "@/components/HomeScreen";
+import { flyClone, markMatched } from "@/components/motion";
 import type { Profile } from "@/components/Onboarding";
 import { useQueue } from "@/components/useQueue";
 import { callApi } from "@/lib/api";
@@ -12,7 +13,6 @@ import { INTEREST_CHIPS } from "@/lib/interests";
 import { ensureSignedIn } from "@/lib/supabase/client";
 import type { Invite, InviteRequest, InviteResponse, MatchResponse, SearchPerson, SearchRequest, SearchResponse } from "@/lib/types";
 
-const SEED_BEAT_MS = 1500;
 const SWIPE_PX = 110;
 
 /** Search the live queue (SPEC §7 Discovery). While open we sit in the queue in browse mode: polling /api/match
@@ -25,13 +25,14 @@ export function SearchScreen({ profile }: { profile: Profile }) {
   const [invites, setInvites] = useState<Invite[]>([]);
   const [answered, setAnswered] = useState<number[]>([]);
   const [sent, setSent] = useState<MatchResponse["sent"]>({});
-  const [joined, setJoined] = useState<string | null>(null); // a seed's name during the "They're in!" beat
   const [error, setError] = useState<string | null>(null);
   const gone = useRef(false);
+  const bar = useRef<HTMLLabelElement>(null);
 
   function go(code: string) {
     if (gone.current) return;
     gone.current = true;
+    markMatched(code); // the chat opens with "It's a match"
     router.push(`/r/${code}`);
   }
 
@@ -67,16 +68,11 @@ export function SearchScreen({ profile }: { profile: Profile }) {
   }, [ready, query]);
 
   async function tap(person: SearchPerson) {
-    if (sent[person.id] || joined) return;
+    if (sent[person.id] || gone.current) return;
     setSent((s) => ({ ...s, [person.id]: "pending" })); // the next poll replaces this with the server's view
     try {
       const { code } = await callApi<InviteResponse>("/api/invite", { action: "send", to: person.id } satisfies InviteRequest);
-      if (!code) return; // a browse-mode person: the invite waits, and the poll brings their answer
-      if (person.seed) {
-        setJoined(person.name);
-        await new Promise((r) => setTimeout(r, SEED_BEAT_MS));
-      }
-      go(code);
+      if (code) go(code); // else a browse-mode person: the invite waits, and the poll brings their answer
     } catch (e) {
       setSent((s) => {
         const next = { ...s };
@@ -109,7 +105,9 @@ export function SearchScreen({ profile }: { profile: Profile }) {
         <h1 className="text-2xl font-bold tracking-tight">Find people</h1>
       </header>
 
-      <label className="flex h-12 items-center gap-2.5 rounded-full bg-muted px-5">
+      {/* The Search people card on Home morphs into this bar. */}
+      <ViewTransition name="search-bar" share="morph" default="none">
+      <label ref={bar} className="flex h-12 items-center gap-2.5 rounded-full bg-muted px-5">
         <Search className="size-5 shrink-0 text-foreground/40" />
         <input
           type="search"
@@ -121,11 +119,20 @@ export function SearchScreen({ profile }: { profile: Profile }) {
           className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-foreground/40"
         />
       </label>
+      </ViewTransition>
       <div className="-mx-4 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none]">
         {INTEREST_CHIPS.map((c) => {
           const on = query.trim().toLowerCase() === c;
           return (
-            <button key={c} aria-pressed={on} onClick={() => setQuery(on ? "" : c)} className={`h-9 shrink-0 rounded-full px-4 text-sm ${on ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
+            <button
+              key={c}
+              aria-pressed={on}
+              onClick={(e) => {
+                if (!on) flyClone(e.currentTarget, bar.current!.getBoundingClientRect()); // the chip flies into the bar
+                setQuery(on ? "" : c);
+              }}
+              className={`h-9 shrink-0 rounded-full px-4 text-sm ${on ? "bg-primary text-primary-foreground" : "bg-muted"}`}
+            >
               {c}
             </button>
           );
@@ -136,10 +143,11 @@ export function SearchScreen({ profile }: { profile: Profile }) {
       {results?.noMatch && !loading && <p className="rounded-2xl bg-muted/60 px-4 py-3 text-sm">No one like that is on right now</p>}
 
       <ul className={`flex flex-col transition-opacity ${loading ? "opacity-50" : ""}`} aria-busy={loading}>
-        {results?.people.map((p) => {
+        {results?.people.map((p, i) => {
           const status = sent[p.id];
           return (
-            <li key={p.id}>
+            // Keyed by query: each new result set springs out of the search bar again.
+            <li key={`${results.query}|${p.id}`} className="riff-burst-row" style={stagger(i)}>
               <button onClick={() => tap(p)} disabled={!!status} className="flex w-full items-center gap-3 border-b border-current/10 py-3 text-left">
                 <Avatar name={p.name} />
                 <div className="min-w-0 flex-1">
@@ -157,17 +165,8 @@ export function SearchScreen({ profile }: { profile: Profile }) {
         {!results && <li className="py-3 text-sm text-foreground/50">Looking for who&apos;s on…</li>}
       </ul>
 
-      {invite && !joined && <InviteCard key={invite.id} invite={invite} onAnswer={(accept) => answer(invite, accept)} />}
+      {invite && <InviteCard key={invite.id} invite={invite} onAnswer={(accept) => answer(invite, accept)} />}
 
-      {joined && (
-        <div className="fixed inset-0 z-40 flex flex-col items-center justify-center gap-4 bg-background/90 backdrop-blur-sm">
-          <div className="riff-pop">
-            <Avatar name={joined} className="size-20 text-3xl" />
-          </div>
-          <p className="riff-pop text-2xl font-bold">They&apos;re in!</p>
-          <p className="text-foreground/60">Opening your chat with {joined}…</p>
-        </div>
-      )}
     </div>
   );
 }

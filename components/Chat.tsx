@@ -1,7 +1,8 @@
 "use client";
 
 import { ArrowUp, Sparkles } from "lucide-react";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useEffectEvent, useLayoutEffect, useRef, useState } from "react";
+import { BOUNCY, calm } from "@/components/motion";
 import { VoiceButton } from "@/components/VoiceButton";
 import { supabase } from "@/lib/supabase/client";
 import { subscribeToRiff } from "@/lib/supabase/realtime";
@@ -13,6 +14,7 @@ type Props = {
   pastNudges?: Nudge[]; // shown inline where they popped up, once their timer is over
   onTyping?: (typing: boolean) => void;
   partnerTyping?: boolean;
+  onPartnerMessage?: () => void; // their message arrived: the typing bubble goes in the same update (it grows into the message)
 };
 
 /** A message as shown. `key` survives the swap from my optimistic copy to the saved row, so it doesn't re-animate. */
@@ -26,12 +28,21 @@ const TIME_GAP_MS = 10 * 60_000;
  * Real-time thread, Apple Messages style: bottom-anchored, tails on the last bubble of a run, new bubbles spring in,
  * my messages show instantly. History loads once the subscription is live, so nothing sent in between is lost.
  */
-export function Chat({ riffId, me, pastNudges = [], onTyping, partnerTyping }: Props) {
+export function Chat({ riffId, me, pastNudges = [], onTyping, partnerTyping, onPartnerMessage }: Props) {
   const [rows, setRows] = useState<Row[]>([]);
   const [draft, setDraft] = useState("");
   const [error, setError] = useState<string | null>(null);
   const tmp = useRef(0);
   const bottom = useRef<HTMLDivElement>(null);
+  const list = useRef<HTMLUListElement>(null);
+  const seen = useRef(new Set<string>()); // row keys already on screen
+  const typingSize = useRef<[number, number] | null>(null);
+  const typingShown = useRef(false); // as of the last commit
+
+  const onInsert = useEffectEvent((m: Message) => {
+    setRows((prev) => mergeRows(prev, [m]));
+    if (m.player_id !== me.id) onPartnerMessage?.();
+  });
 
   useEffect(() => {
     let first = true;
@@ -39,7 +50,7 @@ export function Chat({ riffId, me, pastNudges = [], onTyping, partnerTyping }: P
       "messages",
       riffId,
       (payload) => {
-        if (payload.eventType === "INSERT") setRows((prev) => mergeRows(prev, [payload.new]));
+        if (payload.eventType === "INSERT") onInsert(payload.new);
       },
       async () => {
         const { data } = await supabase().from("messages").select("*").eq("riff_id", riffId).order("id");
@@ -53,6 +64,27 @@ export function Chat({ riffId, me, pastNudges = [], onTyping, partnerTyping }: P
   useEffect(() => {
     bottom.current?.scrollIntoView({ block: "end" }); // returns a Promise in newer browsers; must not be the cleanup
   }, [rows, partnerTyping, pastNudges.length]);
+
+  // Their message lands in the same commit their typing bubble leaves: grow it out of the typing bubble's size, words
+  // fading in, instead of springing in fresh. Runs before the effect below, so typingShown is still the last commit's.
+  useLayoutEffect(() => {
+    const fresh = rows.filter((r) => !seen.current.has(r.key));
+    fresh.forEach((r) => seen.current.add(r.key));
+    const theirs = fresh.find((r) => !r.quiet && r.player_id !== me.id);
+    const from = typingSize.current;
+    if (!theirs || !typingShown.current || !from || calm()) return;
+    const el = list.current?.querySelector<HTMLElement>(`[data-key="${theirs.key}"]`);
+    if (!el) return;
+    el.getAnimations().forEach((a) => a.cancel()); // the morph replaces the spring-in
+    const [w, h] = [el.offsetWidth, el.offsetHeight];
+    const grow = el.animate([{ width: `${from[0]}px`, height: `${from[1]}px` }, { width: `${w}px`, height: `${h}px` }], { duration: 480, easing: BOUNCY });
+    el.animate([{ color: "transparent" }, { color: "transparent", offset: 0.35 }, { color: getComputedStyle(el).color }], { duration: 480 });
+    grow.onfinish = () => bottom.current?.scrollIntoView({ block: "end" }); // it ended up taller than when we scrolled
+  }, [rows, me.id]);
+
+  useLayoutEffect(() => {
+    typingShown.current = !!partnerTyping;
+  }, [partnerTyping]);
 
   async function post(body: string) {
     const key = `tmp-${++tmp.current}`;
@@ -88,7 +120,7 @@ export function Chat({ riffId, me, pastNudges = [], onTyping, partnerTyping }: P
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <ul className="flex min-h-0 flex-1 flex-col overflow-y-auto px-4 py-3">
+      <ul ref={list} className="flex min-h-0 flex-1 flex-col overflow-y-auto px-4 py-3">
         <li aria-hidden className="mt-auto" />
         {items.map((item, i) => {
           const prev = items[i - 1];
@@ -122,6 +154,7 @@ export function Chat({ riffId, me, pastNudges = [], onTyping, partnerTyping }: P
             <Fragment key={m.key}>
               {stamp}
               <li
+                data-key={m.key}
                 className={[
                   "bubble max-w-[75%] whitespace-pre-wrap break-words rounded-[18px] px-3.5 py-2 leading-snug",
                   sameAsPrev ? "mt-0.5" : "mt-2.5",
@@ -136,7 +169,12 @@ export function Chat({ riffId, me, pastNudges = [], onTyping, partnerTyping }: P
           );
         })}
         {partnerTyping && (
-          <li aria-label="typing" className="bubble bubble-theirs bubble-tail riff-bubble mt-2.5 flex gap-1 self-start rounded-[18px] bg-[#242d47] px-4 py-3.5">
+          <li
+            aria-label="typing"
+            ref={(el) => {
+              if (el) typingSize.current = [el.offsetWidth, el.offsetHeight];
+            }}
+            className="bubble bubble-theirs bubble-tail riff-bubble mt-2.5 flex gap-1 self-start rounded-[18px] bg-[#242d47] px-4 py-3.5">
             {[0, 0.15, 0.3].map((delay) => (
               <span key={delay} className="riff-dot size-2 rounded-full bg-foreground/60" style={{ animationDelay: `${delay}s` }} />
             ))}

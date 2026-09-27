@@ -16,9 +16,10 @@ test("a query ranks by relevance alone; ties keep queue order", () => {
   expect(ranked.map((x) => x.id)).toEqual(["seed:0", "real2", "real1", "seed:1"]);
 });
 
-test("100 seeds with unique ids that fit the players table", () => {
-  expect(PERSONAS).toHaveLength(100);
-  expect(new Set(PERSONAS.map((s) => s.id)).size).toBe(100);
+test("300 seeds with unique ids and names that fit the players table", () => {
+  expect(PERSONAS).toHaveLength(300);
+  expect(new Set(PERSONAS.map((s) => s.id)).size).toBe(300);
+  expect(new Set(PERSONAS.map((s) => s.name)).size).toBe(300);
   for (const s of PERSONAS) {
     expect(s.name.length).toBeLessThanOrEqual(24);
     expect(s.interests).toHaveLength(3);

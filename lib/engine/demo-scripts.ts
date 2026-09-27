@@ -2,6 +2,10 @@
 // Each line is "Riff: <nudge>", "<a.name>: <message>" or "<b.name>: <message>", played in order about 2.5 s apart.
 // You sit in seat A (a's lines are sent as you); the bot plays b. A nudge's answers are whatever comes before the
 // next "Riff:" line (or its timer running out). Scoring, Moment Spotlight, the chat summary and the coach are real.
+// Other nudges: "Riff image: <prompt> | <file in public/images/pool>", "Riff pick: <prompt> | a / b / c / d" and
+// "Riff truths: <title>". Mini games are played for real: you tap; b's taps are "<b> picks: 3, guesses 1",
+// "<b> writes: one / two / three | lie 2" and "<b> guesses: 2" (1-based), each played once its stage is up. The
+// script waits for the game to finish before the next line.
 
 export type DemoScript = {
   id: string;
@@ -13,6 +17,46 @@ export type DemoScript = {
 };
 
 export const DEMO_SCRIPTS: DemoScript[] = [
+  {
+    id: "showcase",
+    title: "0 · Full demo",
+    about:
+      "Everything in one chat: intro nudges, an image nudge, Guess their pick and Two truths and a lie (you tap and type; Priya plays herself), a hot take, then the end screen with moments, your coaching report and the coach. About 3 minutes.",
+    a: { name: "Jordan", interests: ["music", "gaming", "food"] },
+    b: { name: "Priya", interests: ["travel", "photography", "cooking"] },
+    lines: [
+      "Riff: Say hi! Your name and where you're from",
+      "Jordan: hey! jordan, atlanta born and raised",
+      "Priya: priya! just moved here from chicago for school",
+      "Jordan: welcome to the heat lol",
+      "Priya: it's september why is it 90 degrees",
+      "Riff: What's been living rent-free in your head lately?",
+      "Priya: this whole summer was brat summer for me, still not over it",
+      "Jordan: lol yeah",
+      "Priya: wait you're not a charli xcx person?",
+      "Jordan: honestly no idea who that is",
+      "Priya: ok we have work to do",
+      "Riff image: You two just walked in here. First move? | arcade-cafe.jpg",
+      "Jordan: straight to the claw machine. i will win you a plushie or die trying",
+      "Priya: the claw machine is rigged and you know it",
+      "Jordan: rigged machines are my specialty",
+      "Priya: bold claim from someone who's never heard of charli xcx",
+      "Riff pick: Perfect Saturday? | party till 3am / movie marathon / outdoor adventure / rot in bed",
+      "Priya picks: 3, guesses 4",
+      "Jordan: ok that reveal was humbling",
+      "Priya: the reveal never lies",
+      "Riff truths: Two truths and a lie: travel edition",
+      "Priya writes: I've been to 14 countries / I got lost in Tokyo for 6 hours / I've eaten a scorpion | lie 1",
+      "Priya guesses: 2",
+      "Priya: ok i need to hear the real story behind yours",
+      "Riff: Hot take: the claw machine is a skill game. Defend it or destroy it",
+      "Jordan: skill game. you wait for the claw to stop swinging, that's the whole trick",
+      "Priya: this is the same energy as \"rigged machines are my specialty\"",
+      "Jordan: and i stand by it. arcade this weekend to prove it?",
+      "Priya: only if you learn one charli xcx song first",
+      "Jordan: deal. send me the starter pack",
+    ],
+  },
   {
     id: "clicks",
     title: "1 · It clicks",

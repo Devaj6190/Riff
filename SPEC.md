@@ -203,6 +203,8 @@ If time runs short, cut from the bottom of this list.
 
 ## 8. Demo
 
+**Scripted run:** `/dev` → **0 · Full demo** plays one chat end to end in about 3 minutes: intro nudges, an image nudge, Guess their pick and Two truths and a lie (you tap and type in seat A; Priya's taps are scripted), a hot take, then the end screen with moments, the coaching report and the coach. It uses the real tick loop, scoring and summaries (lib/engine/demo-scripts.ts).
+
 **Video (~2:30), story order:**
 1. **0:00–0:20 Hook:** "Everyone solves the first message. Nobody solves the second." Dead chat: "hey" → "hey" → silence.
 2. **0:20–0:35 Find:** discovery if built; otherwise sending a riff link.

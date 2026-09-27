@@ -5,25 +5,22 @@ import { useState } from "react";
 import { InterestCloud } from "@/components/InterestCloud";
 import { callApi } from "@/lib/api";
 import { INTERESTS_REQUIRED, normalizeInterest } from "@/lib/interests";
+import { MIN_AGE } from "@/lib/profile";
 import { ensureSignedIn } from "@/lib/supabase/client";
-import type { PlaceRequest, PlaceResponse } from "@/lib/types";
+import type { MyProfile, PlaceRequest, PlaceResponse, ProfileRequest, ProfileResponse } from "@/lib/types";
 
-/** What onboarding asks. Only first name + the first 3 interests reach a chat; the rest stays on this device until profiles have a table. */
-export type Profile = {
-  name: string; // first name
-  lastName: string;
-  age: number;
-  from: string;
-  interests: string[]; // at least 3, in pick order
-};
+/** Your profile (SPEC §7 Profiles). Onboarding sets the basics; prompts and favorites are added in the profile popup.
+ *  Kept on this device and on the server (/api/profile). */
+export type Profile = MyProfile;
 
 const PROFILE_KEY = "riff-profile";
 
-/** The profile saved on this device, or null. Client-only. Profiles from older onboarding (no last name) count as none. */
+/** The profile saved on this device, or null. Client-only. Profiles from older onboarding (no last name) count as none;
+ *  ones from before prompts and favorites get them empty. */
 export function loadProfile(): Profile | null {
   try {
     const p = JSON.parse(localStorage.getItem(PROFILE_KEY) ?? "null");
-    return typeof p?.name === "string" && typeof p.lastName === "string" && typeof p.age === "number" && Array.isArray(p.interests) ? p : null;
+    return typeof p?.name === "string" && typeof p.lastName === "string" && typeof p.age === "number" && Array.isArray(p.interests) ? { prompts: [], favorites: [], ...p } : null;
   } catch {
     return null;
   }
@@ -37,8 +34,6 @@ export function saveProfile(profile: Profile) {
   }
 }
 
-const MIN_AGE = 15;
-
 // Same look as the landing: navy with grain, cream type, cream pill buttons.
 const title = "text-3xl font-semibold tracking-tight";
 const hint = "mt-2 text-cream/60";
@@ -49,20 +44,18 @@ const arrow = <ArrowRight className="size-6" />;
 
 type Props = {
   submitLabel: string;
-  initial?: Profile | null;
   intro?: string; // shown above the first page's title, e.g. for invite links
   onDone: (profile: Profile) => Promise<void> | void;
-  onCancel?: () => void; // back from the first page; editing only
 };
 
-/** Two pages: about you (name, age, city), then interests. */
-export function Onboarding({ submitLabel, initial, intro, onDone, onCancel }: Props) {
+/** Two pages: about you (name, age, city), then interests. Editing later happens in the profile popup. */
+export function Onboarding({ submitLabel, intro, onDone }: Props) {
   const [step, setStep] = useState(0);
-  const [name, setName] = useState(initial?.name ?? "");
-  const [lastName, setLastName] = useState(initial?.lastName ?? "");
-  const [age, setAge] = useState(initial ? String(initial.age) : "");
-  const [from, setFrom] = useState(initial?.from ?? "");
-  const [picked, setPicked] = useState<string[]>(initial?.interests ?? []);
+  const [name, setName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [age, setAge] = useState("");
+  const [from, setFrom] = useState("");
+  const [picked, setPicked] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -79,8 +72,14 @@ export function Onboarding({ submitLabel, initial, intro, onDone, onCancel }: Pr
   async function finish() {
     setBusy(true);
     setError(null);
+    const profile: Profile = { name: name.trim(), lastName: lastName.trim(), age: Number(age), from: from.trim(), interests: [...new Set(picked.map(normalizeInterest).filter(Boolean))], prompts: [], favorites: [] };
     try {
-      await onDone({ name: name.trim(), lastName: lastName.trim(), age: Number(age), from: from.trim(), interests: [...new Set(picked.map(normalizeInterest).filter(Boolean))] });
+      // Saved on the server too. If that call fails outright, carry on: Home saves this device's profile on its next visit.
+      const res = await ensureSignedIn()
+        .then(() => callApi<ProfileResponse>("/api/profile", { action: "save", profile } satisfies ProfileRequest))
+        .catch(() => null);
+      if (res?.errors && Object.keys(res.errors).length) throw new Error(Object.values(res.errors)[0]); // nothing was saved
+      await onDone((res?.profile as Profile | null) ?? profile);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -98,16 +97,14 @@ export function Onboarding({ submitLabel, initial, intro, onDone, onCancel }: Pr
           const empty = e.currentTarget.querySelector<HTMLInputElement>(":invalid");
           if (empty) return empty.focus();
           if (Number(age) < MIN_AGE) return setError(`Riff is for ${MIN_AGE} and up for now.`);
-          if (from.trim() !== initial?.from) {
-            setBusy(true);
-            setError(null);
-            // Jev checks it's a real place (/api/place); a failed check lets them through.
-            const valid = await ensureSignedIn()
-              .then(() => callApi<PlaceResponse>("/api/place", { place: from } satisfies PlaceRequest))
-              .then((r) => r.valid, () => true);
-            setBusy(false);
-            if (!valid) return setError("That doesn't look like a real city.");
-          }
+          setBusy(true);
+          setError(null);
+          // Jev checks it's a real place (/api/place); a failed check lets them through.
+          const valid = await ensureSignedIn()
+            .then(() => callApi<PlaceResponse>("/api/place", { place: from } satisfies PlaceRequest))
+            .then((r) => r.valid, () => true);
+          setBusy(false);
+          if (!valid) return setError("That doesn't look like a real city.");
           go(1);
         }}
         className="my-auto flex flex-col gap-6"
@@ -151,11 +148,7 @@ export function Onboarding({ submitLabel, initial, intro, onDone, onCancel }: Pr
     // overflow-clip, not hidden: hidden would make this a scroll box and break the sticky button.
     <div className="riff-grain relative min-h-dvh overflow-clip text-cream">
       <div className={`relative mx-auto flex min-h-dvh w-full flex-col px-6 pt-3 pb-6 ${step === 0 ? "max-w-md" : "max-w-2xl"}`}>
-        <button
-          onClick={() => (step === 0 ? onCancel?.() : go(0))}
-          aria-label={step === 0 ? "Close" : "Back"}
-          className={`-ml-3 flex size-11 items-center justify-center text-cream ${step === 0 && !onCancel ? "invisible" : ""}`}
-        >
+        <button onClick={() => go(0)} aria-label="Back" className={`-ml-3 flex size-11 items-center justify-center text-cream ${step === 0 ? "invisible" : ""}`}>
           <ChevronLeft className="size-7" />
         </button>
         <div key={step} className="riff-step flex flex-1 flex-col pt-4">

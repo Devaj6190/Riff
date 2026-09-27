@@ -7,6 +7,7 @@ import { useEffect, useRef, useState, ViewTransition } from "react";
 import { Avatar, stagger } from "@/components/HomeScreen";
 import { flyClone, markMatched } from "@/components/motion";
 import type { Profile } from "@/components/Onboarding";
+import { ProfilePopup } from "@/components/ProfilePopup";
 import { useQueue } from "@/components/useQueue";
 import { callApi } from "@/lib/api";
 import { INTEREST_CHIPS } from "@/lib/interests";
@@ -26,6 +27,7 @@ export function SearchScreen({ profile }: { profile: Profile }) {
   const [answered, setAnswered] = useState<number[]>([]);
   const [sent, setSent] = useState<MatchResponse["sent"]>({});
   const [error, setError] = useState<string | null>(null);
+  const [viewing, setViewing] = useState<SearchPerson | null>(null); // whose profile is open
   const gone = useRef(false);
   const bar = useRef<HTMLLabelElement>(null);
 
@@ -95,6 +97,10 @@ export function SearchScreen({ profile }: { profile: Profile }) {
 
   const invite = invites.find((i) => !answered.includes(i.id));
   const loading = !results || results.query !== query.trim();
+  const action = (p: SearchPerson) => {
+    const status = sent[p.id];
+    return status === "pending" ? "Invited…" : status === "passed" ? "Passed" : p.mode === "match" ? "Chat" : "Invite";
+  };
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col gap-4 px-4 pt-3 pb-8">
@@ -144,20 +150,18 @@ export function SearchScreen({ profile }: { profile: Profile }) {
 
       <ul className={`flex flex-col transition-opacity ${loading ? "opacity-50" : ""}`} aria-busy={loading}>
         {results?.people.map((p, i) => {
-          const status = sent[p.id];
+          const first = p.prompts?.[0];
           return (
             // Keyed by query: each new result set springs out of the search bar again.
             <li key={`${results.query}|${p.id}`} className="riff-burst-row" style={stagger(i)}>
-              <button onClick={() => tap(p)} disabled={!!status} className="flex w-full items-center gap-3 border-b border-current/10 py-3 text-left">
+              <button onClick={() => setViewing(p)} className="flex w-full items-center gap-3 border-b border-current/10 py-3 text-left">
                 <Avatar name={p.name} />
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold">{p.name}</p>
-                  <p className="truncate text-sm text-foreground/60">{[p.school, p.interests.join(", ")].filter(Boolean).join(" · ")}</p>
+                  <p className="truncate text-sm text-foreground/60">{first ? `${first.prompt} ${first.answer}` : [p.school, p.interests.join(", ")].filter(Boolean).join(" · ")}</p>
                   {p.bio && <p className="truncate text-sm text-foreground/45">{p.bio}</p>}
                 </div>
-                <span className={`shrink-0 text-sm font-semibold ${status ? "text-foreground/45" : "text-primary"}`}>
-                  {status === "pending" ? "Invited…" : status === "passed" ? "Passed" : p.mode === "match" ? "Chat" : "Invite"}
-                </span>
+                <span className={`shrink-0 text-sm font-semibold ${sent[p.id] ? "text-foreground/45" : "text-primary"}`}>{action(p)}</span>
               </button>
             </li>
           );
@@ -165,6 +169,18 @@ export function SearchScreen({ profile }: { profile: Profile }) {
         {!results && <li className="py-3 text-sm text-foreground/50">Looking for who&apos;s on…</li>}
       </ul>
 
+      {/* Steps aside while an invite is up: the modal would make the invite card untappable. */}
+      {viewing && !invite && (
+        <ProfilePopup profile={{ ...viewing, from: viewing.from ?? "", prompts: viewing.prompts ?? [], favorites: viewing.favorites ?? [] }} onClose={() => setViewing(null)}>
+          <button
+            onClick={() => tap(viewing)}
+            disabled={!!sent[viewing.id]}
+            className="h-12 rounded-full bg-primary font-semibold text-primary-foreground transition-[opacity,scale] active:scale-[0.98] disabled:opacity-50"
+          >
+            {action(viewing)}
+          </button>
+        </ProfilePopup>
+      )}
       {invite && <InviteCard key={invite.id} invite={invite} onAnswer={(accept) => answer(invite, accept)} />}
 
     </div>

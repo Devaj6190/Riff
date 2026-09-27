@@ -3,15 +3,16 @@
 import { ArrowRight, Check, ChevronRight, MessagesSquare, Search, Send, UserMinus, UserRound, X, Zap } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, ViewTransition, type CSSProperties } from "react";
+import { useEffect, useEffectEvent, useRef, useState, ViewTransition, type CSSProperties } from "react";
 import { Logo } from "@/components/Logo";
-import { Onboarding, type Profile } from "@/components/Onboarding";
+import type { Profile } from "@/components/Onboarding";
+import { ProfilePopup } from "@/components/ProfilePopup";
 import { addFriend, chatsWith, loadFriends, personaOf, removeFriend, sendFriendInvite, type Friend } from "@/components/friends";
 import { BOUNCY, calm, markMatched } from "@/components/motion";
 import { useQueue } from "@/components/useQueue";
 import { callApi } from "@/lib/api";
 import { normalizeInterests } from "@/lib/interests";
-import type { BotRequest, InviteRequest, InviteResponse } from "@/lib/types";
+import type { BotRequest, InviteRequest, InviteResponse, ProfileRequest, ProfileResponse } from "@/lib/types";
 import { ensureSignedIn, supabase } from "@/lib/supabase/client";
 
 /** Apple-style contact avatar: grey gradient, white initial. */
@@ -44,6 +45,22 @@ export function HomeScreen({ profile, onProfile }: { profile: Profile; onProfile
 
   const [found, setFound] = useState(false);
   const matchCard = useRef<HTMLDivElement>(null);
+
+  // The server's copy of my profile wins. None yet: this device's profile moves up (people from before profiles).
+  const syncProfile = useEffectEvent(async () => {
+    try {
+      await ensureSignedIn();
+      const { profile: server } = await callApi<ProfileResponse>("/api/profile", { action: "get" } satisfies ProfileRequest);
+      if (server) return onProfile(server as Profile);
+      const { profile: saved } = await callApi<ProfileResponse>("/api/profile", { action: "save", profile: { ...profile, prompts: [], favorites: [] } } satisfies ProfileRequest);
+      if (saved) onProfile(saved as Profile);
+    } catch {
+      // offline, or an old profile the server won't take: keep this device's and try again next visit
+    }
+  });
+  useEffect(() => {
+    void syncProfile();
+  }, []);
 
   // Paired: the orbit pulls in and bursts, the card bumps, then the chat opens (and plays "It's a match").
   useQueue(profile, "match", matching && !found, (res) => {
@@ -210,26 +227,13 @@ export function HomeScreen({ profile, onProfile }: { profile: Profile; onProfile
                 ))}
               </ul>
             </div>
-            {/* ponytail: opens the edit flow until the profile page exists. */}
             <button onClick={() => setEditing(true)} className="h-10 shrink-0 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground">
               View profile
             </button>
           </div>
         </section>
       </div>
-      {editing && (
-        <div className="fixed inset-0 z-30 overflow-y-auto bg-background">
-          <Onboarding
-            initial={profile}
-            submitLabel="Save"
-            onCancel={() => setEditing(false)}
-            onDone={(p) => {
-              onProfile(p);
-              setEditing(false);
-            }}
-          />
-        </div>
-      )}
+      {editing && <ProfilePopup profile={profile} onSaved={onProfile} onClose={() => setEditing(false)} />}
     </>
   );
 }

@@ -9,11 +9,12 @@ import { Chat } from "@/components/Chat";
 import { Avatar, stagger } from "@/components/HomeScreen";
 import { addFriend, friendState, type FriendState } from "@/components/friends";
 import { MatchMoment } from "@/components/MatchMoment";
+import { ProfilePopup } from "@/components/ProfilePopup";
 import { BOUNCY, calm, clearMatched, SPRING, wasMatched } from "@/components/motion";
 import { callApi } from "@/lib/api";
 import { PACING } from "@/lib/engine/pacing";
 import { supabase } from "@/lib/supabase/client";
-import type { Moment, Nudge, Player, Riff, Score, TickRequest, TickResponse } from "@/lib/types";
+import type { Moment, Nudge, Player, ProfileRequest, ProfileResponse, PublicProfile, Riff, Score, TickRequest, TickResponse } from "@/lib/types";
 import { EndControls, endRiff } from "./EndControls";
 import { useGameState } from "./useGameState";
 
@@ -37,6 +38,15 @@ export function GameScreen({ me, riff, players }: Props) {
   // "It's a match" plays once when this chat pairs: it opened in the lobby, or we navigated here right after pairing.
   const [fresh] = useState(() => riff.phase === "lobby" || wasMatched(riff.code));
   const [matchShown, setMatchShown] = useState(false);
+  const [partnerCard, setPartnerCard] = useState<PublicProfile | null>(null); // their profile, while open
+
+  function showPartner() {
+    if (!partner) return;
+    setPartnerCard({ name: partner.name, from: "", interests: partner.interests, prompts: [], favorites: [] }); // until the full one arrives
+    callApi<ProfileResponse>("/api/profile", { action: "partner", riffId: snap.riff.id } satisfies ProfileRequest)
+      .then((r) => r.profile && setPartnerCard((open) => open && r.profile))
+      .catch(() => {}); // keep showing what the chat already knows
+  }
 
   async function newMatch() {
     setRestartError(null);
@@ -57,8 +67,10 @@ export function GameScreen({ me, riff, players }: Props) {
             <ChevronLeft className="size-7" />
           </Link>
           <div className="flex min-w-0 flex-col items-center">
-            <Avatar name={partner?.name ?? "?"} className="size-9 text-sm" />
-            <p className="mt-0.5 max-w-full truncate text-xs font-semibold">{partner?.name ?? "New chat"}</p>
+            <button type="button" onClick={showPartner} disabled={!partner} aria-label={partner ? `${partner.name}'s profile` : undefined} className="flex max-w-full flex-col items-center transition-transform active:scale-95">
+              <Avatar name={partner?.name ?? "?"} className="size-9 text-sm" />
+              <p className="mt-0.5 max-w-full truncate text-xs font-semibold">{partner?.name ?? "New chat"}</p>
+            </button>
             {partner && phase !== "lobby" && (
               <p className="text-[11px] tabular-nums text-foreground/50">
                 You <b data-score={me.id} className="inline-block text-foreground">{snap.loaded ? <CountUp value={totals.get(me.id) ?? 0} /> : 0}</b>
@@ -109,6 +121,7 @@ export function GameScreen({ me, riff, players }: Props) {
           />
         )}
       </main>
+      {partnerCard && <ProfilePopup profile={partnerCard} onClose={() => setPartnerCard(null)} />}
       {fresh && !matchShown && phase !== "lobby" && partner && (
         <MatchMoment
           me={me.name}

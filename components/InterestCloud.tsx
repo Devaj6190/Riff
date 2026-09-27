@@ -2,33 +2,8 @@
 
 import { Search } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { normalizeInterest } from "../lib/interests"; // relative: Vitest has no @/ alias
+import { INTERESTS, normalizeInterest } from "../lib/interests"; // relative: Vitest has no @/ alias
 
-// Most popular first: order sets pill size and how close to the search bar it lands. Search reaches all 200.
-const INTERESTS = [
-  "music", "movies", "gaming", "food", "travel", "fitness", "anime", "sports", "memes", "art", "tv shows", "coffee",
-  "fashion", "books", "photography", "hiking", "basketball", "cooking", "k-pop", "hip-hop", "tech", "soccer",
-  "concerts", "youtube", "pets", "dancing", "writing", "boba", "thrifting", "startups", "skincare", "football",
-  "outdoors", "baking", "podcasts", "true crime", "horror", "astrology", "gym", "running", "nintendo", "valorant",
-  "minecraft", "chess", "board games", "poetry", "design", "painting", "r&b", "pop", "indie", "rap", "edm", "rock",
-  "jazz", "country", "reality tv", "marvel", "star wars", "harry potter", "sci-fi", "fantasy", "romance novels",
-  "manga", "cosplay", "volleyball", "tennis", "swimming", "yoga", "climbing", "skating", "surfing", "snowboarding",
-  "f1", "cars", "sneakers", "streetwear", "makeup", "nails", "tattoos", "vintage", "plants", "camping", "road trips",
-  "beaches", "museums", "history", "science", "space", "psychology", "philosophy", "politics", "investing", "coding",
-  "ai", "languages", "volunteering", "meditation", "journaling", "cats", "dogs", "karaoke", "theater", "musicals",
-  "stand-up comedy", "singing", "guitar", "piano", "djing", "making music", "crochet", "pottery", "drawing",
-  "video editing", "streaming", "esports", "pokemon", "puzzles", "trivia", "sushi", "spicy food", "brunch", "matcha",
-  "baseball", "hockey", "golf", "boxing", "mma", "cycling", "martial arts", "skiing", "weightlifting", "pilates",
-  "pickleball", "fantasy football", "fortnite", "league of legends", "call of duty", "roblox", "genshin impact",
-  "retro games", "vr", "d&d", "k-dramas", "documentaries", "disney", "studio ghibli", "comics", "fan fiction",
-  "self-help", "classical", "metal", "lo-fi", "afrobeats", "latin music", "reggaeton", "music festivals",
-  "songwriting", "ramen", "tacos", "pizza", "bbq", "desserts", "street food", "animation", "graphic design",
-  "digital art", "sewing", "knitting", "diy", "interior design", "architecture", "filmmaking", "acting", "gadgets",
-  "cybersecurity", "3d printing", "economics", "finance", "astronomy", "mythology", "public speaking",
-  "mental health", "self-improvement", "sustainability", "activism", "spirituality", "self-care", "nightlife",
-  "backpacking", "national parks", "studying abroad", "birds", "horses", "gardening", "lego", "trading cards",
-  "motorcycles", "internet culture", "twitch",
-];
 const SHOWN = 36; // phones fit ~20, desktop ~36
 
 // Pill size by popularity rank: [rank below, classes].

@@ -3,7 +3,10 @@
 import { ArrowRight, ChevronLeft } from "lucide-react";
 import { useState } from "react";
 import { InterestCloud } from "@/components/InterestCloud";
+import { callApi } from "@/lib/api";
 import { INTERESTS_REQUIRED, normalizeInterest } from "@/lib/interests";
+import { ensureSignedIn } from "@/lib/supabase/client";
+import type { PlaceRequest, PlaceResponse } from "@/lib/types";
 
 /** What onboarding asks. Only first name + the first 3 interests reach a chat; the rest stays on this device until profiles have a table. */
 export type Profile = {
@@ -89,12 +92,22 @@ export function Onboarding({ submitLabel, initial, intro, onDone, onCancel }: Pr
     step === 0 ? (
       <form
         noValidate
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
           // Return on a half-filled page just moves to the next empty field.
           const empty = e.currentTarget.querySelector<HTMLInputElement>(":invalid");
           if (empty) return empty.focus();
           if (Number(age) < MIN_AGE) return setError(`Riff is for ${MIN_AGE} and up for now.`);
+          if (from.trim() !== initial?.from) {
+            setBusy(true);
+            setError(null);
+            // Jev checks it's a real place (/api/place); a failed check lets them through.
+            const valid = await ensureSignedIn()
+              .then(() => callApi<PlaceResponse>("/api/place", { place: from } satisfies PlaceRequest))
+              .then((r) => r.valid, () => true);
+            setBusy(false);
+            if (!valid) return setError("That doesn't look like a real city.");
+          }
           go(1);
         }}
         className="my-auto flex flex-col gap-6"
@@ -110,8 +123,8 @@ export function Onboarding({ submitLabel, initial, intro, onDone, onCancel }: Pr
           <input required value={from} onChange={(e) => setFrom(e.target.value)} maxLength={40} placeholder="City" aria-label="City" autoComplete="address-level2" enterKeyHint="done" className={field} />
         </div>
         {error && <p className="-mt-3 text-center text-sm text-red-300">{error}</p>}
-        <button type="submit" className={primary}>
-          Continue {arrow}
+        <button type="submit" disabled={busy} className={primary}>
+          {busy ? "…" : <>Continue {arrow}</>}
         </button>
       </form>
     ) : (

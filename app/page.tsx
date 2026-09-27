@@ -14,8 +14,9 @@ export default function Page() {
   // (back from a chat): go straight Home.
   const [fresh] = useState(!client);
   const [saved, setSaved] = useState<Profile | null>();
-  // "open": a saved profile, reveal Home. "setup": crossfade into onboarding on the same navy, then reveal Home.
+  // "open": a saved profile, straight Home. "setup": crossfade into onboarding first.
   const [started, setStarted] = useState<"open" | "setup" | null>(null);
+  const [leaving, setLeaving] = useState(false); // onboarding's last page fading out over the incoming Home
   const profile = saved !== undefined ? saved : client ? loadProfile() : null; // localStorage is client-only
 
   function keep(p: Profile) {
@@ -23,15 +24,21 @@ export default function Page() {
     setSaved(p);
   }
 
+  function finishSetup(p: Profile) {
+    keep(p);
+    setLeaving(true);
+    setTimeout(() => setLeaving(false), 450); // .riff-fade-out's length
+  }
+
   const home = profile && <HomeScreen profile={profile} onProfile={keep} />;
   if (home && !fresh) return home;
 
   return (
     <>
-      {/* Stays behind once started: the backdrop for onboarding and the reveal. */}
+      {/* Stays behind once started; its content fades out as the next screen comes in. */}
       <main inert={!!started} className="riff-grain fixed inset-0 flex items-center justify-center overflow-hidden px-6 pb-[6vh] text-cream">
         {/* relative: keeps the content above the grain layer */}
-        <div className={`relative flex flex-col items-center gap-24 text-center transition-opacity duration-500 sm:gap-28 ${started === "setup" ? "opacity-0" : ""}`}>
+        <div className={`relative flex flex-col items-center gap-24 text-center transition-opacity duration-500 sm:gap-28 ${started ? "opacity-0" : ""}`}>
           <div>
             <h1 className="text-8xl sm:text-9xl">
               <Logo />
@@ -50,16 +57,13 @@ export default function Page() {
           </button>
         </div>
       </main>
-      {started &&
-        (home ? (
-          <div className="riff-reveal relative z-10 min-h-dvh bg-background">
-            <div className="riff-step">{home}</div>
-          </div>
-        ) : (
-          <div className="riff-fade relative z-10">
-            <Onboarding submitLabel="Let's go" onDone={keep} />
-          </div>
-        ))}
+      {started === "setup" && (!home || leaving) && (
+        <div className={home ? "riff-fade-out pointer-events-none fixed inset-0 z-20 overflow-hidden" : "riff-fade relative z-10"}>
+          <Onboarding submitLabel="Let's go" onDone={finishSetup} />
+        </div>
+      )}
+      {/* Home drops in from the top once what's leaving has faded (.riff-enter's delay). */}
+      {started && home && <div className="riff-enter relative z-10">{home}</div>}
     </>
   );
 }

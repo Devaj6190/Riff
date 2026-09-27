@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { GameScreen } from "@/components/game/GameScreen";
+import { markMatched } from "@/components/motion";
 import { loadProfile, Onboarding, saveProfile, type Profile } from "@/components/Onboarding";
 import { ensureSignedIn, supabase } from "@/lib/supabase/client";
 import { normalizeInterests } from "@/lib/interests";
@@ -23,6 +24,7 @@ const FRIENDLY: Record<string, string> = {
 async function joinAs(code: string, profile: Profile) {
   const { error } = await supabase().rpc("join_riff", { p_code: code, p_name: profile.name, p_interests: normalizeInterests(profile.interests) }); // a chat takes 3 (DB check)
   if (error) throw new Error(FRIENDLY[error.message] ?? error.message);
+  markMatched(code); // we just paired: the chat opens with "It's a match"
 }
 
 /** Loads the chat. Opening a link with a saved profile joins straight away; only first-timers see onboarding. */

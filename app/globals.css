@@ -4,14 +4,15 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Light-only Apple-style theme: white surfaces, system blue for actions. */
+/* Navy everywhere: cream type, cream pill actions, see-through glass for fields and chips (--muted).
+   --background is the flat navy that chat bubble tails are carved with; pages sit on the grain backdrop. */
 :root {
-  color-scheme: light;
-  --primary: #007aff;
-  --primary-foreground: #ffffff;
-  --muted: #e9e9eb;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  color-scheme: dark;
+  --primary: #f6f1e3;
+  --primary-foreground: #0c1633;
+  --muted: rgb(255 255 255 / 0.1);
+  --background: #0c1633;
+  --foreground: #f6f1e3;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
@@ -22,9 +23,9 @@
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: #007aff;
+  --border: rgb(255 255 255 / 0.12);
+  --input: rgb(255 255 255 / 0.12);
+  --ring: #f6f1e3;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -180,29 +181,6 @@ body {
   animation: riff-burst 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
 }
 
-/* Home fades in through a soft blurred circle that spreads from the middle of the screen out to the edges.
-   The mask is solid out to 30% of its radius (0.15 of its size), so 480vmax covers any viewport.
-   Ease-in: starts slow and heavy, then speeds up.
-   Mask props live in the keyframes so they drop off when the animation ends. */
-@keyframes riff-reveal {
-  from {
-    mask-image: radial-gradient(closest-side, #000 30%, rgb(0 0 0 / 0.75) 48%, rgb(0 0 0 / 0.4) 66%, rgb(0 0 0 / 0.12) 84%, transparent);
-    mask-repeat: no-repeat;
-    mask-size: 0 0;
-    mask-position: 50% 50vh;
-  }
-  to {
-    mask-image: radial-gradient(closest-side, #000 30%, rgb(0 0 0 / 0.75) 48%, rgb(0 0 0 / 0.4) 66%, rgb(0 0 0 / 0.12) 84%, transparent);
-    mask-repeat: no-repeat;
-    mask-size: 480vmax 480vmax;
-    mask-position: 50% calc(50vh - 240vmax);
-  }
-}
-
-.riff-reveal {
-  animation: riff-reveal 1.4s cubic-bezier(0.7, 0, 0.84, 0) backwards;
-}
-
 /* Landing → onboarding: a plain crossfade on the same navy. */
 @keyframes riff-fade {
   from {
@@ -214,8 +192,155 @@ body {
   animation: riff-fade 0.5s ease-out backwards;
 }
 
+/* Leaving onboarding: the last page fades away... */
+.riff-fade-out {
+  animation: riff-fade 0.45s ease-in reverse forwards;
+}
+
+/* ...then Home comes in from the top, slowly. The delay lets what's leaving fade first. */
+@keyframes riff-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-2.5rem);
+  }
+}
+
+.riff-enter {
+  animation: riff-enter 0.9s cubic-bezier(0.2, 0.8, 0.3, 1) 0.4s backwards;
+}
+
+/* Content settling in: fades up into place. Stagger siblings with style={{ "--i": n }} (60 ms apart).
+   `backwards` fill, so no transform is left behind to trap `fixed` children. */
+@keyframes riff-rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+}
+
+.riff-rise {
+  animation: riff-rise 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) calc(var(--i, 0) * 60ms) backwards;
+}
+
+/* The friend menu's backdrop fades in with it. */
+.riff-dialog::backdrop {
+  animation: riff-fade 0.25s ease-out;
+}
+
+/* Search results spring out of the search bar: each row starts up where the bar is (about --i rows above). */
+@keyframes riff-burst-row {
+  from {
+    opacity: 0;
+    transform: translateY(calc(var(--i, 0) * -68px - 44px)) scale(0.4);
+  }
+}
+
+.riff-burst-row {
+  animation: riff-burst-row 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) calc(var(--i, 0) * 45ms) backwards;
+}
+
+/* An incoming call: rings pulse out of the caller's avatar. */
+@keyframes riff-call {
+  from {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  to {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.riff-call {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 2px solid currentColor;
+  animation: riff-call 1.6s ease-out infinite;
+}
+
+.riff-call + .riff-call {
+  animation-delay: 0.8s;
+}
+
+/* Add friend: a dashed ring circles the pair while the request waits, then draws closed; the avatars hop. */
+@keyframes riff-march {
+  to {
+    stroke-dashoffset: -18;
+  }
+}
+
+.riff-march {
+  animation: riff-march 1s linear infinite;
+}
+
+@keyframes riff-draw {
+  from {
+    stroke-dashoffset: var(--len);
+  }
+}
+
+.riff-draw {
+  stroke-dasharray: var(--len);
+  animation: riff-draw 0.7s cubic-bezier(0.6, 0, 0.3, 1) both;
+}
+
+@keyframes riff-hop {
+  40% {
+    transform: translateY(-9px);
+  }
+  70% {
+    transform: translateY(1px);
+  }
+}
+
+.riff-hop {
+  animation: riff-hop 0.5s ease-out calc(0.45s + var(--i, 0) * 0.12s) backwards;
+}
+
+/* The nudge timer ring's last 5 seconds. */
+@keyframes riff-pulse {
+  50% {
+    transform: scale(1.18);
+  }
+}
+
+.riff-pulse {
+  animation: riff-pulse 1s ease-in-out infinite;
+}
+
+/* End-of-match moments, dealt in like cards from below. */
+@keyframes riff-deal {
+  from {
+    opacity: 0;
+    transform: translateY(220px) rotate(0) scale(0.6);
+  }
+}
+
+.riff-deal {
+  animation: riff-deal 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) calc(var(--i, 0) * 110ms) backwards;
+}
+
+/* "It's a match": a hole opens in the overlay and the chat grows out of it. */
+@property --hole {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+.riff-hole {
+  mask-image: radial-gradient(circle at 50% 42%, transparent var(--hole), #000 calc(var(--hole) + 1px));
+}
+
+/* Shared elements morphing between pages (<ViewTransition share="morph">). */
+::view-transition-group(.morph) {
+  animation-duration: 450ms;
+  animation-timing-function: cubic-bezier(0.2, 0.9, 0.3, 1.1);
+}
+
 /* Apple Messages bubbles. The last bubble in a run gets a tail: ::before is the tail in the bubble's color,
-   ::after is a page-colored curve that carves it. Needs a --background page behind it. */
+   ::after is a page-colored curve that carves it. Needs a --background page behind it and an opaque bubble color
+   (the tail overlaps the bubble, so see-through colors show a brighter corner): theirs is #242d47, glass baked onto navy. */
 .bubble {
   position: relative;
   z-index: 0;
@@ -323,7 +448,8 @@ body {
   animation: riff-step 0.35s cubic-bezier(0.2, 0.9, 0.3, 1) backwards;
 }
 
-/* Landing: navy with heavy film grain. The grain is SVG turbulence on an oversized layer, jumped around in steps. */
+/* Landing: navy with heavy film grain. The grain is SVG turbulence on an oversized layer, jumped around in steps.
+   The layer is 3x the box (inset -100%), so any translate past ±33% uncovers an edge: keep keyframes within ±30%. */
 .riff-grain {
   background: radial-gradient(120% 80% at 50% 20%, #15234f 0%, #09112a 55%, #040817 100%);
 }
@@ -336,12 +462,6 @@ body {
   opacity: 0.18;
   pointer-events: none;
   animation: riff-grain 0.9s steps(9) infinite;
-  transition: opacity 0.6s;
-}
-
-/* Leaving the landing (it goes inert under the reveal): drop the grain so the soft edge fades navy to white cleanly. */
-.riff-grain[inert]::before {
-  opacity: 0;
 }
 
 @keyframes riff-grain {
@@ -353,7 +473,7 @@ body {
   55% { transform: translate(-15%, 10%); }
   66% { transform: translate(15%, 0); }
   77% { transform: translate(0, 15%); }
-  88% { transform: translate(3%, 35%); }
+  88% { transform: translate(3%, 15%); }
 }
 
 /* A light sweep across text; riff-shine is shared with the bonus banner. */
@@ -367,12 +487,25 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .riff-fade,
+  .riff-fade-out,
+  .riff-enter,
+  .riff-rise,
+  .riff-dialog::backdrop,
+  .riff-burst-row,
+  .riff-call,
+  .riff-march,
+  .riff-pulse,
+  .riff-draw,
+  .riff-hop,
+  .riff-deal,
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*),
   .riff-grain::before,
   .riff-shimmer,
   .riff-step,
   .riff-bubble,
   .riff-dot,
-  .riff-reveal,
   .riff-drop,
   .riff-bonus,
   .riff-pop,

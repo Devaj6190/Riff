@@ -158,6 +158,9 @@ export type QueueMode = "match" | "browse";
 export type SearchPerson = { id: string; name: string; interests: string[]; mode: QueueMode; seed: boolean; school?: string; bio?: string };
 export type Invite = { id: number; from: SearchPerson };
 
+/** Onboarding hometown check (/api/place, Jev). */
+export type PlaceRequest = { place: string };
+export type PlaceResponse = { valid: boolean };
 /** POST /api/search, while polling /api/match in browse mode. Empty query = ranked by fit to me, real people first.
  *  `noMatch`: nobody really fits the query (still ranked, show "No one like that is on right now"). */
 export type SearchRequest = { query: string };

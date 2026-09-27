@@ -4,14 +4,14 @@ import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { loadProfile, ProfileForm, saveProfile, type Profile } from "@/components/ProfileForm";
+import { Onboarding, type Profile } from "@/components/Onboarding";
 import { callApi } from "@/lib/api";
 import { INTEREST_CHIPS } from "@/lib/interests";
 import type { BotRequest, RiffPhase } from "@/lib/types";
 import { ensureSignedIn, supabase } from "@/lib/supabase/client";
 
 // ponytail: template people until Phase 2 discovery has a backend (SPEC §7).
-const PEOPLE: (Profile & { school: string })[] = [
+const PEOPLE: { name: string; school: string; interests: string[] }[] = [
   { name: "Maya", school: "Georgia Tech", interests: ["anime", "food", "travel"] },
   { name: "Jordan", school: "Georgia Tech", interests: ["sports", "memes", "gaming"] },
   { name: "Priya", school: "Emory", interests: ["books", "art", "music"] },
@@ -84,10 +84,8 @@ function shortTime(iso: string) {
     : d.toLocaleDateString([], { month: "short", day: "numeric" });
 }
 
-/** Mounted only after "Get Started", so reading localStorage on first render is safe. */
-export function HomeScreen() {
+export function HomeScreen({ profile, onProfile }: { profile: Profile; onProfile: (p: Profile) => void }) {
   const router = useRouter();
-  const [profile, setProfile] = useState(loadProfile);
   const [editing, setEditing] = useState(false);
   const [code, setCode] = useState("");
   const [query, setQuery] = useState("");
@@ -103,13 +101,7 @@ export function HomeScreen() {
       (filters.length === 0 || p.interests.some((i) => filters.includes(i))),
   );
 
-  function openProfile() {
-    setEditing(true);
-    document.getElementById("profile")?.scrollIntoView({ behavior: "smooth" });
-  }
-
   async function startRiff(withBot = false) {
-    if (!profile) return openProfile();
     setBusy(true);
     setError(null);
     try {
@@ -124,15 +116,8 @@ export function HomeScreen() {
     }
   }
 
-  async function save(name: string, interests: string[]) {
-    const next = { name, interests };
-    saveProfile(next);
-    setProfile(next);
-    setEditing(false);
-  }
-
   return (
-    <div className="riff-reveal relative z-10 min-h-dvh bg-background">
+    <>
       <div className="mx-auto grid w-full max-w-5xl gap-10 px-4 py-8 md:grid-cols-2 md:gap-12 md:py-12">
         <div className="flex min-w-0 flex-col gap-8">
           <header>
@@ -236,34 +221,47 @@ export function HomeScreen() {
           </section>
         </div>
 
-        <aside id="profile" className="flex scroll-mt-8 flex-col gap-4 md:sticky md:top-12 rounded-3xl bg-muted/50 p-5 md:self-start md:p-6">
-          {profile ? (
-            <div className="flex items-center gap-3">
-              <Avatar name={profile.name} />
-              <div className="min-w-0 flex-1">
-                <p className="font-semibold">{profile.name}</p>
-                <p className="truncate text-sm opacity-60">{profile.interests.join(", ")}</p>
-              </div>
-              {!editing && (
-                <button onClick={() => setEditing(true)} className="h-11 px-2 font-semibold text-primary md:hidden">
-                  Edit
-                </button>
-              )}
+        <aside className="flex flex-col gap-4 rounded-3xl bg-muted/50 p-5 md:sticky md:top-12 md:self-start md:p-6">
+          <div className="flex items-center gap-3">
+            <Avatar name={profile.name} className="size-14 text-xl" />
+            <div className="min-w-0 flex-1">
+              <p className="text-lg font-semibold">
+                {profile.name}, {profile.age}
+              </p>
+              <p className="truncate text-sm opacity-60">{profile.from}</p>
             </div>
-          ) : (
-            !editing && (
-              <button onClick={openProfile} className="flex flex-col items-start rounded-3xl bg-primary/10 p-5 text-left md:hidden">
-                <span className="font-semibold text-primary">Create your own profile</span>
-                <span className="text-sm opacity-60">Takes 2 minutes.</span>
-              </button>
-            )
-          )}
-          <div className={editing ? "" : "hidden md:block"}>
-            <h2 className="mb-3 hidden text-lg font-semibold md:block">{profile ? "Your profile" : "Create your profile"}</h2>
-            <ProfileForm key={profile?.name} submitLabel="Save profile" initial={profile} onSubmit={save} />
+            <button onClick={() => setEditing(true)} className="h-11 px-2 font-semibold text-primary">
+              Edit
+            </button>
+          </div>
+          <p className="text-sm opacity-60">{profile.goal}</p>
+          <div className="flex flex-wrap gap-2">
+            {profile.interests.map((i) => (
+              <span key={i} className="rounded-full bg-primary px-3 py-1 text-sm text-primary-foreground">
+                {i}
+              </span>
+            ))}
+            {profile.vibe.map((v) => (
+              <span key={v} className="rounded-full bg-background px-3 py-1 text-sm">
+                {v}
+              </span>
+            ))}
           </div>
         </aside>
       </div>
-    </div>
+      {editing && (
+        <div className="fixed inset-0 z-30 overflow-y-auto bg-background">
+          <Onboarding
+            initial={profile}
+            submitLabel="Save"
+            onCancel={() => setEditing(false)}
+            onDone={(p) => {
+              onProfile(p);
+              setEditing(false);
+            }}
+          />
+        </div>
+      )}
+    </>
   );
 }

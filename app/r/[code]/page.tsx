@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { GameScreen } from "@/components/game/GameScreen";
-import { loadProfile, ProfileForm, saveProfile, type Profile } from "@/components/ProfileForm";
+import { loadProfile, Onboarding, saveProfile, type Profile } from "@/components/Onboarding";
 import { ensureSignedIn, supabase } from "@/lib/supabase/client";
 import type { Player, Riff } from "@/lib/types";
 
@@ -24,7 +24,7 @@ async function joinAs(code: string, profile: Profile) {
   if (error) throw new Error(FRIENDLY[error.message] ?? error.message);
 }
 
-/** Loads the chat. Opening a link with a saved profile joins straight away; only first-timers see the form. */
+/** Loads the chat. Opening a link with a saved profile joins straight away; only first-timers see onboarding. */
 async function fetchView(code: string, autoJoin = true): Promise<View> {
   try {
     const user = await ensureSignedIn();
@@ -54,8 +54,7 @@ export default function RiffPage() {
     fetchView(code).then(setView);
   }, [code]);
 
-  async function join(name: string, interests: string[]) {
-    const profile = { name, interests };
+  async function join(profile: Profile) {
     await joinAs(code, profile);
     saveProfile(profile);
     await load();
@@ -77,15 +76,7 @@ export default function RiffPage() {
   }
 
   if (view.status === "join") {
-    return (
-      <main className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 py-12">
-        <header className="text-center">
-          <h1 className="text-3xl font-bold tracking-tight">Join the chat</h1>
-          <p className="mt-1 text-foreground/60">Pick a name and three things you&apos;re into. That&apos;s it.</p>
-        </header>
-        <ProfileForm submitLabel="Join chat" onSubmit={join} />
-      </main>
-    );
+    return <Onboarding intro="You're invited to a chat on Riff" submitLabel="Join chat" onDone={join} />;
   }
 
   return <GameScreen me={view.me} riff={view.riff} players={view.players} />;

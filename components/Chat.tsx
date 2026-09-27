@@ -125,7 +125,7 @@ export function Chat({ riffId, me, pastNudges = [], onTyping, partnerTyping }: P
                 className={[
                   "bubble max-w-[75%] whitespace-pre-wrap break-words rounded-[18px] px-3.5 py-2 leading-snug",
                   sameAsPrev ? "mt-0.5" : "mt-2.5",
-                  mine ? "bubble-mine self-end bg-primary text-primary-foreground" : "bubble-theirs self-start bg-muted",
+                  mine ? "bubble-mine self-end bg-primary text-primary-foreground" : "bubble-theirs self-start bg-[#242d47]",
                   lastInRun && !(partnerTyping && !mine && !next) ? "bubble-tail" : "",
                   m.quiet ? "" : "riff-bubble",
                 ].join(" ")}
@@ -136,7 +136,7 @@ export function Chat({ riffId, me, pastNudges = [], onTyping, partnerTyping }: P
           );
         })}
         {partnerTyping && (
-          <li aria-label="typing" className="bubble bubble-theirs bubble-tail riff-bubble mt-2.5 flex gap-1 self-start rounded-[18px] bg-muted px-4 py-3.5">
+          <li aria-label="typing" className="bubble bubble-theirs bubble-tail riff-bubble mt-2.5 flex gap-1 self-start rounded-[18px] bg-[#242d47] px-4 py-3.5">
             {[0, 0.15, 0.3].map((delay) => (
               <span key={delay} className="riff-dot size-2 rounded-full bg-foreground/60" style={{ animationDelay: `${delay}s` }} />
             ))}
@@ -144,7 +144,7 @@ export function Chat({ riffId, me, pastNudges = [], onTyping, partnerTyping }: P
         )}
         <div ref={bottom} />
       </ul>
-      {error && <p className="px-4 pb-1 text-sm text-red-500">{error}</p>}
+      {error && <p className="px-4 pb-1 text-sm text-red-300">{error}</p>}
       <form onSubmit={send} className="px-3 pb-3 pt-1">
         <div className="flex items-center rounded-full border border-current/15 pl-4 focus-within:border-primary/60">
           <input

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
+import { FriendInvites } from "@/components/FriendInvites";
 import "./globals.css";
 
 // Aspekta (OFL-1.1, see app/fonts/OFL.txt): one variable file covers every weight.
@@ -29,7 +30,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${aspekta.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {/* Every page sits on the landing's navy and moving grain. */}
+        <div aria-hidden className="riff-grain pointer-events-none fixed inset-0 -z-10 overflow-hidden" />
+        {children}
+        <FriendInvites />
+      </body>
     </html>
   );
 }

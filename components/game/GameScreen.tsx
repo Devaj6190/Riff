@@ -1,11 +1,12 @@
 "use client";
 
-import { ChevronLeft, Heart, Sparkles, Zap } from "lucide-react";
+import { ChevronLeft, Heart, Sparkles, UserCheck, UserPlus, Zap } from "lucide-react";
 import Link from "next/link";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Chat } from "@/components/Chat";
 import { Avatar } from "@/components/HomeScreen";
+import { addFriend, friendState, type FriendState } from "@/components/friends";
 import { callApi } from "@/lib/api";
 import { PACING } from "@/lib/engine/pacing";
 import { supabase } from "@/lib/supabase/client";
@@ -44,9 +45,9 @@ export function GameScreen({ me, riff, players }: Props) {
   }
 
   return (
-    <div className="md:flex md:h-dvh md:items-center md:bg-[#f5f5f7] md:py-6">
+    <div className="md:flex md:h-dvh md:items-center md:py-6">
       {/* On wide screens the chat sits in a window-like card; on phones it's the whole screen. */}
-      <main className="relative mx-auto flex h-dvh w-full max-w-md flex-col overflow-hidden bg-background md:h-full md:max-h-[56rem] md:rounded-3xl md:shadow-[0_8px_40px_rgb(0_0_0/0.08)]">
+      <main className="relative mx-auto flex h-dvh w-full max-w-md flex-col overflow-hidden bg-background md:h-full md:max-h-[56rem] md:rounded-3xl md:shadow-[0_8px_40px_rgb(0_0_0/0.45)] md:ring-1 md:ring-white/10">
         <header className="grid grid-cols-[5.5rem_1fr_5.5rem] items-center border-b border-current/10 px-1 py-1.5">
           <Link href="/" aria-label="Back" className="flex size-11 items-center justify-center text-primary">
             <ChevronLeft className="size-7" />
@@ -207,6 +208,7 @@ function EndScreen({
   const title = !winner ? "Match over" : winner.id === meId ? "You won" : `${winner.name} won`;
   const moments = riff.summary?.moments; // undefined while the AI is still picking them
   const nameOf = (seat: string) => (people.find((p) => p.seat === seat)?.id === meId ? "You" : people.find((p) => p.seat === seat)?.name);
+  const partner = people.find((p) => p.id !== meId);
 
   return (
     <div className="riff-pop absolute inset-0 z-30 flex flex-col gap-6 overflow-y-auto bg-background/95 px-6 py-10 backdrop-blur">
@@ -235,7 +237,7 @@ function EndScreen({
           <p className="mt-2 text-sm italic opacity-70">{m.caption}</p>
         </section>
       ))}
-      {error && <p className="text-center text-sm text-red-500">{error}</p>}
+      {error && <p className="text-center text-sm text-red-300">{error}</p>}
       <div className="flex flex-col gap-2">
         <button
           onClick={async () => {
@@ -248,11 +250,47 @@ function EndScreen({
         >
           {busy ? "…" : "New match"}
         </button>
+        {partner && <FriendButton partner={partner} />}
         <button onClick={onKeepChatting} className="h-12 rounded-full font-semibold text-primary">
           Keep chatting
         </button>
       </div>
     </div>
+  );
+}
+
+/** Add the person you just chatted with. They're a friend once they add you back; the AI's personas say yes straight away. */
+function FriendButton({ partner }: { partner: Player }) {
+  const [state, setState] = useState<FriendState | null>(null);
+  const [busy, setBusy] = useState(false);
+  const { user_id: userId, name, interests } = partner;
+
+  useEffect(() => {
+    let live = true;
+    friendState({ userId, name }).then((s) => live && setState(s));
+    return () => {
+      live = false;
+    };
+  }, [userId, name]);
+
+  const label = { none: `Add ${name} as a friend`, received: `${name} added you: add back`, sent: "Friend request sent", friends: `${name} is a friend` };
+  return (
+    <button
+      onClick={async () => {
+        setBusy(true);
+        try {
+          setState(await addFriend({ userId, name, interests }));
+        } catch {
+          // ponytail: a failed add leaves the button as it was; tap again
+        }
+        setBusy(false);
+      }}
+      disabled={busy || !state || state === "sent" || state === "friends"}
+      className="flex h-12 items-center justify-center gap-2 rounded-full bg-muted font-semibold disabled:opacity-60"
+    >
+      {state === "sent" || state === "friends" ? <UserCheck className="size-5" /> : <UserPlus className="size-5" />}
+      {label[state ?? "none"]}
+    </button>
   );
 }
 

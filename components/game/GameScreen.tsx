@@ -66,7 +66,9 @@ export function GameScreen({ me, riff, players }: Props) {
   return (
     <div className="md:flex md:h-dvh md:items-center md:py-6">
       {/* On wide screens the chat sits in a window-like card; on phones it's the whole screen. */}
-      <main className="riff-rise relative mx-auto flex h-dvh w-full max-w-md flex-col overflow-hidden bg-background md:h-full md:max-h-[56rem] md:rounded-3xl md:shadow-[0_8px_40px_rgb(0_0_0/0.45)] md:ring-1 md:ring-white/10">
+      {/* Phones: pinned to the visible part of the screen (ViewportVars), so the header, nudge and input stay in view
+          when the keyboard opens. */}
+      <main className="riff-rise relative mx-auto flex h-dvh w-full max-w-md flex-col overflow-hidden bg-background max-md:fixed max-md:inset-x-0 max-md:top-[var(--vv-top,0px)] max-md:h-[var(--vvh,100dvh)] md:h-full md:max-h-[56rem] md:rounded-3xl md:shadow-[0_8px_40px_rgb(0_0_0/0.45)] md:ring-1 md:ring-white/10">
         <header className="grid grid-cols-[5.5rem_1fr_5.5rem] items-center border-b border-current/10 px-1 py-1.5">
           <Link href="/" aria-label="Back" className="flex size-11 items-center justify-center text-primary">
             <ChevronLeft className="size-7" />
@@ -207,10 +209,11 @@ function NudgeBanner({ nudge, me, partner, onExpire }: { nudge: Nudge; me: Playe
   }, [over]);
 
   return (
-    <section ref={card} aria-live="polite" className="riff-drop relative z-10 mx-3 mt-3 rounded-3xl bg-primary/10 p-4">
+    // At most 40% of the chat, scrolling inside, so a tall card (an image, Two truths) never pushes the chat away.
+    <section ref={card} aria-live="polite" data-nudge data-keep-visible className="riff-drop relative z-10 mx-3 mt-3 max-h-[40%] shrink-0 overflow-y-auto overscroll-contain rounded-3xl bg-primary/10 p-4">
       {nudge.kind === "image" && (
         // eslint-disable-next-line @next/next/no-img-element -- remote generated image, no loader configured
-        <img src={nudge.payload.imageUrl} alt="" className="mb-3 max-h-56 w-full rounded-2xl object-cover" />
+        <img data-nudge-extra src={nudge.payload.imageUrl} alt="" className="mb-3 max-h-56 w-full rounded-2xl object-cover" />
       )}
       <div className="flex items-center gap-3">
         <span className={`relative flex size-12 shrink-0 items-center justify-center text-primary ${hurry ? "riff-pulse" : ""}`}>
@@ -237,8 +240,12 @@ function NudgeBanner({ nudge, me, partner, onExpire }: { nudge: Nudge; me: Playe
           <p className="font-semibold">{nudge.payload.prompt}</p>
         </div>
       </div>
-      {game && <MiniGame nudge={game} me={me} partner={partner} />}
-      {nudge.kind === "audio" && <audio src={nudge.payload.clipUrl} autoPlay controls className="mt-3 w-full" />}
+      {game && (
+        <div data-nudge-extra>
+          <MiniGame nudge={game} me={me} partner={partner} />
+        </div>
+      )}
+      {nudge.kind === "audio" && <audio data-nudge-extra src={nudge.payload.clipUrl} autoPlay controls className="mt-3 w-full" />}
     </section>
   );
 }

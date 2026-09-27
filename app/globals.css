@@ -222,6 +222,23 @@ body {
   animation: riff-rise 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) calc(var(--i, 0) * 60ms) backwards;
 }
 
+/* Mobile keyboards (ViewportVars): a popup fits the part of the screen above the keyboard, and sits at its top while
+   the keyboard is up, so the box being typed in is never behind it. Unlayered, so it beats the dialogs' utilities. */
+dialog[open] {
+  max-height: min(88dvh, calc(var(--vvh, 100dvh) - 1rem));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+html.kb-open dialog[open] {
+  margin-top: calc(var(--vv-top, 0px) + 0.5rem);
+  margin-bottom: auto;
+}
+
+/* While typing in the chat box with the keyboard up, the nudge card shrinks to its prompt (not while typing in it). */
+html.kb-open [data-nudge]:not(:focus-within) [data-nudge-extra] {
+  display: none;
+}
+
 /* The friend menu's backdrop fades in with it. */
 .riff-dialog::backdrop {
   animation: riff-fade 0.25s ease-out;

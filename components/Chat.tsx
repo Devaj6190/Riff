@@ -39,6 +39,25 @@ export function Chat({ riffId, me, pastNudges = [], onTyping, partnerTyping, onP
   const typingSize = useRef<[number, number] | null>(null);
   const typingShown = useRef(false); // as of the last commit
 
+  // The keyboard opening (or a nudge card) shrinks the list: keep the newest message in view if it was.
+  useEffect(() => {
+    const el = list.current;
+    if (!el) return;
+    let atEnd = true;
+    const onScroll = () => {
+      atEnd = el.scrollHeight - el.scrollTop - el.clientHeight < 40;
+    };
+    const resized = new ResizeObserver(() => {
+      if (atEnd) el.scrollTop = el.scrollHeight;
+    });
+    el.addEventListener("scroll", onScroll, { passive: true });
+    resized.observe(el);
+    return () => {
+      resized.disconnect();
+      el.removeEventListener("scroll", onScroll);
+    };
+  }, []);
+
   const onInsert = useEffectEvent((m: Message) => {
     setRows((prev) => mergeRows(prev, [m]));
     if (m.player_id !== me.id) onPartnerMessage?.();

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import { FriendInvites } from "@/components/FriendInvites";
+import { ViewportVars } from "@/components/ViewportVars";
 import "./globals.css";
 
 // Aspekta (OFL-1.1, see app/fonts/OFL.txt): one variable file covers every weight.
@@ -21,7 +22,8 @@ export const metadata: Metadata = {
   description: "For everything after hello.",
 };
 
-// Shrink the layout (and dvh) when the mobile keyboard opens, so the input bar stays visible.
+// Shrink the layout (and dvh) when the mobile keyboard opens, so the input bar stays visible. Android only; iOS gets
+// the same from ViewportVars.
 export const viewport: Viewport = { interactiveWidget: "resizes-content" };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -35,6 +37,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <div aria-hidden className="riff-grain pointer-events-none fixed inset-0 -z-10 overflow-hidden" />
         {children}
         <FriendInvites />
+        <ViewportVars />
       </body>
     </html>
   );

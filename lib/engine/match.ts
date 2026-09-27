@@ -1,7 +1,9 @@
 // Match me: players wait in match_queue, polling /api/match. Whoever polls pairs themselves with the waiting player
 // they're most likely to click with (hidden profiles from ending.ts), and pair_up (0009) seats both in a new riff.
+// Nobody real after a few seconds: the client's settle poll gets a seed instead (matchSeed, search.ts).
+import { overlap } from "../interests";
 import { supabaseAdmin } from "../supabase/admin";
-import type { QueueMode, UserProfile } from "../types";
+import type { MatchPartner, QueueMode, UserProfile } from "../types";
 import { llmJson } from "./llm";
 
 export const FRESH_MS = 8_000; // polled within this = still waiting (clients poll every 2 s)
@@ -43,6 +45,15 @@ export async function matchMe(userId: string, name: string, interests: string[],
   return code as string;
 }
 
+/** The other player in a riff I was just paired into: Match me's reveal flies their interests in. */
+export async function partnerIn(code: string, userId: string): Promise<MatchPartner | null> {
+  const db = supabaseAdmin();
+  const { data: riff } = await db.from("riffs").select("id").eq("code", code).maybeSingle();
+  if (!riff) return null;
+  const { data } = await db.from("players").select("name, interests").eq("riff_id", riff.id).neq("user_id", userId).maybeSingle();
+  return data as MatchPartner | null;
+}
+
 /** The waiting player the model thinks `me` will click with best; shared interests if the model fails. */
 async function bestFit(me: Waiting, waiting: Waiting[]): Promise<Waiting> {
   const { data } = await supabaseAdmin().from("user_profiles").select("user_id, profile").in("user_id", [me.user_id, ...waiting.map((w) => w.user_id)]);
@@ -75,11 +86,4 @@ export function byOverlap<T>(mine: string[], theirs: string[][], candidates: T[]
     if (score(t) > score(theirs[best])) best = i;
   });
   return candidates[best];
-}
-
-/** Scorer: how many words each list of terms shares with `mine` (words over 2 letters, case-insensitive). */
-export function overlap(mine: string[]): (terms: string[]) => number {
-  const words = (terms: string[]) => new Set(terms.flatMap((t) => t.toLowerCase().split(/\W+/)).filter((w) => w.length > 2));
-  const me = words(mine);
-  return (terms) => [...words(terms)].filter((w) => me.has(w)).length;
 }

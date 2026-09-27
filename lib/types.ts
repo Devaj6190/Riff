@@ -147,11 +147,13 @@ export type BotRequest = { code: string };
 export type TickResponse = { phase: RiffPhase; nudged: boolean };
 
 /** POST /api/match: join the Match me queue, then poll every 2 s. `code` is the new riff once paired; stop polling
- *  to leave the queue. `name` and `interests` are the caller's profile, as for create_riff. */
-export type MatchRequest = { name: string; interests: string[]; mode?: QueueMode };
+ *  to leave the queue. `name` and `interests` are the caller's profile, as for create_riff. `settle`: Match me has
+ *  waited ~3 s; with nobody real to pair with, pair me with a seed now. */
+export type MatchRequest = { name: string; interests: string[]; mode?: QueueMode; settle?: boolean };
 /** `invites`: live ones sent to me, oldest first (pop one at a time). `sent`: my live invites by person id; a
- *  passed one stays "passed" until it expires (60 s). Both empty in match mode. */
-export type MatchResponse = { code: string | null; invites: Invite[]; sent: Record<string, "pending" | "passed"> };
+ *  passed one stays "passed" until it expires (60 s). Both empty in match mode. `partner`: who I got, once paired. */
+export type MatchResponse = { code: string | null; invites: Invite[]; sent: Record<string, "pending" | "passed">; partner?: MatchPartner | null };
+export type MatchPartner = { name: string; interests: string[] };
 
 /** match: Match me (auto-paired). browse: search (SPEC §7 Discovery), only paired by an invite or a tap. Poll
  *  /api/match every 2 s in either; stop polling to leave the queue. */

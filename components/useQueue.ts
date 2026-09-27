@@ -7,9 +7,11 @@ import { normalizeInterests } from "@/lib/interests";
 import type { MatchRequest, MatchResponse, QueueMode } from "@/lib/types";
 
 const POLL_MS = 2000;
+const SETTLE_MS = 2500; // Match me: nobody real by now, so this poll takes a seed (lands ~3 s in)
 
 /** Sits in the queue while `on`: polls /api/match every 2 s (SPEC §7) and hands each answer to `onPoll`, stopping
- *  once one has a code. Turning it off or unmounting stops the poll, which takes us out of the queue.
+ *  once one has a code. Match me settles at 2.5 s: from then on each poll pairs you with a seed if nobody real is
+ *  there. Turning it off or unmounting stops the poll, which takes us out of the queue.
  *  Sign in before turning it on (two parallel anonymous sign-ins make two users). */
 export function useQueue(profile: Profile, mode: QueueMode, on: boolean, onPoll: (res: MatchResponse) => void) {
   const name = profile.name;
@@ -20,16 +22,18 @@ export function useQueue(profile: Profile, mode: QueueMode, on: boolean, onPoll:
     if (!on) return;
     let live = true;
     let timer: ReturnType<typeof setTimeout>;
+    const settleAt = Date.now() + SETTLE_MS;
     async function poll() {
+      const settle = mode === "match" && Date.now() >= settleAt;
       try {
-        const res = await callApi<MatchResponse>("/api/match", { name, interests: interests.split("\n"), mode } satisfies MatchRequest);
+        const res = await callApi<MatchResponse>("/api/match", { name, interests: interests.split("\n"), mode, settle } satisfies MatchRequest);
         if (!live) return;
         handle(res);
         if (res.code) return;
       } catch {
         // ponytail: a failed poll just waits for the next one.
       }
-      if (live) timer = setTimeout(poll, POLL_MS);
+      if (live) timer = setTimeout(poll, mode === "match" && !settle ? Math.min(POLL_MS, settleAt - Date.now()) : POLL_MS);
     }
     poll();
     return () => {

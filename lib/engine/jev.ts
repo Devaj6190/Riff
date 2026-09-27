@@ -3,7 +3,7 @@
 
 export type JevQuestion =
   | { type: "choice"; instructions: string; criteria: Record<string, string> } // up to 255 options
-  | { type: "noul"; instructions: string };
+  | { type: "noul"; instructions: string | Record<string, unknown> }; // an object can carry the data it asks about
 
 export type JevAnswer =
   | { type: "choice"; choice: string; confidence: number; probabilities: Record<string, number> }

@@ -1,0 +1,6758 @@
+[
+ {
+  "from": "Savannah, GA",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "ranking every ghibli movie, don't test me"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "my solo travel ramen crawls"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "anime",
+    "value": "Spirited Away"
+   },
+   {
+    "kind": "food",
+    "value": "Tonkotsu Ramen"
+   }
+  ]
+ },
+ {
+  "from": "Macon, GA",
+  "prompts": [
+   {
+    "prompt": "My hot take…",
+    "answer": "memes > live sports any day"
+   },
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "hawks game then fortnite all night"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Atlanta Hawks"
+   },
+   {
+    "kind": "game",
+    "value": "Fortnite"
+   }
+  ]
+ },
+ {
+  "from": "Athens, GA",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "which book i should finish first"
+   },
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "my watercolor indie playlists"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "book",
+    "value": "The Name of the Wind"
+   },
+   {
+    "kind": "artist",
+    "value": "Phoebe Bridgers"
+   }
+  ]
+ },
+ {
+  "from": "Augusta, GA",
+  "prompts": [
+   {
+    "prompt": "A random fact I love…",
+    "answer": "hiking burns more calories than lifting"
+   },
+   {
+    "prompt": "The way to win me over…",
+    "answer": "meal prep with me on sunday"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "place",
+    "value": "Appalachian Trail"
+   },
+   {
+    "kind": "food",
+    "value": "Grilled Chicken & Rice"
+   }
+  ]
+ },
+ {
+  "from": "Columbus, GA",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "my custom mechanical keyboard"
+   },
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "valorant > every other shooter"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "movie",
+    "value": "Blade Runner 2049"
+   },
+   {
+    "kind": "game",
+    "value": "Valorant"
+   }
+  ]
+ },
+ {
+  "from": "Charleston, SC",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "thrifting the perfect jazz outfit"
+   },
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "anything with great fashion"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Miles Davis"
+   },
+   {
+    "kind": "place",
+    "value": "Thrift Stores"
+   }
+  ]
+ },
+ {
+  "from": "Birmingham, AL",
+  "prompts": [
+   {
+    "prompt": "My hot take…",
+    "answer": "chess is the ultimate trash talk"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "hip hop debate tournaments"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Kendrick Lamar"
+   },
+   {
+    "kind": "game",
+    "value": "Chess"
+   }
+  ]
+ },
+ {
+  "from": "Atlanta, GA",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "true crime podcast ethics"
+   },
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "my natural hair poetry nights"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "podcast",
+    "value": "Crime Junkie"
+   },
+   {
+    "kind": "book",
+    "value": "The Poet X"
+   }
+  ]
+ },
+ {
+  "from": "Tallahassee, FL",
+  "prompts": [
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "my bbq sauce beats yours"
+   },
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "dawgs tailgate then country playlist"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Georgia Bulldogs"
+   },
+   {
+    "kind": "food",
+    "value": "Texas Brisket"
+   }
+  ]
+ },
+ {
+  "from": "Orlando, FL",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "naming my sourdough starter"
+   },
+   {
+    "prompt": "A random fact I love…",
+    "answer": "kpop idols have perfect skin routines"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "BTS"
+   },
+   {
+    "kind": "food",
+    "value": "Sourdough Bread"
+   }
+  ]
+ },
+ {
+  "from": "Knoxville, TN",
+  "prompts": [
+   {
+    "prompt": "The way to win me over…",
+    "answer": "coffee then a climbing session"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "my robotics coffee habits"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "place",
+    "value": "Red Bull Rampage"
+   },
+   {
+    "kind": "youtuber",
+    "value": "Mark Rober"
+   }
+  ]
+ },
+ {
+  "from": "Miami, FL",
+  "prompts": [
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "my abuela's telenovelas"
+   },
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "perfecting salsa timing"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "show",
+    "value": "Jane the Virgin"
+   },
+   {
+    "kind": "food",
+    "value": "Abuela's Arroz con Pollo"
+   }
+  ]
+ },
+ {
+  "from": "Asheville, NC",
+  "prompts": [
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "film photography on old cameras"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "punk shows > digital everything"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Green Day"
+   },
+   {
+    "kind": "movie",
+    "value": "Mid90s"
+   }
+  ]
+ },
+ {
+  "from": "Charlotte, NC",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "drawing my cat as horror villains"
+   },
+   {
+    "prompt": "Two truths and a lie…",
+    "answer": "i've never been scared of horror"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "show",
+    "value": "Adventure Time"
+   },
+   {
+    "kind": "movie",
+    "value": "Coraline"
+   }
+  ]
+ },
+ {
+  "from": "Dallas, TX",
+  "prompts": [
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "bollywood > hollywood any day"
+   },
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "my three cricket startup ideas"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "India National Cricket"
+   },
+   {
+    "kind": "movie",
+    "value": "RRR"
+   }
+  ]
+ },
+ {
+  "from": "Lexington, KY",
+  "prompts": [
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "horse farm, tay playlist, journaling"
+   },
+   {
+    "prompt": "A random fact I love…",
+    "answer": "every friendship bracelet has a story"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Taylor Swift"
+   },
+   {
+    "kind": "sports team",
+    "value": "Kentucky Derby"
+   }
+  ]
+ },
+ {
+  "from": "Indianapolis, IN",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "bad f1 tire strategy"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "sim racing is real racing"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Mercedes F1"
+   },
+   {
+    "kind": "game",
+    "value": "iRacing"
+   }
+  ]
+ },
+ {
+  "from": "Raleigh, NC",
+  "prompts": [
+   {
+    "prompt": "The way to win me over…",
+    "answer": "run a half with me then true crime talk"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "balancing marathons and mcat"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "podcast",
+    "value": "My Favorite Murder"
+   },
+   {
+    "kind": "athlete",
+    "value": "Eliud Kipchoge"
+   }
+  ]
+ },
+ {
+  "from": "Memphis, TN",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "2am dorm beat making"
+   },
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "sneaker documentaries"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "J. Cole"
+   },
+   {
+    "kind": "sports team",
+    "value": "Atlanta Hawks"
+   }
+  ]
+ },
+ {
+  "from": "New Orleans, LA",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "street food in every city"
+   },
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "travel, shoot, eat, repeat"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "place",
+    "value": "Mexico City Markets"
+   },
+   {
+    "kind": "youtuber",
+    "value": "Mark Wiens"
+   }
+  ]
+ },
+ {
+  "from": "Nashville, TN",
+  "prompts": [
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "dnd is better than video games"
+   },
+   {
+    "prompt": "Two truths and a lie…",
+    "answer": "i'm a ruthless dm"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "Dungeons & Dragons"
+   },
+   {
+    "kind": "book",
+    "value": "The Lord of the Rings"
+   }
+  ]
+ },
+ {
+  "from": "Louisville, KY",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "which hamilton song hits hardest"
+   },
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "knowing every broadway lyric"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "show",
+    "value": "Hamilton"
+   },
+   {
+    "kind": "movie",
+    "value": "The Greatest Showman"
+   }
+  ]
+ },
+ {
+  "from": "Tampa, FL",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "recreating anime food poorly"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "gym snacks from one piece"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "anime",
+    "value": "One Piece"
+   },
+   {
+    "kind": "food",
+    "value": "Ramen"
+   }
+  ]
+ },
+ {
+  "from": "Montgomery, AL",
+  "prompts": [
+   {
+    "prompt": "The way to win me over…",
+    "answer": "support my dorm jewelry biz"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "gospel runs fashion week"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Kirk Franklin"
+   },
+   {
+    "kind": "place",
+    "value": "Atlanta Fashion Week"
+   }
+  ]
+ },
+ {
+  "from": "Jacksonville, FL",
+  "prompts": [
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "lake at dawn with country radio"
+   },
+   {
+    "prompt": "A random fact I love…",
+    "answer": "bass hit harder at sunrise"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Morgan Wallen"
+   },
+   {
+    "kind": "place",
+    "value": "Lake Okeechobee"
+   }
+  ]
+ },
+ {
+  "from": "Savannah, GA",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "bird calls at dawn"
+   },
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "that one rare warbler i saw"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "podcast",
+    "value": "Bird Notes"
+   },
+   {
+    "kind": "artist",
+    "value": "Sufjan Stevens"
+   }
+  ]
+ },
+ {
+  "from": "Birmingham, AL",
+  "prompts": [
+   {
+    "prompt": "My hot take…",
+    "answer": "arsenal will win the league this year"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "my shawarma recipe"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Arsenal FC"
+   },
+   {
+    "kind": "food",
+    "value": "Shawarma"
+   }
+  ]
+ },
+ {
+  "from": "Charlotte, NC",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "monstera propagation"
+   },
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "overwatering my monstera"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "show",
+    "value": "The Great British Bake Off"
+   },
+   {
+    "kind": "artist",
+    "value": "Chillhop Music"
+   }
+  ]
+ },
+ {
+  "from": "Orlando, FL",
+  "prompts": [
+   {
+    "prompt": "Ask me about…",
+    "answer": "my last ctf win"
+   },
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "mr robot"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "youtuber",
+    "value": "LiveOverflow"
+   },
+   {
+    "kind": "artist",
+    "value": "Aphex Twin"
+   }
+  ]
+ },
+ {
+  "from": "Atlanta, GA",
+  "prompts": [
+   {
+    "prompt": "The way to win me over…",
+    "answer": "dance battle"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "beyoncé is the greatest"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Beyoncé"
+   },
+   {
+    "kind": "show",
+    "value": "The Real Housewives"
+   }
+  ]
+ },
+ {
+  "from": "Asheville, NC",
+  "prompts": [
+   {
+    "prompt": "Ask me about…",
+    "answer": "nietzsche's abyss"
+   },
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "coffee is overrated"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "book",
+    "value": "Thus Spoke Zarathustra"
+   },
+   {
+    "kind": "artist",
+    "value": "Miles Davis"
+   }
+  ]
+ },
+ {
+  "from": "Huntsville, AL",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "mars colonization plans"
+   },
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "the perseid meteor shower"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "book",
+    "value": "The Martian"
+   },
+   {
+    "kind": "movie",
+    "value": "Interstellar"
+   }
+  ]
+ },
+ {
+  "from": "Miami, FL",
+  "prompts": [
+   {
+    "prompt": "My hot take…",
+    "answer": "tacos > burritos always"
+   },
+   {
+    "prompt": "A random fact I love…",
+    "answer": "i can juggle three tacos"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "food",
+    "value": "Tacos al pastor"
+   },
+   {
+    "kind": "artist",
+    "value": "Bad Bunny"
+   }
+  ]
+ },
+ {
+  "from": "Knoxville, TN",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "bad tattoo placement"
+   },
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "my comic collection"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Metallica"
+   },
+   {
+    "kind": "book",
+    "value": "Saga"
+   }
+  ]
+ },
+ {
+  "from": "Macon, GA",
+  "prompts": [
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "hunting then tailgate"
+   },
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "duck dynasty"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Georgia Bulldogs"
+   },
+   {
+    "kind": "artist",
+    "value": "Johnny Cash"
+   }
+  ]
+ },
+ {
+  "from": "Dallas, TX",
+  "prompts": [
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "bharatanatyam footwork"
+   },
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "chai and recursion"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "food",
+    "value": "Masala chai"
+   },
+   {
+    "kind": "artist",
+    "value": "Ravi Shankar"
+   }
+  ]
+ },
+ {
+  "from": "Augusta, GA",
+  "prompts": [
+   {
+    "prompt": "Ask me about…",
+    "answer": "my fantasy football rules"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "golf is the best sport"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Atlanta Falcons"
+   },
+   {
+    "kind": "podcast",
+    "value": "Fantasy Footballers"
+   }
+  ]
+ },
+ {
+  "from": "Raleigh, NC",
+  "prompts": [
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "yoga then travel planning"
+   },
+   {
+    "prompt": "The way to win me over…",
+    "answer": "a solid travel spreadsheet"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "podcast",
+    "value": "The Happiness Lab"
+   },
+   {
+    "kind": "place",
+    "value": "Banff National Park"
+   }
+  ]
+ },
+ {
+  "from": "Tampa, FL",
+  "prompts": [
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "pokemon speedruns"
+   },
+   {
+    "prompt": "A random fact I love…",
+    "answer": "glitchless red in 1:45"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "Pokémon Red"
+   },
+   {
+    "kind": "show",
+    "value": "Pokémon"
+   }
+  ]
+ },
+ {
+  "from": "Columbia, SC",
+  "prompts": [
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "making a murderer is trash"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "my moot court wins"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "show",
+    "value": "Law & Order"
+   },
+   {
+    "kind": "podcast",
+    "value": "Crime Junkie"
+   }
+  ]
+ },
+ {
+  "from": "Dearborn, MI",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "thuluth calligraphy"
+   },
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "var wrong soccer team"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Liverpool FC"
+   },
+   {
+    "kind": "artist",
+    "value": "Oum Kalthoum"
+   }
+  ]
+ },
+ {
+  "from": "New Orleans, LA",
+  "prompts": [
+   {
+    "prompt": "My hot take…",
+    "answer": "mercury retrograde is real"
+   },
+   {
+    "prompt": "A random fact I love…",
+    "answer": "venus rules my chart"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "podcast",
+    "value": "The Astrology Podcast"
+   },
+   {
+    "kind": "artist",
+    "value": "Lana Del Rey"
+   }
+  ]
+ },
+ {
+  "from": "Jacksonville, FL",
+  "prompts": [
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "deadlift form checks"
+   },
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "one piece theories"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "anime",
+    "value": "One Piece"
+   },
+   {
+    "kind": "youtuber",
+    "value": "Athlean-X"
+   }
+  ]
+ },
+ {
+  "from": "San Juan, PR",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "foster dog snuggles"
+   },
+   {
+    "prompt": "The way to win me over…",
+    "answer": "walk my foster pups"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Bad Bunny"
+   },
+   {
+    "kind": "movie",
+    "value": "Lady and the Tramp"
+   }
+  ]
+ },
+ {
+  "from": "Richmond, VA",
+  "prompts": [
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "mad men"
+   },
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "jazz theory debates"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Thelonious Monk"
+   },
+   {
+    "kind": "book",
+    "value": "The Warmth of Other Suns"
+   }
+  ]
+ },
+ {
+  "from": "Boone, NC",
+  "prompts": [
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "campfire guitar sesh"
+   },
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "my cast iron skillet"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Iron & Wine"
+   },
+   {
+    "kind": "place",
+    "value": "Great Smoky Mountains"
+   }
+  ]
+ },
+ {
+  "from": "Athens, GA",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "marta expansion plans"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "bike infrastructure"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "podcast",
+    "value": "99% Invisible"
+   },
+   {
+    "kind": "artist",
+    "value": "Phoebe Bridgers"
+   }
+  ]
+ },
+ {
+  "from": "Memphis, TN",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "my latest spoken word"
+   },
+   {
+    "prompt": "A random fact I love…",
+    "answer": "hot chicken is a love language"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "food",
+    "value": "Soul food"
+   },
+   {
+    "kind": "artist",
+    "value": "Kendrick Lamar"
+   }
+  ]
+ },
+ {
+  "from": "Tallahassee, FL",
+  "prompts": [
+   {
+    "prompt": "My hot take…",
+    "answer": "bottomless mimosas are elite"
+   },
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "sorority event planning"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "show",
+    "value": "The Real Housewives of Atlanta"
+   },
+   {
+    "kind": "restaurant",
+    "value": "The Pancake House"
+   }
+  ]
+ },
+ {
+  "from": "Lexington, KY",
+  "prompts": [
+   {
+    "prompt": "Two truths and a lie…",
+    "answer": "1900 chess, math olympiad, i hate piano"
+   },
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "endgame puzzles"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "Chess"
+   },
+   {
+    "kind": "artist",
+    "value": "Chopin"
+   }
+  ]
+ },
+ {
+  "from": "Savannah, GA",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "shooting my zero-budget horror short"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "practical effects > cgi every time"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "movie",
+    "value": "The Thing"
+   },
+   {
+    "kind": "place",
+    "value": "Little Five Points"
+   }
+  ]
+ },
+ {
+  "from": "Orlando, FL",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "that one improv show where everything clicked"
+   },
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "pineapple belongs on pizza"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "show",
+    "value": "Nathan for You"
+   },
+   {
+    "kind": "podcast",
+    "value": "Comedy Bang! Bang!"
+   }
+  ]
+ },
+ {
+  "from": "Charlotte, NC",
+  "prompts": [
+   {
+    "prompt": "Ask me about…",
+    "answer": "my tier list of atlanta boba shops"
+   },
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "badminton then k-drama marathon"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "food",
+    "value": "brown sugar milk tea"
+   },
+   {
+    "kind": "show",
+    "value": "Crash Landing on You"
+   }
+  ]
+ },
+ {
+  "from": "Augusta, GA",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "why nike dunks are overrated"
+   },
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "picking the perfect 400m playlist"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Atlanta Hawks"
+   },
+   {
+    "kind": "athlete",
+    "value": "Usain Bolt"
+   }
+  ]
+ },
+ {
+  "from": "Lexington, KY",
+  "prompts": [
+   {
+    "prompt": "The way to win me over…",
+    "answer": "bring me fresh apples for pie"
+   },
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "perfecting my bourbon pecan pie"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Taylor Swift"
+   },
+   {
+    "kind": "food",
+    "value": "apple pie"
+   }
+  ]
+ },
+ {
+  "from": "Austin, TX",
+  "prompts": [
+   {
+    "prompt": "A random fact I love…",
+    "answer": "espresso is just a concentrated shot of chaos"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "ai will never replace good bluffing"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "book",
+    "value": "The Psychology of Poker"
+   },
+   {
+    "kind": "restaurant",
+    "value": "Blue Bottle Coffee"
+   }
+  ]
+ },
+ {
+  "from": "Birmingham, AL",
+  "prompts": [
+   {
+    "prompt": "Two truths and a lie…",
+    "answer": "i can deadlift 225, cheer for uga, and nap anywhere"
+   },
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "how underrated leg day is"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Atlanta Braves"
+   },
+   {
+    "kind": "podcast",
+    "value": "Call Her Daddy"
+   }
+  ]
+ },
+ {
+  "from": "Charleston, SC",
+  "prompts": [
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "any travel vlog set in tuscany"
+   },
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "tennis then wine tasting"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "movie",
+    "value": "Sideways"
+   },
+   {
+    "kind": "place",
+    "value": "Napa Valley"
+   }
+  ]
+ },
+ {
+  "from": "Atlanta, GA",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "how naruto is peak storytelling"
+   },
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "natural hair routines are a full science"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "anime",
+    "value": "Naruto"
+   },
+   {
+    "kind": "book",
+    "value": "The Gene"
+   }
+  ]
+ },
+ {
+  "from": "Macon, GA",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "what makes good bbq brisket"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "my 14-hour brisket process"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Georgia Bulldogs"
+   },
+   {
+    "kind": "food",
+    "value": "smoked brisket"
+   }
+  ]
+ },
+ {
+  "from": "Albuquerque, NM",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "growing and painting my own chiles"
+   },
+   {
+    "prompt": "A random fact I love…",
+    "answer": "mariachi music makes everything better"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Frida Kahlo"
+   },
+   {
+    "kind": "restaurant",
+    "value": "La Taqueria"
+   }
+  ]
+ },
+ {
+  "from": "Raleigh, NC",
+  "prompts": [
+   {
+    "prompt": "My hot take…",
+    "answer": "if you don't use arch you're missing out"
+   },
+   {
+    "prompt": "Two truths and a lie…",
+    "answer": "i run on monster, code all night, and hate windows"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "youtuber",
+    "value": "Linus Tech Tips"
+   },
+   {
+    "kind": "game",
+    "value": "Factorio"
+   }
+  ]
+ },
+ {
+  "from": "Houston, TX",
+  "prompts": [
+   {
+    "prompt": "The way to win me over…",
+    "answer": "let me style your next photoshoot"
+   },
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "finding the perfect afrobeats for any vibe"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Burna Boy"
+   },
+   {
+    "kind": "movie",
+    "value": "Black Panther"
+   }
+  ]
+ },
+ {
+  "from": "Columbus, GA",
+  "prompts": [
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "any braves game highlights"
+   },
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "why fishing beats every other hobby"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Atlanta Braves"
+   },
+   {
+    "kind": "game",
+    "value": "The Legend of Zelda: BOTW"
+   }
+  ]
+ },
+ {
+  "from": "Richmond, VA",
+  "prompts": [
+   {
+    "prompt": "Ask me about…",
+    "answer": "what your dreams actually mean"
+   },
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "neuroscience podcasts on the brain"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "podcast",
+    "value": "Huberman Lab"
+   },
+   {
+    "kind": "show",
+    "value": "The Good Doctor"
+   }
+  ]
+ },
+ {
+  "from": "Honolulu, HI",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "my cat samurai indie game"
+   },
+   {
+    "prompt": "A random fact I love…",
+    "answer": "ramen is the ultimate comfort food"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "anime",
+    "value": "One Piece"
+   },
+   {
+    "kind": "game",
+    "value": "Celeste"
+   }
+  ]
+ },
+ {
+  "from": "New Orleans, LA",
+  "prompts": [
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "your spotify playlist reveals everything"
+   },
+   {
+    "prompt": "The way to win me over…",
+    "answer": "deep talks about feelings and r&b"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "SZA"
+   },
+   {
+    "kind": "podcast",
+    "value": "Where Should We Begin?"
+   }
+  ]
+ },
+ {
+  "from": "Asheville, NC",
+  "prompts": [
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "hike, frisbee, then hammock nap"
+   },
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "finding the best two trees for a hammock"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Ultimate Frisbee"
+   },
+   {
+    "kind": "movie",
+    "value": "Into the Wild"
+   }
+  ]
+ },
+ {
+  "from": "Memphis, TN",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "how baking feeds the soul"
+   },
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "the prince of egypt"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "book",
+    "value": "The Bible"
+   },
+   {
+    "kind": "food",
+    "value": "blueberry muffins"
+   }
+  ]
+ },
+ {
+  "from": "Tallahassee, FL",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "interviewing people about podcasts"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "how to actually launch a podcast"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "podcast",
+    "value": "The Joe Rogan Experience"
+   },
+   {
+    "kind": "sports team",
+    "value": "Duke Blue Devils"
+   }
+  ]
+ },
+ {
+  "from": "Knoxville, TN",
+  "prompts": [
+   {
+    "prompt": "Two truths and a lie…",
+    "answer": "i danced in nutcracker, run pcr, and love true crime"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "ballet is the hardest sport"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "show",
+    "value": "Criminal Minds"
+   },
+   {
+    "kind": "movie",
+    "value": "Black Swan"
+   }
+  ]
+ },
+ {
+  "from": "Boston, MA",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "store-bought pasta sauce"
+   },
+   {
+    "prompt": "The way to win me over…",
+    "answer": "homemade pasta and soccer talk"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "food",
+    "value": "nonna's lasagna"
+   },
+   {
+    "kind": "sports team",
+    "value": "AC Milan"
+   }
+  ]
+ },
+ {
+  "from": "Denver, CO",
+  "prompts": [
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "your menu font choice matters"
+   },
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "pairing the perfect coffee with design work"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Helvetica"
+   },
+   {
+    "kind": "restaurant",
+    "value": "Stumptown Coffee"
+   }
+  ]
+ },
+ {
+  "from": "Santa Barbara, CA",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "climate data and ocean photography"
+   },
+   {
+    "prompt": "A random fact I love…",
+    "answer": "waves still call me even in georgia"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "podcast",
+    "value": "How to Save a Planet"
+   },
+   {
+    "kind": "movie",
+    "value": "The Big Short"
+   }
+  ]
+ },
+ {
+  "from": "Jackson, MS",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "poetry that hits the soul"
+   },
+   {
+    "prompt": "The way to win me over…",
+    "answer": "mentoring kids together"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "book",
+    "value": "The Alchemist"
+   },
+   {
+    "kind": "artist",
+    "value": "Lauryn Hill"
+   }
+  ]
+ },
+ {
+  "from": "Athens, GA",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "disc golf in the rain, fight me"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "disc golf is a real sport"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "Hades"
+   },
+   {
+    "kind": "food",
+    "value": "craft root beer"
+   }
+  ]
+ },
+ {
+  "from": "Decatur, GA",
+  "prompts": [
+   {
+    "prompt": "Ask me about…",
+    "answer": "global health policy or cupcake flavors"
+   },
+   {
+    "prompt": "The way to win me over…",
+    "answer": "a perfect batch of macarons"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "book",
+    "value": "The Body Keeps the Score"
+   },
+   {
+    "kind": "food",
+    "value": "red velvet cupcakes"
+   }
+  ]
+ },
+ {
+  "from": "Savannah, GA",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "quantum entanglement"
+   },
+   {
+    "prompt": "A random fact I love…",
+    "answer": "pizza analogies explain everything"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Miles Davis"
+   },
+   {
+    "kind": "sports team",
+    "value": "Atlanta Hawks"
+   }
+  ]
+ },
+ {
+  "from": "Marietta, GA",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "that one tiktok that went viral"
+   },
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "the greatest showman"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "show",
+    "value": "The Good Place"
+   },
+   {
+    "kind": "song",
+    "value": "Waving Through a Window"
+   }
+  ]
+ },
+ {
+  "from": "Atlanta, GA",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "screenwriting my next short"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "jazz in old atlanta films"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "movie",
+    "value": "Moonlight"
+   },
+   {
+    "kind": "artist",
+    "value": "John Coltrane"
+   }
+  ]
+ },
+ {
+  "from": "Charleston, SC",
+  "prompts": [
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "beach volleyball and country tunes"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "country music hits different at sunset"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "USA Volleyball"
+   },
+   {
+    "kind": "song",
+    "value": "Wagon Wheel"
+   }
+  ]
+ },
+ {
+  "from": "Orlando, FL",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "bhangra nights after quant work"
+   },
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "cricket > all american sports"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "movie",
+    "value": "Lagaan"
+   },
+   {
+    "kind": "sports team",
+    "value": "India National Cricket Team"
+   }
+  ]
+ },
+ {
+  "from": "Birmingham, AL",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "vintage leica cameras"
+   },
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "jazz photography aesthetics"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Ella Fitzgerald"
+   },
+   {
+    "kind": "place",
+    "value": "High Museum of Art"
+   }
+  ]
+ },
+ {
+  "from": "Macon, GA",
+  "prompts": [
+   {
+    "prompt": "Two truths and a lie…",
+    "answer": "hoop, collect sneakers, can't shoot"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "rap > any other genre"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Atlanta Hawks"
+   },
+   {
+    "kind": "artist",
+    "value": "Kendrick Lamar"
+   }
+  ]
+ },
+ {
+  "from": "Asheville, NC",
+  "prompts": [
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "brewing the perfect cup of tea"
+   },
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "pride and prejudice 2005"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "book",
+    "value": "The Midnight Library"
+   },
+   {
+    "kind": "podcast",
+    "value": "The Creative Penn"
+   }
+  ]
+ },
+ {
+  "from": "Duluth, GA",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "new kpop choreo routines"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "esports fried chicken combos"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "BTS"
+   },
+   {
+    "kind": "game",
+    "value": "League of Legends"
+   }
+  ]
+ },
+ {
+  "from": "Richmond, VA",
+  "prompts": [
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "hip hop can fix macroeconomics"
+   },
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "budget spreadsheets and travel vids"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "podcast",
+    "value": "Planet Money"
+   },
+   {
+    "kind": "artist",
+    "value": "Megan Thee Stallion"
+   }
+  ]
+ },
+ {
+  "from": "Knoxville, TN",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "my neighbors during drum practice"
+   },
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "skate tricks to rock beats"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Foo Fighters"
+   },
+   {
+    "kind": "album",
+    "value": "Nevermind"
+   }
+  ]
+ },
+ {
+  "from": "Miami, FL",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "the latest telenovela drama"
+   },
+   {
+    "prompt": "A random fact I love…",
+    "answer": "salsa dancing burns 400 cals/hr"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "show",
+    "value": "Jane the Virgin"
+   },
+   {
+    "kind": "artist",
+    "value": "Romeo Santos"
+   }
+  ]
+ },
+ {
+  "from": "Huntsville, AL",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "3d printing custom lego parts"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "sci-fi is the best genre"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "movie",
+    "value": "Dune"
+   },
+   {
+    "kind": "game",
+    "value": "The Legend of Zelda"
+   }
+  ]
+ },
+ {
+  "from": "Columbus, GA",
+  "prompts": [
+   {
+    "prompt": "The way to win me over…",
+    "answer": "good r&b and fresh press-ons"
+   },
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "reality tv drama"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "SZA"
+   },
+   {
+    "kind": "show",
+    "value": "The Real Housewives"
+   }
+  ]
+ },
+ {
+  "from": "Augusta, GA",
+  "prompts": [
+   {
+    "prompt": "Ask me about…",
+    "answer": "weird presidential facts"
+   },
+   {
+    "prompt": "Two truths and a lie…",
+    "answer": "history nerd, board game champ, bad at trivia"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "podcast",
+    "value": "Hardcore History"
+   },
+   {
+    "kind": "game",
+    "value": "Catan"
+   }
+  ]
+ },
+ {
+  "from": "Greenville, SC",
+  "prompts": [
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "sunrise run then green smoothie"
+   },
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "pilates flows"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "US Olympic Track Team"
+   },
+   {
+    "kind": "food",
+    "value": "acai bowls"
+   }
+  ]
+ },
+ {
+  "from": "Tallahassee, FL",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "shooting local pickup soccer"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "hip hop is the soundtrack of soccer"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Tyler, The Creator"
+   },
+   {
+    "kind": "sports team",
+    "value": "Manchester United"
+   }
+  ]
+ },
+ {
+  "from": "Roanoke, VA",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "how cozy games are therapy"
+   },
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "studio ghibli films"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "Stardew Valley"
+   },
+   {
+    "kind": "artist",
+    "value": "Taylor Swift"
+   }
+  ]
+ },
+ {
+  "from": "Durham, NC",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "debate ethics in politics"
+   },
+   {
+    "prompt": "A random fact I love…",
+    "answer": "jazz and debate both need improv"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Thelonious Monk"
+   },
+   {
+    "kind": "podcast",
+    "value": "The Economist Podcast"
+   }
+  ]
+ },
+ {
+  "from": "Lexington, KY",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "urban tomato gardening"
+   },
+   {
+    "prompt": "The way to win me over…",
+    "answer": "bike rides and sustainability talks"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "podcast",
+    "value": "How to Save a Planet"
+   },
+   {
+    "kind": "place",
+    "value": "Atlanta BeltLine"
+   }
+  ]
+ },
+ {
+  "from": "Houston, TX",
+  "prompts": [
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "hosting massive dinner parties"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "arabic poetry in the kitchen"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "book",
+    "value": "The Prophet"
+   },
+   {
+    "kind": "food",
+    "value": "biryani"
+   }
+  ]
+ },
+ {
+  "from": "Baton Rouge, LA",
+  "prompts": [
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "wrestling is peak entertainment"
+   },
+   {
+    "prompt": "Two truths and a lie…",
+    "answer": "anime fan, wrestler, pro gamer"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "anime",
+    "value": "One Piece"
+   },
+   {
+    "kind": "game",
+    "value": "WWE 2K"
+   }
+  ]
+ },
+ {
+  "from": "Chattanooga, TN",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "climbing and le guin novels"
+   },
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "the expanse series"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "book",
+    "value": "The Left Hand of Darkness"
+   },
+   {
+    "kind": "food",
+    "value": "pad thai"
+   }
+  ]
+ },
+ {
+  "from": "Savannah, GA",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "malenia, blade of miquella. send help"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "elden ring > dark souls and i’ll die on this hill"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "Elden Ring"
+   },
+   {
+    "kind": "artist",
+    "value": "ChilledCow"
+   }
+  ]
+ },
+ {
+  "from": "Athens, GA",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "that one dateline episode with the boat"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "which sorority has the best tailgate setup"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "show",
+    "value": "Dateline NBC"
+   },
+   {
+    "kind": "sports team",
+    "value": "Georgia Bulldogs"
+   }
+  ]
+ },
+ {
+  "from": "Decatur, GA",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "the difference between legal graffiti and vandalism"
+   },
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "juice wrld doc on hulu"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "song",
+    "value": "Juice WRLD - Lucid Dreams"
+   },
+   {
+    "kind": "movie",
+    "value": "Mid90s"
+   }
+  ]
+ },
+ {
+  "from": "Birmingham, AL",
+  "prompts": [
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "blitz chess while half asleep"
+   },
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "magnus is overrated"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "book",
+    "value": "The Alchemist"
+   },
+   {
+    "kind": "artist",
+    "value": "Marvin Gaye"
+   }
+  ]
+ },
+ {
+  "from": "Charlotte, NC",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "huberman lab episodes on sleep"
+   },
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "long run, smoothie, then podcast"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "podcast",
+    "value": "Huberman Lab"
+   },
+   {
+    "kind": "sports team",
+    "value": "Atlanta Falcons"
+   }
+  ]
+ },
+ {
+  "from": "Marietta, GA",
+  "prompts": [
+   {
+    "prompt": "The way to win me over…",
+    "answer": "bring me matcha and a kdrama rec"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "my secret henna recipe book"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "show",
+    "value": "Crash Landing on You"
+   },
+   {
+    "kind": "food",
+    "value": "Red Velvet Cake"
+   }
+  ]
+ },
+ {
+  "from": "Macon, GA",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "the best bait for bass fishing"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "zach bryan clears most country artists"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Zach Bryan"
+   },
+   {
+    "kind": "food",
+    "value": "Buffalo Wings"
+   }
+  ]
+ },
+ {
+  "from": "Roswell, GA",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "taylor’s re-records and volleyball sets"
+   },
+   {
+    "prompt": "A random fact I love…",
+    "answer": "i can name every ts song in under 3 secs"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Taylor Swift"
+   },
+   {
+    "kind": "sports team",
+    "value": "USA Volleyball"
+   }
+  ]
+ },
+ {
+  "from": "Tallahassee, FL",
+  "prompts": [
+   {
+    "prompt": "Two truths and a lie…",
+    "answer": "im diamond, i sleep 8hrs, i touch grass"
+   },
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "one punch man season 1"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "League of Legends"
+   },
+   {
+    "kind": "anime",
+    "value": "One Punch Man"
+   }
+  ]
+ },
+ {
+  "from": "Augusta, GA",
+  "prompts": [
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "vinyasa flow then green smoothie bowl"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "organic chem is a personality trait"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "podcast",
+    "value": "The Daily"
+   },
+   {
+    "kind": "food",
+    "value": "Acai Bowl"
+   }
+  ]
+ },
+ {
+  "from": "Atlanta, GA",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "burna boy’s new album on repeat"
+   },
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "how afrobeats is taking over"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Burna Boy"
+   },
+   {
+    "kind": "sports team",
+    "value": "Manchester City"
+   }
+  ]
+ },
+ {
+  "from": "Asheville, NC",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "why sylvia plath is overrated"
+   },
+   {
+    "prompt": "A random fact I love…",
+    "answer": "i can quote most of my 400 books"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "book",
+    "value": "The Bell Jar"
+   },
+   {
+    "kind": "podcast",
+    "value": "The Poetry Magazine Podcast"
+   }
+  ]
+ },
+ {
+  "from": "New Orleans, LA",
+  "prompts": [
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "playing zeppelin solos on trumpet"
+   },
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "whiplash when i need motivation"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Miles Davis"
+   },
+   {
+    "kind": "youtuber",
+    "value": "Veritasium"
+   }
+  ]
+ },
+ {
+  "from": "Columbia, SC",
+  "prompts": [
+   {
+    "prompt": "The way to win me over…",
+    "answer": "know the words to my choir solos"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "natural hair routines that actually work"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Lauryn Hill"
+   },
+   {
+    "kind": "show",
+    "value": "Insecure"
+   }
+  ]
+ },
+ {
+  "from": "Houston, TX",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "building my ultimate team squad"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "tacos > barbecue any day"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "EA Sports FC"
+   },
+   {
+    "kind": "food",
+    "value": "Carne Asada Tacos"
+   }
+  ]
+ },
+ {
+  "from": "Knoxville, TN",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "how my monstera is thriving"
+   },
+   {
+    "prompt": "A random fact I love…",
+    "answer": "i named all my plants after indie songs"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Phoebe Bridgers"
+   },
+   {
+    "kind": "place",
+    "value": "The Ceramic Studio"
+   }
+  ]
+ },
+ {
+  "from": "Orlando, FL",
+  "prompts": [
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "salsa night then espresso martinis"
+   },
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "why supply side economics is flawed"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Celia Cruz"
+   },
+   {
+    "kind": "podcast",
+    "value": "Planet Money"
+   }
+  ]
+ },
+ {
+  "from": "Miami, FL",
+  "prompts": [
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "tiktok dances > club bachata"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "my full face beat in 12 minutes"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Rosalía"
+   },
+   {
+    "kind": "show",
+    "value": "Euphoria"
+   }
+  ]
+ },
+ {
+  "from": "Lexington, KY",
+  "prompts": [
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "playing any zelda theme on piano"
+   },
+   {
+    "prompt": "Two truths and a lie…",
+    "answer": "i beat botw, i code games, i wake up early"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "The Legend of Zelda: Breath of the Wild"
+   },
+   {
+    "kind": "movie",
+    "value": "Spirited Away"
+   }
+  ]
+ },
+ {
+  "from": "Dallas, TX",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "perfecting my bharatanatyam arangetram"
+   },
+   {
+    "prompt": "The way to win me over…",
+    "answer": "brew me a strong masala chai"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Ravi Shankar"
+   },
+   {
+    "kind": "book",
+    "value": "The Gene"
+   }
+  ]
+ },
+ {
+  "from": "Jacksonville, FL",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "why leg day is non negotiable"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "mma is the purest sport"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "athlete",
+    "value": "Khabib Nurmagomedov"
+   },
+   {
+    "kind": "food",
+    "value": "Grilled Chicken and Rice"
+   }
+  ]
+ },
+ {
+  "from": "Salem, MA",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "the moon phase tonight"
+   },
+   {
+    "prompt": "A random fact I love…",
+    "answer": "rosemary wards off bad energy"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "book",
+    "value": "The House Witch"
+   },
+   {
+    "kind": "podcast",
+    "value": "Witch Wave"
+   }
+  ]
+ },
+ {
+  "from": "Memphis, TN",
+  "prompts": [
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "travis scott > kendrick this year"
+   },
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "sneaker convention then thrift"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Travis Scott"
+   },
+   {
+    "kind": "place",
+    "value": "Flight Club"
+   }
+  ]
+ },
+ {
+  "from": "Raleigh, NC",
+  "prompts": [
+   {
+    "prompt": "Two truths and a lie…",
+    "answer": "i won a ctf, i play chess, i code malware"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "how i legally break into systems"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "Chess"
+   },
+   {
+    "kind": "youtuber",
+    "value": "LiveOverflow"
+   }
+  ]
+ },
+ {
+  "from": "Montgomery, AL",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "rbg and thurgood marshall cases"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "debate > any team sport"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "podcast",
+    "value": "The Ezra Klein Show"
+   },
+   {
+    "kind": "book",
+    "value": "Just Mercy"
+   }
+  ]
+ },
+ {
+  "from": "Marietta, GA",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "grinding myteam in 2k"
+   },
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "cooking perfect birria tacos"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "NBA 2K"
+   },
+   {
+    "kind": "food",
+    "value": "jerk chicken"
+   }
+  ]
+ },
+ {
+  "from": "Savannah, GA",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "disney animation classics"
+   },
+   {
+    "prompt": "The way to win me over…",
+    "answer": "late night drawing sessions"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "movie",
+    "value": "Encanto"
+   },
+   {
+    "kind": "show",
+    "value": "The Owl House"
+   }
+  ]
+ },
+ {
+  "from": "Augusta, GA",
+  "prompts": [
+   {
+    "prompt": "My hot take…",
+    "answer": "5am tee times > sleeping in"
+   },
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "bad country music playlists"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Atlanta Braves"
+   },
+   {
+    "kind": "artist",
+    "value": "Morgan Wallen"
+   }
+  ]
+ },
+ {
+  "from": "Macon, GA",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "my weekend barrel racing wins"
+   },
+   {
+    "prompt": "A random fact I love…",
+    "answer": "horses can sleep standing up"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "food",
+    "value": "peach cobbler"
+   },
+   {
+    "kind": "sports team",
+    "value": "NFR Rodeo"
+   }
+  ]
+ },
+ {
+  "from": "Atlanta, GA",
+  "prompts": [
+   {
+    "prompt": "Ask me about…",
+    "answer": "building guitar amps"
+   },
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "old afrobeats music videos"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Burna Boy"
+   },
+   {
+    "kind": "sports team",
+    "value": "Manchester City"
+   }
+  ]
+ },
+ {
+  "from": "Knoxville, TN",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "lotr lore and irish dance"
+   },
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "return of the king is best"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "book",
+    "value": "The Lord of the Rings"
+   },
+   {
+    "kind": "movie",
+    "value": "The Fellowship of the Ring"
+   }
+  ]
+ },
+ {
+  "from": "Columbus, GA",
+  "prompts": [
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "tailgating then bbq grilling"
+   },
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "overcooked brisket"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Georgia Bulldogs"
+   },
+   {
+    "kind": "food",
+    "value": "smoked ribs"
+   }
+  ]
+ },
+ {
+  "from": "Duluth, GA",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "matcha bubble tea runs"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "my anime watchlist"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "anime",
+    "value": "Jujutsu Kaisen"
+   },
+   {
+    "kind": "restaurant",
+    "value": "Kung Fu Tea"
+   }
+  ]
+ },
+ {
+  "from": "Birmingham, AL",
+  "prompts": [
+   {
+    "prompt": "Two truths and a lie…",
+    "answer": "i can explain quantum physics"
+   },
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "the queen's gambit"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "book",
+    "value": "The Elegant Universe"
+   },
+   {
+    "kind": "artist",
+    "value": "Ludwig van Beethoven"
+   }
+  ]
+ },
+ {
+  "from": "Charleston, SC",
+  "prompts": [
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "finding thrifted designer pieces"
+   },
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "sewing my own fits"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "SZA"
+   },
+   {
+    "kind": "movie",
+    "value": "The Devil Wears Prada"
+   }
+  ]
+ },
+ {
+  "from": "Orlando, FL",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "who's the best street fighter"
+   },
+   {
+    "prompt": "The way to win me over…",
+    "answer": "good ramen and combos"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "Street Fighter 6"
+   },
+   {
+    "kind": "food",
+    "value": "tonkotsu ramen"
+   }
+  ]
+ },
+ {
+  "from": "Jacksonville, FL",
+  "prompts": [
+   {
+    "prompt": "My hot take…",
+    "answer": "gospel music hits different"
+   },
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "zumba class then er study"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Kirk Franklin"
+   },
+   {
+    "kind": "show",
+    "value": "Grey's Anatomy"
+   }
+  ]
+ },
+ {
+  "from": "Miami, FL",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "my intramural soccer team"
+   },
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "new reggaeton drops"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "EA Sports FC"
+   },
+   {
+    "kind": "artist",
+    "value": "Bad Bunny"
+   }
+  ]
+ },
+ {
+  "from": "Dearborn, MI",
+  "prompts": [
+   {
+    "prompt": "Ask me about…",
+    "answer": "middle east policy debates"
+   },
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "my favorite arabic coffee spots"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "podcast",
+    "value": "The Economist"
+   },
+   {
+    "kind": "place",
+    "value": "Blue Bottle Coffee"
+   }
+  ]
+ },
+ {
+  "from": "Raleigh, NC",
+  "prompts": [
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "redstone contraptions"
+   },
+   {
+    "prompt": "Two truths and a lie…",
+    "answer": "built a minecraft cpu"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "Minecraft"
+   },
+   {
+    "kind": "movie",
+    "value": "The Lego Movie"
+   }
+  ]
+ },
+ {
+  "from": "Asheville, NC",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "my 212 bird life list"
+   },
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "hiking then journaling"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "place",
+    "value": "Great Smoky Mountains"
+   },
+   {
+    "kind": "book",
+    "value": "The Field Guide to Birds"
+   }
+  ]
+ },
+ {
+  "from": "New Orleans, LA",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "new drumline routines"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "marching band > everything"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Kendrick Lamar"
+   },
+   {
+    "kind": "show",
+    "value": "Drumline"
+   }
+  ]
+ },
+ {
+  "from": "Austin, TX",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "every srk movie ever"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "my ml model experiments"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "anime",
+    "value": "One Piece"
+   },
+   {
+    "kind": "movie",
+    "value": "Dilwale Dulhania Le Jayenge"
+   }
+  ]
+ },
+ {
+  "from": "Nashville, TN",
+  "prompts": [
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "dirt bike trails and camping"
+   },
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "old country music docs"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Zach Bryan"
+   },
+   {
+    "kind": "place",
+    "value": "Appalachian Trail"
+   }
+  ]
+ },
+ {
+  "from": "San Antonio, TX",
+  "prompts": [
+   {
+    "prompt": "The way to win me over…",
+    "answer": "my abuela's secret recipes"
+   },
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "bad salsa timing"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "show",
+    "value": "telenovelas"
+   },
+   {
+    "kind": "artist",
+    "value": "Marc Anthony"
+   }
+  ]
+ },
+ {
+  "from": "Lexington, KY",
+  "prompts": [
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "bluegrass beats all music"
+   },
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "tying perfect fly knots"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Billy Strings"
+   },
+   {
+    "kind": "place",
+    "value": "Yellowstone National Park"
+   }
+  ]
+ },
+ {
+  "from": "Tampa, FL",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "writing bilingual poetry"
+   },
+   {
+    "prompt": "A random fact I love…",
+    "answer": "neruda wrote in spanish first"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "book",
+    "value": "One Hundred Years of Solitude"
+   },
+   {
+    "kind": "place",
+    "value": "local cafes"
+   }
+  ]
+ },
+ {
+  "from": "Athens, GA",
+  "prompts": [
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "thrifting then trip planning"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "instagram is a moodboard"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "show",
+    "value": "Emily in Paris"
+   },
+   {
+    "kind": "place",
+    "value": "Santorini, Greece"
+   }
+  ]
+ },
+ {
+  "from": "Memphis, TN",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "morning pickup basketball"
+   },
+   {
+    "prompt": "Two truths and a lie…",
+    "answer": "i collect rare sneakers"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Memphis Grizzlies"
+   },
+   {
+    "kind": "artist",
+    "value": "Lecrae"
+   }
+  ]
+ },
+ {
+  "from": "Roswell, GA",
+  "prompts": [
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "the real housewives"
+   },
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "bad brunch spots"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "show",
+    "value": "The Summer I Turned Pretty"
+   },
+   {
+    "kind": "restaurant",
+    "value": "The Original Pancake House"
+   }
+  ]
+ },
+ {
+  "from": "Savannah, GA",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "grinding rocket league ranked"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "monster > redbull always"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "Rocket League"
+   },
+   {
+    "kind": "food",
+    "value": "Monster Energy"
+   }
+  ]
+ },
+ {
+  "from": "Augusta, GA",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "natural hair routines"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "my skincare research"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "SZA"
+   },
+   {
+    "kind": "book",
+    "value": "The Body Keeps the Score"
+   }
+  ]
+ },
+ {
+  "from": "Macon, GA",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "call of duty sbmm"
+   },
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "grilling and baseball"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Atlanta Braves"
+   },
+   {
+    "kind": "game",
+    "value": "Call of Duty"
+   }
+  ]
+ },
+ {
+  "from": "Athens, GA",
+  "prompts": [
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "the greatest showman"
+   },
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "belting musical numbers"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "show",
+    "value": "Wicked"
+   },
+   {
+    "kind": "food",
+    "value": "Chocolate Chip Cookies"
+   }
+  ]
+ },
+ {
+  "from": "Birmingham, AL",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "building custom drones"
+   },
+   {
+    "prompt": "A random fact I love…",
+    "answer": "sci-fi tech that became real"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "movie",
+    "value": "The Martian"
+   },
+   {
+    "kind": "game",
+    "value": "No Man's Sky"
+   }
+  ]
+ },
+ {
+  "from": "Charleston, SC",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "my film photography"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "vintage > digital"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Wes Anderson"
+   },
+   {
+    "kind": "place",
+    "value": "Paris, France"
+   }
+  ]
+ },
+ {
+  "from": "Columbus, GA",
+  "prompts": [
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "duck hunting at dawn"
+   },
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "sec football rivalries"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Georgia Bulldogs"
+   },
+   {
+    "kind": "artist",
+    "value": "Morgan Wallen"
+   }
+  ]
+ },
+ {
+  "from": "Asheville, NC",
+  "prompts": [
+   {
+    "prompt": "Ask me about…",
+    "answer": "renaissance art techniques"
+   },
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "wine snobs are annoying"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "place",
+    "value": "Louvre Museum"
+   },
+   {
+    "kind": "podcast",
+    "value": "The Art of Manliness"
+   }
+  ]
+ },
+ {
+  "from": "Atlanta, GA",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "making new hip hop beats"
+   },
+   {
+    "prompt": "Two truths and a lie…",
+    "answer": "madden pro, beat maker"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Kendrick Lamar"
+   },
+   {
+    "kind": "game",
+    "value": "Madden NFL"
+   }
+  ]
+ },
+ {
+  "from": "Orlando, FL",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "my valorant rank grind"
+   },
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "old twitch clips"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "Valorant"
+   },
+   {
+    "kind": "show",
+    "value": "Arcane"
+   }
+  ]
+ },
+ {
+  "from": "Denver, CO",
+  "prompts": [
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "shredding on my board"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "punk shows > everything"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Blink-182"
+   },
+   {
+    "kind": "movie",
+    "value": "The Secret Life of Walter Mitty"
+   }
+  ]
+ },
+ {
+  "from": "Lexington, KY",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "my dogs stealing snacks"
+   },
+   {
+    "prompt": "The way to win me over…",
+    "answer": "with horse treats"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Kentucky Wildcats"
+   },
+   {
+    "kind": "artist",
+    "value": "Zach Bryan"
+   }
+  ]
+ },
+ {
+  "from": "Miami, FL",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "new house tracks"
+   },
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "matching sneakers to sets"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Fred again.."
+   },
+   {
+    "kind": "place",
+    "value": "Ibiza"
+   }
+  ]
+ },
+ {
+  "from": "Knoxville, TN",
+  "prompts": [
+   {
+    "prompt": "A random fact I love…",
+    "answer": "my spoon rings are recycled"
+   },
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "crystal healing properties"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Phoebe Bridgers"
+   },
+   {
+    "kind": "book",
+    "value": "The Crystal Bible"
+   }
+  ]
+ },
+ {
+  "from": "Raleigh, NC",
+  "prompts": [
+   {
+    "prompt": "My hot take…",
+    "answer": "coffee is a personality"
+   },
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "climbing then pitching ideas"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "place",
+    "value": "Yosemite"
+   },
+   {
+    "kind": "podcast",
+    "value": "How I Built This"
+   }
+  ]
+ },
+ {
+  "from": "Washington, DC",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "bad debate etiquette"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "my model un strategies"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "podcast",
+    "value": "The Daily"
+   },
+   {
+    "kind": "book",
+    "value": "Sapiens"
+   }
+  ]
+ },
+ {
+  "from": "New Orleans, LA",
+  "prompts": [
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "black swan endlessly"
+   },
+   {
+    "prompt": "Two truths and a lie…",
+    "answer": "15yr ballerina, fluent french"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "movie",
+    "value": "Amélie"
+   },
+   {
+    "kind": "artist",
+    "value": "Tchaikovsky"
+   }
+  ]
+ },
+ {
+  "from": "Portland, OR",
+  "prompts": [
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "long bike ride + coffee"
+   },
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "shooting on film again"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Vans"
+   },
+   {
+    "kind": "restaurant",
+    "value": "Stumptown Coffee"
+   }
+  ]
+ },
+ {
+  "from": "Charlotte, NC",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "my dnd campaigns"
+   },
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "knitting chainmail"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "book",
+    "value": "The Name of the Wind"
+   },
+   {
+    "kind": "game",
+    "value": "Dungeons & Dragons"
+   }
+  ]
+ },
+ {
+  "from": "Louisville, KY",
+  "prompts": [
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "jazz is peak music"
+   },
+   {
+    "prompt": "A random fact I love…",
+    "answer": "i birdie most par 3s"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Kentucky Wildcats"
+   },
+   {
+    "kind": "artist",
+    "value": "Miles Davis"
+   }
+  ]
+ },
+ {
+  "from": "Tampa, FL",
+  "prompts": [
+   {
+    "prompt": "The way to win me over…",
+    "answer": "with good poetry"
+   },
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "modest fashion myths"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "book",
+    "value": "The Prophet"
+   },
+   {
+    "kind": "food",
+    "value": "Biryani"
+   }
+  ]
+ },
+ {
+  "from": "Jacksonville, FL",
+  "prompts": [
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "fishing then country tunes"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "lacrosse is top sport"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Florida Gators"
+   },
+   {
+    "kind": "artist",
+    "value": "Luke Combs"
+   }
+  ]
+ },
+ {
+  "from": "Marietta, GA",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "fortnite creative maps"
+   },
+   {
+    "prompt": "Two truths and a lie…",
+    "answer": "og fortnite player, hooper"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "Fortnite"
+   },
+   {
+    "kind": "sports team",
+    "value": "Atlanta Hawks"
+   }
+  ]
+ },
+ {
+  "from": "Richmond, VA",
+  "prompts": [
+   {
+    "prompt": "Ask me about…",
+    "answer": "my true crime theories"
+   },
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "mindhunter episodes"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "podcast",
+    "value": "Crime Junkie"
+   },
+   {
+    "kind": "show",
+    "value": "You"
+   }
+  ]
+ },
+ {
+  "from": "Austin, TX",
+  "prompts": [
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "linux command line tricks"
+   },
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "why thinkpads are best"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "youtuber",
+    "value": "Linus Tech Tips"
+   },
+   {
+    "kind": "game",
+    "value": "The Legend of Zelda"
+   }
+  ]
+ },
+ {
+  "from": "Savannah, GA",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "designing my next tattoo"
+   },
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "punk rock and comics"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Ramones"
+   },
+   {
+    "kind": "book",
+    "value": "Watchmen"
+   }
+  ]
+ },
+ {
+  "from": "Asheville, NC",
+  "prompts": [
+   {
+    "prompt": "Ask me about…",
+    "answer": "counting salamanders"
+   },
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "planet earth docs"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "podcast",
+    "value": "The Wild"
+   },
+   {
+    "kind": "place",
+    "value": "Appalachian Trail"
+   }
+  ]
+ },
+ {
+  "from": "Miami, FL",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "my boxing training"
+   },
+   {
+    "prompt": "The way to win me over…",
+    "answer": "cook with me"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "song",
+    "value": "Despacito"
+   },
+   {
+    "kind": "food",
+    "value": "mofongo"
+   }
+  ]
+ },
+ {
+  "from": "Stockholm, Sweden",
+  "prompts": [
+   {
+    "prompt": "My hot take…",
+    "answer": "ikea is overrated"
+   },
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "run then coffee"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Robyn"
+   },
+   {
+    "kind": "restaurant",
+    "value": "Blue Bottle"
+   }
+  ]
+ },
+ {
+  "from": "Birmingham, AL",
+  "prompts": [
+   {
+    "prompt": "Two truths and a lie…",
+    "answer": "i own all marvel movies"
+   },
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "board game strategy"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "movie",
+    "value": "Avengers: Endgame"
+   },
+   {
+    "kind": "game",
+    "value": "Catan"
+   }
+  ]
+ },
+ {
+  "from": "Charlotte, NC",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "my campus podcast"
+   },
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "vintage fashion finds"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "podcast",
+    "value": "Call Her Daddy"
+   },
+   {
+    "kind": "artist",
+    "value": "SZA"
+   }
+  ]
+ },
+ {
+  "from": "Augusta, GA",
+  "prompts": [
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "arsenal will win it all"
+   },
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "fifa refs"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Arsenal FC"
+   },
+   {
+    "kind": "game",
+    "value": "EA FC"
+   }
+  ]
+ },
+ {
+  "from": "San Antonio, TX",
+  "prompts": [
+   {
+    "prompt": "Ask me about…",
+    "answer": "mariachi life"
+   },
+   {
+    "prompt": "The way to win me over…",
+    "answer": "sing with me"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "song",
+    "value": "La Bamba"
+   },
+   {
+    "kind": "food",
+    "value": "tamales"
+   }
+  ]
+ },
+ {
+  "from": "Knoxville, TN",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "minecraft redstone"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "pineapple on pizza"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "youtuber",
+    "value": "Mumbo Jumbo"
+   },
+   {
+    "kind": "food",
+    "value": "Chicago deep dish"
+   }
+  ]
+ },
+ {
+  "from": "Boone, NC",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "my banjo tunes"
+   },
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "garden and folk fest"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Nick Drake"
+   },
+   {
+    "kind": "album",
+    "value": "In the Aeroplane Over the Sea"
+   }
+  ]
+ },
+ {
+  "from": "São Paulo, Brazil",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "missing brazilian food"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "jiu jitsu rolls"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Santos FC"
+   },
+   {
+    "kind": "food",
+    "value": "feijoada"
+   }
+  ]
+ },
+ {
+  "from": "Athens, GA",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "pixel art platformer"
+   },
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "celeste speedruns"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "Celeste"
+   },
+   {
+    "kind": "artist",
+    "value": "Toby Fox"
+   }
+  ]
+ },
+ {
+  "from": "Huntsville, AL",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "meteor showers"
+   },
+   {
+    "prompt": "A random fact I love…",
+    "answer": "orion nebula details"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "book",
+    "value": "Dune"
+   },
+   {
+    "kind": "movie",
+    "value": "Interstellar"
+   }
+  ]
+ },
+ {
+  "from": "Macon, GA",
+  "prompts": [
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "debate > everything"
+   },
+   {
+    "prompt": "Two truths and a lie…",
+    "answer": "i play basketball too"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Atlanta Hawks"
+   },
+   {
+    "kind": "podcast",
+    "value": "The Economist"
+   }
+  ]
+ },
+ {
+  "from": "Roswell, GA",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "pinterest dorm inspo"
+   },
+   {
+    "prompt": "The way to win me over…",
+    "answer": "good coffee dates"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "show",
+    "value": "The Great British Bake Off"
+   },
+   {
+    "kind": "restaurant",
+    "value": "Starbucks"
+   }
+  ]
+ },
+ {
+  "from": "Dalton, GA",
+  "prompts": [
+   {
+    "prompt": "My hot take…",
+    "answer": "trucks > sports cars"
+   },
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "country music purists"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Morgan Wallen"
+   },
+   {
+    "kind": "sports team",
+    "value": "Atlanta Braves"
+   }
+  ]
+ },
+ {
+  "from": "Marietta, GA",
+  "prompts": [
+   {
+    "prompt": "Ask me about…",
+    "answer": "my standup sets"
+   },
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "jewish comedy history"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "movie",
+    "value": "Annie Hall"
+   },
+   {
+    "kind": "athlete",
+    "value": "Stephen Curry"
+   }
+  ]
+ },
+ {
+  "from": "Atlanta, GA",
+  "prompts": [
+   {
+    "prompt": "The way to win me over…",
+    "answer": "let me braid your hair"
+   },
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "insecure"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "SZA"
+   },
+   {
+    "kind": "show",
+    "value": "Insecure"
+   }
+  ]
+ },
+ {
+  "from": "Alpharetta, GA",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "perfect tahdig"
+   },
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "chess endgames"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "food",
+    "value": "Persian kebabs"
+   },
+   {
+    "kind": "podcast",
+    "value": "Lex Fridman"
+   }
+  ]
+ },
+ {
+  "from": "Richmond, VA",
+  "prompts": [
+   {
+    "prompt": "Ask me about…",
+    "answer": "my summer in ghana"
+   },
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "hike then cook"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "book",
+    "value": "The Alchemist"
+   },
+   {
+    "kind": "place",
+    "value": "Shenandoah National Park"
+   }
+  ]
+ },
+ {
+  "from": "Columbus, GA",
+  "prompts": [
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "braves > all baseball"
+   },
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "smoking brisket"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Atlanta Braves"
+   },
+   {
+    "kind": "artist",
+    "value": "Zach Bryan"
+   }
+  ]
+ },
+ {
+  "from": "Minneapolis, MN",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "norse myths"
+   },
+   {
+    "prompt": "A random fact I love…",
+    "answer": "valkyries in metal"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Wardruna"
+   },
+   {
+    "kind": "book",
+    "value": "Norse Mythology by Gaiman"
+   }
+  ]
+ },
+ {
+  "from": "Greenville, SC",
+  "prompts": [
+   {
+    "prompt": "My hot take…",
+    "answer": "disc golf > ball golf"
+   },
+   {
+    "prompt": "Two truths and a lie…",
+    "answer": "my dog is pro level"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "Disc Golf"
+   },
+   {
+    "kind": "show",
+    "value": "Ted Lasso"
+   }
+  ]
+ },
+ {
+  "from": "Charleston, SC",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "italian opera"
+   },
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "puccini arias"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Luciano Pavarotti"
+   },
+   {
+    "kind": "show",
+    "value": "The Phantom of the Opera"
+   }
+  ]
+ },
+ {
+  "from": "Dearborn, MI",
+  "prompts": [
+   {
+    "prompt": "The way to win me over…",
+    "answer": "share good tea"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "arabic calligraphy"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Liverpool FC"
+   },
+   {
+    "kind": "food",
+    "value": "baklava"
+   }
+  ]
+ },
+ {
+  "from": "Athens, GA",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "rewriting all my python in rust"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "my latest hackathon project"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Tyler, The Creator"
+   },
+   {
+    "kind": "food",
+    "value": "cold brew coffee"
+   }
+  ]
+ },
+ {
+  "from": "Savannah, GA",
+  "prompts": [
+   {
+    "prompt": "The way to win me over…",
+    "answer": "buy my body butter and support my biz"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "podcast",
+    "value": "How I Built This"
+   },
+   {
+    "kind": "artist",
+    "value": "Kirk Franklin"
+   }
+  ]
+ },
+ {
+  "from": "Birmingham, AL",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "store-bought pasta"
+   },
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "my sunday carbonara recipe"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Juventus FC"
+   },
+   {
+    "kind": "food",
+    "value": "fresh tagliatelle"
+   }
+  ]
+ },
+ {
+  "from": "Asheville, NC",
+  "prompts": [
+   {
+    "prompt": "My hot take…",
+    "answer": "indie rock > everything else"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Phoebe Bridgers"
+   },
+   {
+    "kind": "place",
+    "value": "Red River Gorge"
+   }
+  ]
+ },
+ {
+  "from": "Macon, GA",
+  "prompts": [
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "country music is the best genre"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Atlanta Braves"
+   },
+   {
+    "kind": "artist",
+    "value": "Morgan Wallen"
+   }
+  ]
+ },
+ {
+  "from": "Charleston, SC",
+  "prompts": [
+   {
+    "prompt": "A random fact I love…",
+    "answer": "i've played lady macbeth twice"
+   },
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "much ado about nothing"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "book",
+    "value": "The Tempest"
+   },
+   {
+    "kind": "food",
+    "value": "earl grey tea"
+   }
+  ]
+ },
+ {
+  "from": "Orlando, FL",
+  "prompts": [
+   {
+    "prompt": "Ask me about…",
+    "answer": "my cricket club season"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "India National Cricket Team"
+   },
+   {
+    "kind": "movie",
+    "value": "3 Idiots"
+   }
+  ]
+ },
+ {
+  "from": "Augusta, GA",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "the power of poetry slams"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Lauryn Hill"
+   },
+   {
+    "kind": "book",
+    "value": "The Body Keeps the Score"
+   }
+  ]
+ },
+ {
+  "from": "Greenville, SC",
+  "prompts": [
+   {
+    "prompt": "My hot take…",
+    "answer": "kierkegaard is peak philosophy"
+   },
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "long bike ride then espresso"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "book",
+    "value": "Fear and Trembling"
+   },
+   {
+    "kind": "place",
+    "value": "Piedmont Park"
+   }
+  ]
+ },
+ {
+  "from": "Columbus, GA",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "learning new broadway tap routines"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "movie",
+    "value": "La La Land"
+   },
+   {
+    "kind": "show",
+    "value": "Hamilton"
+   }
+  ]
+ },
+ {
+  "from": "Richmond, VA",
+  "prompts": [
+   {
+    "prompt": "Two truths and a lie…",
+    "answer": "read ulysses twice, play chess daily"
+   },
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "classical chess openings"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "book",
+    "value": "Ulysses"
+   },
+   {
+    "kind": "artist",
+    "value": "Miles Davis"
+   }
+  ]
+ },
+ {
+  "from": "Knoxville, TN",
+  "prompts": [
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "old jazz documentaries"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Ella Fitzgerald"
+   },
+   {
+    "kind": "movie",
+    "value": "Before Sunrise"
+   }
+  ]
+ },
+ {
+  "from": "Valdosta, GA",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "the perfect bass lure setup"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Georgia Bulldogs"
+   },
+   {
+    "kind": "artist",
+    "value": "Luke Combs"
+   }
+  ]
+ },
+ {
+  "from": "New Orleans, LA",
+  "prompts": [
+   {
+    "prompt": "Ask me about…",
+    "answer": "my semester in paris"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "natural wine is overrated"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Claude Monet"
+   },
+   {
+    "kind": "place",
+    "value": "Louvre Museum"
+   }
+  ]
+ },
+ {
+  "from": "Dalton, GA",
+  "prompts": [
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "fishing then tailgating"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Atlanta Braves"
+   },
+   {
+    "kind": "food",
+    "value": "fried catfish"
+   }
+  ]
+ },
+ {
+  "from": "Marietta, GA",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "taylor's new album"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Taylor Swift"
+   },
+   {
+    "kind": "show",
+    "value": "The Summer I Turned Pretty"
+   }
+  ]
+ },
+ {
+  "from": "Atlanta, GA",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "finishing my atlanta screenplay"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "movie",
+    "value": "Moonlight"
+   },
+   {
+    "kind": "artist",
+    "value": "Kendrick Lamar"
+   }
+  ]
+ },
+ {
+  "from": "Huntsville, AL",
+  "prompts": [
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "ballet is the hardest sport"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "youtuber",
+    "value": "Everyday Astronaut"
+   },
+   {
+    "kind": "artist",
+    "value": "Tchaikovsky"
+   }
+  ]
+ },
+ {
+  "from": "Myrtle Beach, SC",
+  "prompts": [
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "surfing then reggae on the beach"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Bob Marley"
+   },
+   {
+    "kind": "place",
+    "value": "Tybee Island"
+   }
+  ]
+ },
+ {
+  "from": "Albany, GA",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "softball pitching technique"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Atlanta Braves"
+   },
+   {
+    "kind": "artist",
+    "value": "Carrie Underwood"
+   }
+  ]
+ },
+ {
+  "from": "Tallahassee, FL",
+  "prompts": [
+   {
+    "prompt": "Ask me about…",
+    "answer": "our formula sae race car"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Mercedes-AMG Petronas"
+   },
+   {
+    "kind": "movie",
+    "value": "Ford v Ferrari"
+   }
+  ]
+ },
+ {
+  "from": "Miami, FL",
+  "prompts": [
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "capturing soccer action shots"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Brazil National Team"
+   },
+   {
+    "kind": "artist",
+    "value": "Anitta"
+   }
+  ]
+ },
+ {
+  "from": "Jacksonville, FL",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "grinding warzone ranked"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "Call of Duty: Warzone"
+   },
+   {
+    "kind": "sports team",
+    "value": "Miami Heat"
+   }
+  ]
+ },
+ {
+  "from": "Roswell, GA",
+  "prompts": [
+   {
+    "prompt": "My hot take…",
+    "answer": "pilates is better than the gym"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Chappell Roan"
+   },
+   {
+    "kind": "show",
+    "value": "The Kardashians"
+   }
+  ]
+ },
+ {
+  "from": "Decatur, GA",
+  "prompts": [
+   {
+    "prompt": "Two truths and a lie…",
+    "answer": "named after messi, play fifa daily"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Inter Miami CF"
+   },
+   {
+    "kind": "game",
+    "value": "EA Sports FC"
+   }
+  ]
+ },
+ {
+  "from": "Savannah, GA",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "making zines about atlanta coffee spots"
+   },
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "the perfect risograph print"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Hayao Miyazaki"
+   },
+   {
+    "kind": "place",
+    "value": "Octane Coffee"
+   }
+  ]
+ },
+ {
+  "from": "Athens, GA",
+  "prompts": [
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "chess endgames and codeforces"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "cricket is more strategic than chess"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "India National Cricket Team"
+   },
+   {
+    "kind": "game",
+    "value": "Chess"
+   }
+  ]
+ },
+ {
+  "from": "Charleston, SC",
+  "prompts": [
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "baking sourdough and cottagecore gardening"
+   },
+   {
+    "prompt": "The way to win me over…",
+    "answer": "fresh bread and wildflower bouquets"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "food",
+    "value": "Sourdough Bread"
+   },
+   {
+    "kind": "show",
+    "value": "The Great British Bake Off"
+   }
+  ]
+ },
+ {
+  "from": "Miami, FL",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "proper flamenco guitar technique"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "my favorite spanish recipes"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Paco de Lucía"
+   },
+   {
+    "kind": "restaurant",
+    "value": "Eataly"
+   }
+  ]
+ },
+ {
+  "from": "New Orleans, LA",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "tarot decks and 80s horror"
+   },
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "the shining is overrated"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "movie",
+    "value": "The Craft"
+   },
+   {
+    "kind": "artist",
+    "value": "Siouxsie and the Banshees"
+   }
+  ]
+ },
+ {
+  "from": "Birmingham, AL",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "my hitless elden ring run"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "bloodborne is the best souls game"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "Elden Ring"
+   },
+   {
+    "kind": "artist",
+    "value": "Metallica"
+   }
+  ]
+ },
+ {
+  "from": "Atlanta, GA",
+  "prompts": [
+   {
+    "prompt": "Ask me about…",
+    "answer": "balancing chem lab and dance team"
+   },
+   {
+    "prompt": "The way to win me over…",
+    "answer": "gospel brunch playlists"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Atlanta Hawks"
+   },
+   {
+    "kind": "song",
+    "value": "Amazing Grace (gospel version)"
+   }
+  ]
+ },
+ {
+  "from": "Orlando, FL",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "why cricket is better than baseball"
+   },
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "lagaan on repeat"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Chennai Super Kings"
+   },
+   {
+    "kind": "movie",
+    "value": "3 Idiots"
+   }
+  ]
+ },
+ {
+  "from": "Nashville, TN",
+  "prompts": [
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "planning row parties with country tunes"
+   },
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "theta formal themes"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Taylor Swift"
+   },
+   {
+    "kind": "sports team",
+    "value": "Tennessee Titans"
+   }
+  ]
+ },
+ {
+  "from": "Augusta, GA",
+  "prompts": [
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "building jank commander decks"
+   },
+   {
+    "prompt": "A random fact I love…",
+    "answer": "pizza is technically a pie"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "Magic: The Gathering"
+   },
+   {
+    "kind": "food",
+    "value": "Chicago Deep Dish Pizza"
+   }
+  ]
+ },
+ {
+  "from": "Knoxville, TN",
+  "prompts": [
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "hiking with my golden retriever"
+   },
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "the best blue ridge trails"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Zach Bryan"
+   },
+   {
+    "kind": "place",
+    "value": "Great Smoky Mountains"
+   }
+  ]
+ },
+ {
+  "from": "Richmond, VA",
+  "prompts": [
+   {
+    "prompt": "My hot take…",
+    "answer": "5am crew practice builds character"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "my favorite finance podcasts"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "podcast",
+    "value": "The Joe Rogan Experience"
+   },
+   {
+    "kind": "sports team",
+    "value": "Virginia Cavaliers"
+   }
+  ]
+ },
+ {
+  "from": "Asheville, NC",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "painting the flowers i grow"
+   },
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "the best jazz standards"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Ella Fitzgerald"
+   },
+   {
+    "kind": "book",
+    "value": "The Language of Flowers"
+   }
+  ]
+ },
+ {
+  "from": "Tampa, FL",
+  "prompts": [
+   {
+    "prompt": "The way to win me over…",
+    "answer": "homemade pasta and old fiats"
+   },
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "soccer > american football"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "food",
+    "value": "Margherita Pizza"
+   },
+   {
+    "kind": "sports team",
+    "value": "AC Milan"
+   }
+  ]
+ },
+ {
+  "from": "Macon, GA",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "wednesday bible study insights"
+   },
+   {
+    "prompt": "A random fact I love…",
+    "answer": "journaling changed my prayer life"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "book",
+    "value": "The Bible"
+   },
+   {
+    "kind": "podcast",
+    "value": "The Bible Recap"
+   }
+  ]
+ },
+ {
+  "from": "Columbus, GA",
+  "prompts": [
+   {
+    "prompt": "My hot take…",
+    "answer": "georgia football is a lifestyle"
+   },
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "why golf is peak relaxation"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Georgia Bulldogs"
+   },
+   {
+    "kind": "artist",
+    "value": "Morgan Wallen"
+   }
+  ]
+ },
+ {
+  "from": "Greenville, SC",
+  "prompts": [
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "knitting on a hiking trail"
+   },
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "folk playlists and sustainability"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Bon Iver"
+   },
+   {
+    "kind": "book",
+    "value": "Braiding Sweetgrass"
+   }
+  ]
+ },
+ {
+  "from": "Memphis, TN",
+  "prompts": [
+   {
+    "prompt": "Ask me about…",
+    "answer": "my atlanta jazz documentary"
+   },
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "shooting on film in low light"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Miles Davis"
+   },
+   {
+    "kind": "movie",
+    "value": "Moonlight"
+   }
+  ]
+ },
+ {
+  "from": "Panama City, FL",
+  "prompts": [
+   {
+    "prompt": "The way to win me over…",
+    "answer": "beach volleyball and taylor swift"
+   },
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "the summer i turned pretty"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Taylor Swift"
+   },
+   {
+    "kind": "sports team",
+    "value": "USA Volleyball"
+   }
+  ]
+ },
+ {
+  "from": "Durham, NC",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "my latest spoken word piece"
+   },
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "90s r&b samples"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "SZA"
+   },
+   {
+    "kind": "book",
+    "value": "The Poet X"
+   }
+  ]
+ },
+ {
+  "from": "Boulder, CO",
+  "prompts": [
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "mercury retrograde gets a bad rap"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "your birth chart"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Phoebe Bridgers"
+   },
+   {
+    "kind": "movie",
+    "value": "Everything Everywhere All at Once"
+   }
+  ]
+ },
+ {
+  "from": "Raleigh, NC",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "the perfect neapolitan dough"
+   },
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "engineering a backyard pizza oven"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "food",
+    "value": "Neapolitan Pizza"
+   },
+   {
+    "kind": "sports team",
+    "value": "Juventus FC"
+   }
+  ]
+ },
+ {
+  "from": "Lexington, KY",
+  "prompts": [
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "miss marple mysteries"
+   },
+   {
+    "prompt": "A random fact I love…",
+    "answer": "cats were sacred in ancient egypt"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "book",
+    "value": "Murder on the Orient Express"
+   },
+   {
+    "kind": "show",
+    "value": "Midsomer Murders"
+   }
+  ]
+ },
+ {
+  "from": "Mobile, AL",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "hunting rare soul 45s"
+   },
+   {
+    "prompt": "The way to win me over…",
+    "answer": "vinyl swaps and home cooking"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Otis Redding"
+   },
+   {
+    "kind": "album",
+    "value": "What's Going On"
+   }
+  ]
+ },
+ {
+  "from": "Austin, TX",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "berlin techno warehouse vibes"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "german is the best language"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Techno"
+   },
+   {
+    "kind": "place",
+    "value": "Berlin"
+   }
+  ]
+ },
+ {
+  "from": "Augusta, GA",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "pulling shiny charizards"
+   },
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "my base set collection"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "pokemon tcg"
+   },
+   {
+    "kind": "anime",
+    "value": "pokemon"
+   }
+  ]
+ },
+ {
+  "from": "Savannah, GA",
+  "prompts": [
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "sunrise yoga then vegan brunch"
+   },
+   {
+    "prompt": "The way to win me over…",
+    "answer": "a homemade oat milk latte"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "food",
+    "value": "avocado toast"
+   },
+   {
+    "kind": "podcast",
+    "value": "on being"
+   }
+  ]
+ },
+ {
+  "from": "Macon, GA",
+  "prompts": [
+   {
+    "prompt": "My hot take…",
+    "answer": "lifting > cardio always"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "my vinyl rap collection"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "atlanta falcons"
+   },
+   {
+    "kind": "artist",
+    "value": "kendrick lamar"
+   }
+  ]
+ },
+ {
+  "from": "Athens, GA",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "the best disco tracks"
+   },
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "rink night in my bell bottoms"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "song",
+    "value": "stayin' alive"
+   },
+   {
+    "kind": "movie",
+    "value": "xanadu"
+   }
+  ]
+ },
+ {
+  "from": "London, UK",
+  "prompts": [
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "the crown obviously"
+   },
+   {
+    "prompt": "A random fact I love…",
+    "answer": "cricket was invented in england"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "place",
+    "value": "high tea at the ritz"
+   },
+   {
+    "kind": "sports team",
+    "value": "england cricket team"
+   }
+  ]
+ },
+ {
+  "from": "Dalton, GA",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "my family's recipes"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "ballet folklórico costumes"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "food",
+    "value": "mole poblano"
+   },
+   {
+    "kind": "show",
+    "value": "maria la del barrio"
+   }
+  ]
+ },
+ {
+  "from": "Miami, FL",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "f1 qualifying drama"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "senna is the goat"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "brazil national team"
+   },
+   {
+    "kind": "food",
+    "value": "feijoada"
+   }
+  ]
+ },
+ {
+  "from": "Asheville, NC",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "the orionid meteor shower"
+   },
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "jazz is peak poetry"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "miles davis"
+   },
+   {
+    "kind": "book",
+    "value": "the little prince"
+   }
+  ]
+ },
+ {
+  "from": "Columbus, GA",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "2k dribble cheese"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "my crossover moves"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "nba 2k"
+   },
+   {
+    "kind": "sports team",
+    "value": "atlanta hawks"
+   }
+  ]
+ },
+ {
+  "from": "Marietta, GA",
+  "prompts": [
+   {
+    "prompt": "The way to win me over…",
+    "answer": "fresh warm challah"
+   },
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "fiddler on the roof"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "food",
+    "value": "babka"
+   },
+   {
+    "kind": "show",
+    "value": "the marvelous mrs. maisel"
+   }
+  ]
+ },
+ {
+  "from": "Charleston, SC",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "autonomous sailboat code"
+   },
+   {
+    "prompt": "A random fact I love…",
+    "answer": "sailing uses celestial nav"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "movie",
+    "value": "the martian"
+   },
+   {
+    "kind": "book",
+    "value": "dune"
+   }
+  ]
+ },
+ {
+  "from": "Birmingham, AL",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "corporate greenwashing"
+   },
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "bike ride protesting"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "phoebe bridgers"
+   },
+   {
+    "kind": "podcast",
+    "value": "how to save a planet"
+   }
+  ]
+ },
+ {
+  "from": "Knoxville, TN",
+  "prompts": [
+   {
+    "prompt": "My hot take…",
+    "answer": "thrasher > vogue"
+   },
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "my favorite punk records"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "tony hawk's pro skater"
+   },
+   {
+    "kind": "artist",
+    "value": "green day"
+   }
+  ]
+ },
+ {
+  "from": "Decatur, GA",
+  "prompts": [
+   {
+    "prompt": "Ask me about…",
+    "answer": "my monstera collection"
+   },
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "drawing perfect leaves"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "book",
+    "value": "botany of desire"
+   },
+   {
+    "kind": "place",
+    "value": "atlanta botanical garden"
+   }
+  ]
+ },
+ {
+  "from": "Roswell, GA",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "new indie rock drops"
+   },
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "scott pilgrim vs the world"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "the strokes"
+   },
+   {
+    "kind": "game",
+    "value": "guitar hero"
+   }
+  ]
+ },
+ {
+  "from": "Tallahassee, FL",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "roller derby penalties"
+   },
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "tattoos are therapy"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "paramore"
+   },
+   {
+    "kind": "show",
+    "value": "jackass"
+   }
+  ]
+ },
+ {
+  "from": "Raleigh, NC",
+  "prompts": [
+   {
+    "prompt": "Two truths and a lie…",
+    "answer": "i'm undefeated in chess"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "my favorite openings"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "manchester united"
+   },
+   {
+    "kind": "podcast",
+    "value": "planet money"
+   }
+  ]
+ },
+ {
+  "from": "Boston, MA",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "irish rebel songs"
+   },
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "derry girls"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "the dubliners"
+   },
+   {
+    "kind": "place",
+    "value": "the cliffs of moher"
+   }
+  ]
+ },
+ {
+  "from": "Orlando, FL",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "valorant ranked grind"
+   },
+   {
+    "prompt": "The way to win me over…",
+    "answer": "a perfect plate of biryani"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "valorant"
+   },
+   {
+    "kind": "sports team",
+    "value": "india cricket team"
+   }
+  ]
+ },
+ {
+  "from": "Portland, OR",
+  "prompts": [
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "cold plunge then poetry"
+   },
+   {
+    "prompt": "My hot take…",
+    "answer": "winter swimming > beach"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "lorde"
+   },
+   {
+    "kind": "book",
+    "value": "milk and honey"
+   }
+  ]
+ },
+ {
+  "from": "New Orleans, LA",
+  "prompts": [
+   {
+    "prompt": "Ask me about…",
+    "answer": "my favorite jazz standards"
+   },
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "endgame chess puzzles"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "thelonious monk"
+   },
+   {
+    "kind": "song",
+    "value": "take five"
+   }
+  ]
+ },
+ {
+  "from": "Tampa, FL",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "sunday sauce technique"
+   },
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "ny pizza > chicago"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "food",
+    "value": "nonna's meatballs"
+   },
+   {
+    "kind": "sports team",
+    "value": "new york yankees"
+   }
+  ]
+ },
+ {
+  "from": "Jacksonville, FL",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "vintage tennis skirts"
+   },
+   {
+    "prompt": "The way to win me over…",
+    "answer": "a solid r&b playlist"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "serena williams"
+   },
+   {
+    "kind": "artist",
+    "value": "sza"
+   }
+  ]
+ },
+ {
+  "from": "Charlotte, NC",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "elden ring lore"
+   },
+   {
+    "prompt": "A random fact I love…",
+    "answer": "miyazaki's favorite color"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "elden ring"
+   },
+   {
+    "kind": "youtuber",
+    "value": "vaati vidya"
+   }
+  ]
+ },
+ {
+  "from": "Richmond, VA",
+  "prompts": [
+   {
+    "prompt": "My hot take…",
+    "answer": "brunch is a sport"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "my mock trial wins"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "restaurant",
+    "value": "atlantis diner"
+   },
+   {
+    "kind": "show",
+    "value": "the good wife"
+   }
+  ]
+ },
+ {
+  "from": "Macon, GA",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "building a walnut dining table"
+   },
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "the perfect bluegrass jam session"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Bill Monroe"
+   },
+   {
+    "kind": "place",
+    "value": "Chattahoochee River"
+   }
+  ]
+ },
+ {
+  "from": "Atlanta, GA",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "who makes the best jollof"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "food",
+    "value": "jollof rice"
+   },
+   {
+    "kind": "artist",
+    "value": "Burna Boy"
+   }
+  ]
+ },
+ {
+  "from": "Savannah, GA",
+  "prompts": [
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "endless ocean waves"
+   },
+   {
+    "prompt": "The way to win me over…",
+    "answer": "a solid reggae playlist"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "song",
+    "value": "No Woman No Cry"
+   },
+   {
+    "kind": "place",
+    "value": "Tybee Island"
+   }
+  ]
+ },
+ {
+  "from": "Augusta, GA",
+  "prompts": [
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "perfecting sourdough recipes"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "show",
+    "value": "The Violin Channel"
+   },
+   {
+    "kind": "food",
+    "value": "croissants"
+   }
+  ]
+ },
+ {
+  "from": "Orlando, FL",
+  "prompts": [
+   {
+    "prompt": "My hot take…",
+    "answer": "cyberpunk 2077 was underrated"
+   },
+   {
+    "prompt": "Ask me about…",
+    "answer": "building a synthwave setup"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "Cyberpunk 2077"
+   },
+   {
+    "kind": "album",
+    "value": "After Hours"
+   }
+  ]
+ },
+ {
+  "from": "Charleston, SC",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "sketching 1940s silhouettes"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Ella Fitzgerald"
+   },
+   {
+    "kind": "movie",
+    "value": "Breakfast at Tiffany's"
+   }
+  ]
+ },
+ {
+  "from": "Houston, TX",
+  "prompts": [
+   {
+    "prompt": "The way to win me over…",
+    "answer": "fresh al pastor tacos"
+   },
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "my fifa ultimate team"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Club America"
+   },
+   {
+    "kind": "food",
+    "value": "tacos al pastor"
+   }
+  ]
+ },
+ {
+  "from": "Birmingham, AL",
+  "prompts": [
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "paul hollywood is overrated"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "show",
+    "value": "The Great British Bake Off"
+   },
+   {
+    "kind": "food",
+    "value": "scones"
+   }
+  ]
+ },
+ {
+  "from": "Valdosta, GA",
+  "prompts": [
+   {
+    "prompt": "Ask me about…",
+    "answer": "training pointers for quail"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Alison Krauss"
+   },
+   {
+    "kind": "sports team",
+    "value": "Georgia Bulldogs"
+   }
+  ]
+ },
+ {
+  "from": "Marietta, GA",
+  "prompts": [
+   {
+    "prompt": "Two truths and a lie…",
+    "answer": "raiden main, dragoncon vet"
+   },
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "my next genshin cosplay"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "Genshin Impact"
+   },
+   {
+    "kind": "anime",
+    "value": "Demon Slayer"
+   }
+  ]
+ },
+ {
+  "from": "Athens, GA",
+  "prompts": [
+   {
+    "prompt": "A random fact I love…",
+    "answer": "juno probe is my namesake"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "book",
+    "value": "Dune"
+   },
+   {
+    "kind": "podcast",
+    "value": "Astronomy Cast"
+   }
+  ]
+ },
+ {
+  "from": "Stone Mountain, GA",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "the great jollof debate"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "food",
+    "value": "waakye"
+   },
+   {
+    "kind": "sports team",
+    "value": "Asante Kotoko"
+   }
+  ]
+ },
+ {
+  "from": "Lexington, KY",
+  "prompts": [
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "trail ride then bake pies"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Kacey Musgraves"
+   },
+   {
+    "kind": "food",
+    "value": "apple pie"
+   }
+  ]
+ },
+ {
+  "from": "Minneapolis, MN",
+  "prompts": [
+   {
+    "prompt": "My hot take…",
+    "answer": "vikings > all other history"
+   },
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "endgame chess puzzles"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Minnesota Vikings"
+   },
+   {
+    "kind": "athlete",
+    "value": "Magnus Carlsen"
+   }
+  ]
+ },
+ {
+  "from": "Raleigh, NC",
+  "prompts": [
+   {
+    "prompt": "I'll never shut up about…",
+    "answer": "blender sci-fi shorts"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "Hades"
+   },
+   {
+    "kind": "movie",
+    "value": "Interstellar"
+   }
+  ]
+ },
+ {
+  "from": "Memphis, TN",
+  "prompts": [
+   {
+    "prompt": "The way to win me over…",
+    "answer": "rare sneakers and good beats"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Memphis Grizzlies"
+   },
+   {
+    "kind": "artist",
+    "value": "Kendrick Lamar"
+   }
+  ]
+ },
+ {
+  "from": "Asheville, NC",
+  "prompts": [
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "heirloom sunflower varieties"
+   },
+   {
+    "prompt": "My comfort rewatch…",
+    "answer": "folk festival documentaries"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Iron & Wine"
+   },
+   {
+    "kind": "food",
+    "value": "blueberry muffins"
+   }
+  ]
+ },
+ {
+  "from": "Dearborn, MI",
+  "prompts": [
+   {
+    "prompt": "Ask me about…",
+    "answer": "soccer poetry in two languages"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Real Madrid"
+   },
+   {
+    "kind": "book",
+    "value": "The Prophet"
+   }
+  ]
+ },
+ {
+  "from": "Columbia, SC",
+  "prompts": [
+   {
+    "prompt": "A random fact I love…",
+    "answer": "orion is my favorite constellation"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "Phoebe Bridgers"
+   },
+   {
+    "kind": "place",
+    "value": "Pisgah National Forest"
+   }
+  ]
+ },
+ {
+  "from": "Athens, GA",
+  "prompts": [
+   {
+    "prompt": "Perfect weekend…",
+    "answer": "tailgate then lake fishing"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "sports team",
+    "value": "Georgia Bulldogs"
+   },
+   {
+    "kind": "artist",
+    "value": "Zach Bryan"
+   }
+  ]
+ },
+ {
+  "from": "New Orleans, LA",
+  "prompts": [
+   {
+    "prompt": "I'm weirdly good at…",
+    "answer": "french braids and titrations"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "youtuber",
+    "value": "NileRed"
+   },
+   {
+    "kind": "artist",
+    "value": "Kirk Franklin"
+   }
+  ]
+ },
+ {
+  "from": "Jackson, MS",
+  "prompts": [
+   {
+    "prompt": "Don't get me started on…",
+    "answer": "the right way to smoke brisket"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "food",
+    "value": "texas brisket"
+   },
+   {
+    "kind": "sports team",
+    "value": "Ole Miss Rebels"
+   }
+  ]
+ },
+ {
+  "from": "Knoxville, TN",
+  "prompts": [
+   {
+    "prompt": "My most controversial opinion…",
+    "answer": "tieflings are the best race"
+   },
+   {
+    "prompt": "Currently obsessed with…",
+    "answer": "watercolor dnd maps"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "game",
+    "value": "Dungeons & Dragons"
+   },
+   {
+    "kind": "book",
+    "value": "The Name of the Wind"
+   }
+  ]
+ },
+ {
+  "from": "Chicago, IL",
+  "prompts": [
+   {
+    "prompt": "Two truths and a lie…",
+    "answer": "deadlift pr, read crime and punishment"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "book",
+    "value": "Brothers Karamazov"
+   },
+   {
+    "kind": "athlete",
+    "value": "Magnus Carlsen"
+   }
+  ]
+ },
+ {
+  "from": "Miami, FL",
+  "prompts": [
+   {
+    "prompt": "The way to win me over…",
+    "answer": "killer r&b playlist and moves"
+   }
+  ],
+  "favorites": [
+   {
+    "kind": "artist",
+    "value": "SZA"
+   },
+   {
+    "kind": "show",
+    "value": "Insecure"
+   }
+  ]
+ }
+]

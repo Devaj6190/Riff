@@ -50,6 +50,8 @@ export const CONTEXT_RULE = [
   "pastChats is what we know from a player's earlier chats with other people. Use it only to choose topics:",
   "lean into what they enjoy, steer clear of what fell flat or what they didn't get.",
   "Never mention it, quote it, or hint that you know anything they haven't said in this chat.",
+  "profile is what a player chose to show on their public profile (hometown, prompt answers, favorites); both can see it,",
+  "so it's fair game: play off an answer, or pit their favorites against each other.",
 ].join(" ");
 
 /** Bonus mode (bonus.ts): shift the topic toward the trailing player's ground without saying why. */
@@ -68,6 +70,7 @@ export function userMessage(ctx: NudgeContext): string {
       interests: [...p.interests, ...p.extracted_interests],
       notes: ctx.known.notes[p.seat],
       pastChats: ctx.past[p.seat], // UserProfile: enjoys, flat (fell flat), misses (didn't get)
+      profile: ctx.shown[p.seat], // what they put on their public profile: hometown, prompts, favorites
     })),
     thread: ctx.known.thread,
     chatSoFar: ctx.chat,

@@ -1,24 +1,31 @@
 // Discovery (SPEC §7): search the live queue plus the seeded personas, ranked by Jev; invite or pair with a tap.
 // The queue and presence are match.ts's: browse-mode players poll /api/match like Match me players do.
 import { supabaseAdmin } from "../supabase/admin";
-import type { Invite, MatchResponse, QueueMode, Riff, SearchPerson, SearchResponse, UserProfile } from "../types";
+import type { Invite, MatchResponse, PublicProfile, QueueMode, Riff, SearchPerson, SearchResponse, UserProfile } from "../types";
 import { seatBot } from "./bot";
 import { jev } from "./jev";
 import { FRESH_MS, overlap } from "./match";
 import { PERSONAS } from "./personas";
+import { publicProfiles } from "./profiles";
 
 export const INVITE_MS = 60_000;
 const JEV_TIMEOUT_MS = 3_000;
-const JEV_MAX_OPTIONS = 255;
-const NO_MATCH_BELOW = 0.35; // Jev's semantic-find recipe: under this, the answer isn't there
+const NO_MATCH_BELOW = 0.5; // nobody's more likely a yes than a no
 
-type QueueRow = { user_id: string; name: string; interests: string[]; mode: QueueMode };
+type QueueRow = { user_id: string; name: string; interests: string[]; mode: QueueMode; profile?: PublicProfile };
 
 const SEEDS: SearchPerson[] = PERSONAS.map((p) => ({ ...p, mode: "browse", seed: true }));
 const fresh = (ms: number) => new Date(Date.now() - ms).toISOString();
-const person = (r: QueueRow): SearchPerson => ({ id: r.user_id, name: r.name, interests: r.interests, mode: r.mode, seed: false });
+const person = ({ user_id, name, interests, mode, profile }: QueueRow): SearchPerson => ({
+  id: user_id,
+  name,
+  interests,
+  mode,
+  seed: false,
+  ...(profile && { from: profile.from, prompts: profile.prompts, favorites: profile.favorites }),
+});
 
-/** Everyone waiting in the queue but me, still polling and not yet paired. */
+/** Everyone waiting in the queue but me, still polling and not yet paired, with their public profile if saved. */
 async function liveQueue(userId: string): Promise<QueueRow[]> {
   const { data } = await supabaseAdmin()
     .from("match_queue")
@@ -26,8 +33,10 @@ async function liveQueue(userId: string): Promise<QueueRow[]> {
     .is("riff_code", null)
     .neq("user_id", userId)
     .gt("seen_at", fresh(FRESH_MS))
-    .limit(150); // ponytail: + 100 seeds stays under Jev's 255 options; page or pre-filter if the queue outgrows it
-  return (data ?? []) as QueueRow[];
+    .limit(150); // ponytail: 150 + 300 seeds is 450 nouls (~0.7 s); shortlist before Jev if the queue outgrows it
+  const rows = (data ?? []) as QueueRow[];
+  const profiles = await publicProfiles(rows.map((r) => r.user_id));
+  return rows.map((r) => ({ ...r, profile: profiles.get(r.user_id) }));
 }
 
 async function myRow(userId: string): Promise<QueueRow | null> {
@@ -41,7 +50,18 @@ async function myRow(userId: string): Promise<QueueRow | null> {
   return data as QueueRow | null;
 }
 
-const describe = (p: SearchPerson) => [p.name, p.school, p.interests.join(", "), p.bio].filter(Boolean).join(" · ");
+const describe = (p: SearchPerson) =>
+  [
+    p.name,
+    p.school,
+    p.from && `from ${p.from}`,
+    p.interests.join(", "),
+    p.bio,
+    ...(p.prompts ?? []).map((x) => `${x.prompt} ${x.answer}`),
+    ...(p.favorites ?? []).map((f) => `favorite ${f.kind}: ${f.value}`),
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
 /** Rank the queue for me: by fit when the query is empty (real people first), else by relevance to the query. */
 export async function search(userId: string, query: string): Promise<SearchResponse> {
@@ -50,36 +70,29 @@ export async function search(userId: string, query: string): Promise<SearchRespo
     liveQueue(userId),
     supabaseAdmin().from("user_profiles").select("profile").eq("user_id", userId).maybeSingle(),
   ]);
-  const people = [...queue.map(person), ...SEEDS].slice(0, JEV_MAX_OPTIONS);
+  const people = [...queue.map(person), ...SEEDS];
   const q = query.trim().slice(0, 200);
   const profile = (prof.data?.profile ?? null) as UserProfile | null;
   let relevance: Record<string, number>;
   let noMatch = false;
   try {
-    const criteria = Object.fromEntries(people.map((p) => [p.id, describe(p)]));
+    // One noul per person, all in one call: independent scores rank the whole list (a Choice only sharpens #1).
+    // ponytail: ~23k input tokens at 300 people, ~0.5 s; shortlist by word overlap first if cost or the queue grows.
+    const question = q
+      ? "Would the searcher enjoy chatting with this person about what they typed? It's a vibe search, not a keyword search: a specific title (a game, show, band, team, book) matches people into that kind of thing."
+      : "Would `me` enjoy a first chat with this person? Shared or complementary interests count most.";
     const answers = await jev(
-      q
-        ? { searching_for: q, people: Object.values(criteria) }
-        : { me: { name: me?.name, interests: me?.interests, enjoys: profile?.enjoys, about: profile?.about } },
-      {
-        pick: {
-          type: "choice",
-          instructions: q
-            ? "Which person best matches what the searcher is looking for?"
-            : "Which person would `me` most enjoy a first chat with? Shared or complementary interests count most.",
-          criteria,
-        },
-        ...(q ? { exists: { type: "noul" as const, instructions: "At least one of the people clearly matches what the searcher is looking for." } } : {}),
-      },
+      q ? { searching_for: q } : { me: { name: me?.name, interests: me?.interests, enjoys: profile?.enjoys, about: profile?.about } },
+      Object.fromEntries(people.map((p) => [p.id, { type: "noul" as const, instructions: { question, person: describe(p) } }])),
       JEV_TIMEOUT_MS,
     );
-    if (answers.pick?.type !== "choice") throw new Error("Jev: no ranking");
-    relevance = answers.pick.probabilities;
-    noMatch = answers.exists?.type === "noul" && answers.exists.noul < NO_MATCH_BELOW;
+    relevance = Object.fromEntries(Object.entries(answers).flatMap(([id, a]) => (a.type === "noul" ? [[id, a.noul]] : [])));
+    if (!Object.keys(relevance).length) throw new Error("Jev: no ranking");
+    noMatch = !!q && Math.max(...Object.values(relevance)) < NO_MATCH_BELOW;
   } catch (e) {
     console.warn("search: Jev failed, ranking by word overlap", e instanceof Error ? e.message : e);
     const score = overlap(q ? [q] : [...(me?.interests ?? []), ...(profile?.enjoys ?? [])]);
-    relevance = Object.fromEntries(people.map((p) => [p.id, score([...p.interests, p.bio ?? "", p.school ?? "", p.name])]));
+    relevance = Object.fromEntries(people.map((p) => [p.id, score([...p.interests, p.bio ?? "", p.school ?? "", p.name, ...(p.favorites ?? []).map((f) => f.value), ...(p.prompts ?? []).map((x) => x.answer)])]));
     noMatch = !!q && Object.values(relevance).every((r) => r === 0);
   }
   return { people: rankPeople(people, relevance, !q), noMatch };

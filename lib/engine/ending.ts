@@ -91,7 +91,7 @@ export async function endRiff(riff: Riff): Promise<RiffPhase> {
     .select("id");
   if (data?.length) {
     // ponytail: coach chats don't feed the profile, so a miss stays until a later real chat stops showing it.
-    if (riff.kind !== "coach") after(() => saveHistory(riff.id).catch((e) => console.error("chat history failed", e)));
+    if (riff.kind !== "coach") after(() => saveHistory(riff.id, !!riff.demo_script).catch((e) => console.error("chat history failed", e)));
     await writeSummary(riff);
   }
   return "ended";
@@ -124,9 +124,10 @@ export function normalizeHistory(raw: unknown): Record<Seat, ChatHistorySummary>
 /**
  * Summarize the whole chat into chat_histories, one row per (real) player. Runs after the response (endRiff), on
  * every end: a new match in the same riff keeps the chat, so the latest end overwrites with the fuller summary.
- * Then rolls each player's histories into their hidden profile.
+ * Then rolls each player's histories into their hidden profile. A demo (demo.ts) keeps seat A's summary on the riff
+ * instead, so it never touches anyone's real history or profile.
  */
-export async function saveHistory(riffId: string): Promise<void> {
+export async function saveHistory(riffId: string, demo = false): Promise<void> {
   const db = supabaseAdmin();
   const [players, messages, known, nudges, scores] = await Promise.all([
     db.from("players").select("*").eq("riff_id", riffId),
@@ -161,6 +162,11 @@ export async function saveHistory(riffId: string): Promise<void> {
       25_000, // then rollUpProfile, all inside the route's 60 s
     ),
   );
+  if (demo) {
+    const { error } = await db.from("riffs").update({ demo_summary: summary.A }).eq("id", riffId);
+    if (error) throw error;
+    return;
+  }
   const rows = seated
     .filter((p) => p.user_id !== BOT_USER_ID)
     .map((p) => ({

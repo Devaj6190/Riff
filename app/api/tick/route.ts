@@ -1,6 +1,7 @@
 import { after } from "next/server";
 import { BOT_USER_ID, botTurn } from "@/lib/engine/bot";
 import { coachSystem } from "@/lib/engine/coach";
+import { demoTurn } from "@/lib/engine/demo";
 import { endIfWon } from "@/lib/engine/ending";
 import { nudgeFor, prefetchNudges, refreshNext } from "@/lib/engine/nudges";
 import { readChat } from "@/lib/engine/reader";
@@ -60,12 +61,19 @@ export async function POST(req: Request) {
       after(async () => {
         try {
           await scoreNudge(riffId, lastNudge);
+          if (riff.data.demo_script) return; // the script decides when it ends (demo.ts)
           if (!(await endIfWon(riffId))) await refreshNext(riffId, lastNudge.number);
         } catch (e) {
           console.error("score/bonus failed", e);
         }
       });
     }
+  }
+
+  // Dev: a scripted demo chat plays its next line instead of the bot, pacing and nudge writing (demo.ts).
+  if (riff.data.demo_script) {
+    after(() => demoTurn(riff.data, lastNudge).catch((e) => console.error("demo failed", e)));
+    return reply("chatting", false);
   }
 
   const seated = (players.data ?? []) as Pick<Player, "id" | "seat" | "joined_at" | "user_id">[];

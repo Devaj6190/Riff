@@ -24,6 +24,9 @@ export type Riff = {
   ended_at: string | null;
   summary: RiffSummary | null; // written by the engine when the riff ends
   reported_at: string | null;
+  demo_script: string | null; // dev: a scripted demo chat (lib/engine/demo.ts); null = a normal riff
+  demo_step: number; // dev: the script's next line
+  demo_summary: ChatHistorySummary | null; // dev: seat A's post-chat summary of a demo (never saved to chat_histories)
 };
 
 /** Moment Spotlight: `moments` is empty when the chat was too short, the model failed, or it's a coach chat. */
@@ -190,6 +193,13 @@ export type InviteResponse = { code: string | null };
  *  nothing to catch up on yet (no finished chats). */
 export type CoachRequest = { name: string; interests: string[] };
 export type CoachResponse = { code: string };
+
+/** POST /api/demo (dev): start a scripted demo chat (lib/engine/demo-scripts.ts), read the caller's latest demo and
+ *  its post-chat summary (null until written, 10-40 s after it ends), or start a coach riff on that summary's misses.
+ *  Demos never touch the caller's real chat history or hidden profile. */
+export type DemoRequest = { action: "start"; script: string } | { action: "results" } | { action: "coach" };
+export type DemoStartResponse = { code: string };
+export type DemoResults = { code: string | null; summary: ChatHistorySummary | null };
 
 /** POST /api/end: end the riff now, or start a new match in it (chat is kept). */
 export type EndRequest = { riffId: string; action: "end" | "restart" };

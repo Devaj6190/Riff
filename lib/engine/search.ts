@@ -65,11 +65,11 @@ export async function search(userId: string, query: string): Promise<SearchRespo
         pick: {
           type: "choice",
           instructions: q
-            ? "Which person best matches what the searcher is looking for?"
+            ? "Which person would the searcher most want to chat with about what they typed? It's a vibe search, not a keyword search: a specific title (a game, show, band, team, book) matches people into that kind of thing, e.g. a video game matches gamers."
             : "Which person would `me` most enjoy a first chat with? Shared or complementary interests count most.",
           criteria,
         },
-        ...(q ? { exists: { type: "noul" as const, instructions: "At least one of the people clearly matches what the searcher is looking for." } } : {}),
+        ...(q ? { exists: { type: "noul" as const, instructions: "At least one of the people is into what the searcher typed or the same kind of thing (a specific video game counts for anyone into video games)." } } : {}),
       },
       JEV_TIMEOUT_MS,
     );

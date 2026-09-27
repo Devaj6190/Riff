@@ -26,7 +26,7 @@ export type Riff = {
   reported_at: string | null;
   demo_script: string | null; // dev: a scripted demo chat (lib/engine/demo.ts); null = a normal riff
   demo_step: number; // dev: the script's next line
-  demo_summary: ChatHistorySummary | null; // dev: seat A's post-chat summary of a demo (never saved to chat_histories)
+  demo_summary: ChatHistorySummary | null; // dev: seat A's post-chat summary of a demo (never saved to chat_histories); on a coach riff, the summary it coaches on
 };
 
 /** Moment Spotlight: `moments` is empty when the chat was too short, the model failed, or it's a coach chat. */
@@ -53,7 +53,19 @@ export type ChatHistorySummary = {
   clicked: string[]; // topics that got long, excited back-and-forths
   died: string[]; // topics that went nowhere
   misses: string[]; // references or topics this player didn't get, or checked out of
+  coaching?: CoachingReport; // shown to this player only (/api/coaching); absent on older rows or if the model failed
 };
+
+/** A player's private coaching report (SPEC §7), from their own messages only. Quotes are their messages, verbatim. */
+export type CoachingReport = {
+  good: { point: string; quote?: string }; // what they were good at
+  flat: { point: string; quote?: string }; // where they fell flat
+  improve: { tip: string; said?: string; try?: string }; // one tip; `said` (theirs) rewritten as `try`
+  coach: CoachFocus | null; // what one coach chat can teach them; null if nothing fell flat
+};
+
+/** What a coach chat works on, written from what fell flat in one chat. Not templated. */
+export type CoachFocus = { title: string; why: string; learn: string[] }; // learn: 3-5 concrete things
 
 /** Engine-only (user_profiles): all of a user's chat_histories rolled into one. Steers later chats; never shown. */
 export type UserProfile = {
@@ -219,9 +231,9 @@ export type SearchResponse = { people: SearchPerson[]; noMatch: boolean };
 export type InviteRequest = { action: "send"; to: string } | { action: "answer"; id: number; accept: boolean };
 export type InviteResponse = { code: string | null };
 
-/** POST /api/coach: start a coach riff (the AI catches the caller up on references they missed). 404 if there's
- *  nothing to catch up on yet (no finished chats). */
-export type CoachRequest = { name: string; interests: string[] };
+/** POST /api/coach: start a coach riff. With `riffId`: on the focus of the caller's coaching report for that chat
+ *  (SPEC §7). Without: catch up on references they missed in past chats. 404 if there's nothing to coach on yet. */
+export type CoachRequest = { name: string; interests: string[]; riffId?: string };
 export type CoachResponse = { code: string };
 
 /** POST /api/demo (dev): start a scripted demo chat (lib/engine/demo-scripts.ts), read the caller's latest demo and
@@ -230,6 +242,11 @@ export type CoachResponse = { code: string };
 export type DemoRequest = { action: "start"; script: string } | { action: "results" } | { action: "coach" };
 export type DemoStartResponse = { code: string };
 export type DemoResults = { code: string | null; summary: ChatHistorySummary | null };
+
+/** POST /api/coaching: the caller's own coaching report for this chat (SPEC §7). `ready` false while it's still being
+ *  written (10-40 s after the end): poll. Ready with a null report: none for this chat (too short, or the model failed). */
+export type CoachingRequest = { riffId: string };
+export type CoachingResponse = { ready: boolean; report: CoachingReport | null };
 
 /** POST /api/end: end the riff now, or start a new match in it (chat is kept). */
 export type EndRequest = { riffId: string; action: "end" | "restart" };

@@ -10,3 +10,5 @@
 - **Depth**: how personal a nudge is, 1 (light) to 3 (deep). Rises over the riff.
 - **Connection points**: scorer points for follow-ups and callbacks.
 - **Match**: one run to the target score inside a riff. A new match resets nudges and scores; the chat is kept.
+- **Coaching report**: a player's private report on one chat (good at, fell flat, what to improve), from their own messages only, with a **coach focus**: what one coach chat can teach them, written from what fell flat. Never shown to the partner.
+- **Coach**: a 1:1 chat with the AI coach (riff kind `coach`, no nudges): a short lesson on a report's focus, or a catch-up on references they missed.

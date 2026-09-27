@@ -16,6 +16,7 @@ import { PACING } from "@/lib/engine/pacing";
 import { isGame } from "@/lib/games";
 import { supabase } from "@/lib/supabase/client";
 import type { Moment, Nudge, Player, ProfileRequest, ProfileResponse, PublicProfile, Riff, Score, TickRequest, TickResponse } from "@/lib/types";
+import { CoachingButton } from "./CoachingReport";
 import { EndControls, endRiff } from "./EndControls";
 import { MiniGame } from "./MiniGame";
 import { useGameState } from "./useGameState";
@@ -280,6 +281,7 @@ function EndScreen({
       </ul>
       {!moments && <p className="animate-pulse text-center text-sm opacity-50">Picking your best moments…</p>}
       {!!moments?.length && <MomentsDeck moments={moments} nameOf={nameOf} />}
+      {riff.kind !== "coach" && <CoachingButton riffId={riff.id} me={people.find((p) => p.id === meId)!} />}
       {error && <p className="text-center text-sm text-red-300">{error}</p>}
       <div className="flex flex-col gap-2">
         <button

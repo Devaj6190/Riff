@@ -1,10 +1,11 @@
 // Ending (SPEC §3 step 5, §4.6): first to the target score, or a player taps End. Moment Spotlight at the end.
 // The chat stays open after either; a new match restarts the nudges and scores. Each end also saves a private
-// summary per player to chat_histories, for pairing people later.
+// summary per player to chat_histories, for pairing people later, with that player's coaching report (coaching.ts).
 import { after } from "next/server";
 import { supabaseAdmin } from "../supabase/admin";
-import type { ChatHistorySummary, Moment, Player, Riff, RiffPhase, RiffSummary, Score, Seat, UserProfile } from "../types";
+import type { ChatHistorySummary, CoachingReport, Moment, Player, Riff, RiffPhase, RiffSummary, Score, Seat, UserProfile } from "../types";
 import { BOT_USER_ID } from "./bot";
+import { writeCoaching } from "./coaching";
 import { llmJson } from "./llm";
 import { loadChatContext, strings } from "./reader";
 import { MOMENTS_PROMPT, normalizeMoments } from "./moments";
@@ -139,8 +140,15 @@ export async function saveHistory(riffId: string, demo = false): Promise<void> {
   const seated = (players.data ?? []) as Player[];
   const seat = new Map(seated.map((p) => [p.id, p.seat]));
   if (!messages.data?.length) return;
-  const summary = normalizeHistory(
-    await llmJson(
+  const lines = [...messages.data].reverse().map((m) => ({ seat: (seat.get(m.player_id) ?? "A") as Seat, body: m.body as string }));
+  const nudgeScores = (nudges.data ?? []).map((n) => ({
+    prompt: n.payload?.prompt,
+    quality: Object.fromEntries((scores.data ?? []).filter((s) => s.nudge_id === n.id).map((s) => [seat.get(s.player_id) ?? "?", s.quality])),
+  }));
+  // The coaching report (coaching.ts) is its own call, in parallel: the end isn't slower, and a failed report
+  // doesn't cost the summary.
+  const [raw, coaching] = await Promise.all([
+    llmJson(
       [
         "Two people who just met finished a chat. Summarize it for a matchmaker who will pair them with new people later.",
         "recap: the chat in 2-3 sentences. Per player: learned: facts, opinions, tastes and stories they shared;",
@@ -153,15 +161,18 @@ export async function saveHistory(riffId: string, demo = false): Promise<void> {
       JSON.stringify({
         players: seated.map((p) => ({ seat: p.seat, name: p.name, interests: p.interests })),
         liveNotes: known,
-        nudges: (nudges.data ?? []).map((n) => ({
-          prompt: n.payload?.prompt,
-          quality: Object.fromEntries((scores.data ?? []).filter((s) => s.nudge_id === n.id).map((s) => [seat.get(s.player_id) ?? "?", s.quality])),
-        })),
-        chat: messages.data.reverse().map((m) => `${seat.get(m.player_id) ?? "?"}: ${m.body}`),
+        nudges: nudgeScores,
+        chat: lines.map((l) => `${l.seat}: ${l.body}`),
       }),
       25_000, // then rollUpProfile, all inside the route's 60 s
     ),
-  );
+    writeCoaching({ players: seated, lines, known, nudges: nudgeScores }).catch((e) => {
+      console.warn("coaching report failed", e instanceof Error ? e.message : e);
+      return {} as Partial<Record<Seat, CoachingReport>>;
+    }),
+  ]);
+  const summary = normalizeHistory(raw);
+  for (const s of ["A", "B"] as Seat[]) if (coaching[s]) summary[s].coaching = coaching[s];
   if (demo) {
     const { error } = await db.from("riffs").update({ demo_summary: summary.A }).eq("id", riffId);
     if (error) throw error;
@@ -209,7 +220,8 @@ async function rollUpProfile(player: Player): Promise<void> {
         "Leave out contact details, addresses and social handles.",
         'JSON shape: {"about": s, "enjoys": [s], "flat": [s], "misses": [s]}',
       ].join(" "),
-      JSON.stringify({ name: player.name, signupInterests: player.interests, chats: histories.map((h) => h.summary) }),
+      // Without the coaching reports: the profile needs what they talked about, and they'd double the input.
+      JSON.stringify({ name: player.name, signupInterests: player.interests, chats: histories.map((h) => ({ ...h.summary, coaching: undefined })) }),
       15_000,
       { fast: true },
     ),

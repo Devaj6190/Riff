@@ -188,7 +188,12 @@ If time runs short, cut from the bottom of this list.
   - **Used by:** search (a real person is described to Jev like a seed: name · hometown · interests · prompts · favorites; the card's second line is their first prompt), nudges (the writer sees both people's prompts and favorites), and the bot (when it plays a seed, it gets the seed's prompts and favorites).
   - **Seeds:** a one-off script writes 1–2 prompts and 2 favorites per seed from its interests and bio, committed with the personas.
 - **Moment Creation Engine:** top 2–3 moments quoted, rated top moment, inside joke born, superlatives, next-step hook (rematch or an in-person plan), shared moments history.
-- **Private feedback, 8 sections:** where you fell short · what was good · how many times you gave a better response · how quick you were · what to improve · did you get stuck on jokes · your improv · were you being real. Quotes your messages; the sections come from one editable list.
+- **Coaching report (private, own only):** on the end screen, under the Moment Spotlight cards, **View coaching report** opens a popup with three sections written from the player's own messages, plus one coach suggestion:
+  - **What you were good at:** one specific thing, with their message that shows it.
+  - **Where you fell flat:** one specific moment (a reference they didn't get, a joke left hanging, a thread they dead-ended), with their message.
+  - **What to improve:** one concrete tip, and where it fits, one of their lines rewritten ("you said X, try Y").
+  - **Coach suggestion:** nothing templated. From what fell flat in this chat, the AI writes a focus: a short title, one specific line on why (the actual references or moments), and 3–5 things to learn. **Start coaching chat** opens a 1:1 with the AI coach on that focus. Only the lesson's shape is fixed: teach one thing with an example line, the player tries a reply to a realistic message, quick feedback and a better version, next thing, then a recap and "try it in your next chat".
+  - Written at the end alongside the private summary (a second AI call in parallel, so the end isn't slower), kept with it in `chat_histories` (a demo's on the riff), and served only to that player by `/api/coaching`. Quotes are checked against the player's own messages; the partner is never quoted or judged. The popup shows "Writing your report…" until it's there (10–40 s).
 - **Recommendations:** who to talk to next, based on who you connected well with.
 - **Bandit:** Thompson sampling over nudge kinds per pair; reward = messages after the nudge + connection points. The game learns what makes each pair click.
 - **Partner double-tap reactions.**

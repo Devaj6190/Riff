@@ -1,7 +1,9 @@
 // Test mode: an AI sits in seat B so one person can play (dev, playtesting, demo). It's an ordinary player row, so
 // nudges, pacing and scoring treat it like a human. /api/tick gives it a turn in the background after every tick.
+import { isGame, playsStage, STATEMENT_MAX, type GameNudge } from "../games";
 import { supabaseAdmin } from "../supabase/admin";
-import type { Nudge, Player } from "../types";
+import type { Nudge, Player, PlayRequest, Seat } from "../types";
+import { submitPlay } from "./games";
 import { GUARDRAILS, llmJson } from "./llm";
 import { seedFor } from "./personas";
 
@@ -64,7 +66,8 @@ async function turn(riffId: string, persona?: (bot: Player, human: Player) => Pr
   const at = (s?: string) => (s ? Date.parse(s) : 0);
   const botLast = at(chat.findLast((m) => m.player_id === bot.id)?.created_at);
   const humanLast = at(chat.findLast((m) => m.player_id !== bot.id)?.created_at);
-  const liveNudge = nudge.data && Date.now() < at(nudge.data.ends_at) ? nudge.data : null;
+  // Mini games are played with taps (botPlay), not answered in the chat.
+  const liveNudge = nudge.data && !isGame(nudge.data) && Date.now() < at(nudge.data.ends_at) ? nudge.data : null;
   const trigger = Math.max(humanLast, at(liveNudge?.created_at), persona && !chat.length ? 1 : 0);
   if (trigger <= botLast) return;
   // Like a person: reads once they've stopped typing (people double-text), then takes a moment.
@@ -105,4 +108,59 @@ Return JSON: {"reply": "..."}`;
   const { data: latest } = await db.from("messages").select("player_id, created_at").eq("riff_id", riffId).order("created_at", { ascending: false }).limit(1).maybeSingle();
   if (latest && at(latest.created_at) > Math.max(botLast, humanLast)) return;
   await db.from("messages").insert({ riff_id: riffId, player_id: bot.id, body: text });
+}
+
+// ponytail: per-instance, like judged in score.ts: a stage the bot has played (or is playing) isn't played again.
+// Never pruned: one short entry per stage. A skipped or failed play is forgotten so the next tick retries.
+const playing = new Set<string>();
+
+/**
+ * Test mode: the bot's tap in a mini game (SPEC §4.1), a few seconds into each stage it plays, like a person.
+ * Its pick and statements come from the model, in persona; guesses are its own call. Random if the model fails.
+ */
+export async function botPlay(riffId: string, nudge: GameNudge): Promise<void> {
+  const p = nudge.payload;
+  const key = `${nudge.id}:${p.stage}`;
+  if (p.stage === "reveal" || playing.has(key) || Date.now() - Date.parse(p.stageAt) < 3000) return;
+  const db = supabaseAdmin();
+  const { data } = await db.from("players").select("*").eq("riff_id", riffId);
+  const all = (data ?? []) as Player[];
+  const bot = all.find((x) => x.user_id === BOT_USER_ID);
+  const human = all.find((x) => x.user_id !== BOT_USER_ID);
+  if (!bot || !human || p.locked.includes(bot.seat) || !playsStage(p, [bot.seat]).length) return;
+  playing.add(key);
+  try {
+    const who = `You are ${bot.name}, a college student into ${bot.interests.join(", ")}, playing a mini game with ${human.name} (into ${human.interests.join(", ")}), someone you just met.${seedProfile(bot)}`;
+    const base = { riffId, nudgeId: nudge.id };
+    const random = (n: number) => Math.floor(Math.random() * n);
+    let req: PlayRequest;
+    if (p.stage === "play" && "options" in p) {
+      const out = (await llmJson(
+        `${who} Pick the option you'd really choose, and guess which one ${human.name} picks. JSON shape: {"pick": index, "guess": index} (0-based).`,
+        JSON.stringify({ question: p.prompt, options: p.options }),
+        6000,
+        { fast: true },
+      ).catch(() => ({}))) as { pick?: unknown; guess?: unknown };
+      const ok = (v: unknown): v is number => Number.isInteger(v) && (v as number) >= 0 && (v as number) < p.options.length;
+      req = { ...base, stage: "play", pick: ok(out.pick) ? out.pick : random(p.options.length), guess: ok(out.guess) ? out.guess : random(p.options.length) };
+    } else if (p.stage === "write") {
+      const out = (await llmJson(
+        `${who} Two truths and a lie: write 3 short first-person statements about yourself that fit you and the theme, two true to your persona and one believable lie, in random order, each under ${STATEMENT_MAX} characters, casual texting tone. JSON shape: {"statements": [s, s, s], "lie": index} (0-based).`,
+        JSON.stringify({ theme: p.prompt }),
+        8000,
+        { fast: true },
+      ).catch(() => ({}))) as { statements?: unknown; lie?: unknown };
+      const statements = Array.isArray(out.statements) ? out.statements.filter((x): x is string => typeof x === "string").map((x) => x.trim().slice(0, STATEMENT_MAX)) : [];
+      if (statements.length !== 3 || statements.some((x) => !x)) return void playing.delete(key); // retry, never write junk
+      req = { ...base, stage: "write", statements, lie: Number.isInteger(out.lie) && (out.lie as number) >= 0 && (out.lie as number) < 3 ? (out.lie as number) : random(3) };
+    } else {
+      req = { ...base, stage: "guess", guess: random(3) };
+    }
+    await submitPlay(riffId, { id: bot.id, seat: bot.seat as Seat }, req).catch((e) => {
+      if (!(e instanceof Response)) throw e; // stage moved on or already locked: nothing to do
+    });
+  } catch (e) {
+    playing.delete(key);
+    throw e;
+  }
 }

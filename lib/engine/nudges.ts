@@ -3,6 +3,7 @@
 import { supabaseAdmin } from "../supabase/admin";
 import type { ChatContext, Depth, NudgeKind, NudgePayloads, Player, PublicProfile, QueuedNudge, Seat, Template, UserProfile } from "../types";
 import { turfFor } from "./bonus";
+import { jev } from "./jev";
 import { totalsByPlayer } from "./ending";
 import { profileOfPlayer, publicProfiles } from "./profiles";
 import { PACING } from "./pacing";
@@ -11,6 +12,7 @@ import allTemplates from "./templates.json";
 
 const TEMPLATES = allTemplates as Template[];
 export const MODEL_TIMEOUT_MS = 20_000; // prefetch runs in the background with at least one nudge gap of lead time
+const JEV_TIMEOUT_MS = 3000; // picking a kind or a draft; on timeout, the fallback
 
 /** Everything a writer gets to write one nudge for this pair. `templates[0]` is the pick for local fill. */
 export type NudgeContext = {
@@ -53,17 +55,102 @@ export const isIntro = (number: number) => number <= PACING.introNudges;
 
 /**
  * Deterministic per riff + nudge number, so a slot looked at twice picks the same template, and consecutive
- * nudges walk the list instead of repeating. Returns up to 4 templates of the chosen one's kind, chosen first.
- * Intro nudges use the `intro`-tagged templates: the first one ("say hi") for nudge 1, the others after it.
+ * nudges walk the list instead of repeating. Returns up to 4 templates of `kind` (all intro nudges are text).
+ * Intro nudges use the `intro`-tagged templates: the first one ("say hi") for nudge 1, then just one of the others,
+ * rotated per chat, so chats don't all open the same way (given a few, the model kept picking the same one).
  */
-export function pickTemplates(templates: Template[], riffId: string, number: number, depth: Depth): Template[] {
+export function pickTemplates(templates: Template[], riffId: string, number: number, depth: Depth, kind: NudgeKind = "text"): Template[] {
   const intro = templates.filter((t) => t.tags.includes("intro"));
-  const rest = templates.filter((t) => !t.tags.includes("intro"));
+  if (isIntro(number) && intro.length > 1) {
+    if (number === 1) return intro.slice(0, 1);
+    return [intro[1 + ((hash(riffId) + number) % (intro.length - 1))]];
+  }
+  const rest = templates.filter((t) => !t.tags.includes("intro") && t.kind === kind);
   const atDepth = rest.filter((t) => t.depth === depth);
-  const pool = isIntro(number) && intro.length > 1 ? (number === 1 ? intro.slice(0, 1) : intro.slice(1)) : atDepth.length ? atDepth : rest;
+  const pool = atDepth.length ? atDepth : rest;
   const start = (hash(riffId) + number) % pool.length;
-  const rotated = [...pool.slice(start), ...pool.slice(0, start)];
-  return rotated.filter((t) => t.kind === rotated[0].kind).slice(0, 4);
+  return [...pool.slice(start), ...pool.slice(0, start)].slice(0, 4);
+}
+
+/**
+ * Variety first (SPEC §4.1): the kinds that may come next, given the kinds shown before (newest first). Intro nudges
+ * are text; after an image or a mini game comes text; a mini game at most once in any 4 nudges, an image in any 3.
+ */
+export function allowedKinds(playable: NudgeKind[], recent: NudgeKind[], number: number): NudgeKind[] {
+  if (isIntro(number) || (recent[0] && recent[0] !== "text")) return ["text"];
+  return playable.filter((k) => k === "text" || !recent.slice(0, k === "image" ? 2 : 3).includes(k));
+}
+
+/** What each kind is good for, for Jev's pick (chooseKind). */
+const KIND_FITS: Record<NudgeKind, string> = {
+  text: "A text prompt: the default. Best when there's a thread worth building on, or they're opening up.",
+  image: "An AI image with a prompt about it: a change of scene when a topic has run its course.",
+  audio: "A meme audio clip to react to.",
+  pick: "Guess their pick, a quick tap mini game (this-or-that, guess the other's pick): best when replies are getting short or the chat is stalling.",
+  truths: "Two truths and a lie, a mini game: best once they're warmed up and curious about each other, not when replies are one-word.",
+};
+
+/**
+ * Then the chat: Jev picks the kind that fits right now among `allowed`. Nudges are written ahead, so this never
+ * holds up a pop-up. If Jev fails, text two times in three, else the other kinds in turn.
+ */
+export async function chooseKind(allowed: NudgeKind[], state: unknown, riffId: string, number: number): Promise<NudgeKind> {
+  if (allowed.length === 1) return allowed[0];
+  try {
+    const { kind } = await jev(
+      state,
+      {
+        kind: {
+          type: "choice",
+          instructions:
+            "Two people who just met are texting in a chat app, and an AI drops a nudge into their chat every so often. Which kind of nudge fits best as the next one, given how the chat is going right now? Most nudges should be text prompts; pick a mini game or an image only when the chat calls for a change.",
+          criteria: Object.fromEntries(allowed.map((k) => [k, KIND_FITS[k]])),
+        },
+      },
+      JEV_TIMEOUT_MS,
+    );
+    if (kind?.type === "choice" && allowed.includes(kind.choice as NudgeKind)) return kind.choice as NudgeKind;
+  } catch (e) {
+    console.warn(`nudge ${number}: Jev kind pick failed, rotating`, e instanceof Error ? e.message : e);
+  }
+  const others = allowed.filter((k) => k !== "text");
+  const turn = hash(riffId) + number;
+  return turn % 3 || !others.length ? "text" : others[Math.floor(turn / 3) % others.length];
+}
+
+/**
+ * The writers draft a few nudges; Jev picks the one these two would most want to answer right now. On any
+ * failure, the first draft. Returns an index into `drafts`.
+ */
+export async function bestDraft(ctx: NudgeContext, drafts: string[]): Promise<number> {
+  if (drafts.length < 2) return 0;
+  try {
+    const { best } = await jev(
+      {
+        players: ctx.players.map((p) => ({ name: p.name, interests: [...p.interests, ...p.extracted_interests], notes: ctx.known.notes[p.seat] })),
+        thread: ctx.known.thread,
+        recentChat: ctx.chat.slice(-12),
+        earlierNudges: ctx.earlier.map((e) => e.prompt),
+      },
+      {
+        best: {
+          type: "choice",
+          instructions: [
+            "Two people who just met are texting in a chat app. Which of these nudges would both of them most want to answer right now?",
+            "Best: builds on what they're actually talking about or into (not something any pair could get), specific, fun or interesting to answer in a text,",
+            "and different from the earlier nudges.",
+          ].join(" "),
+          criteria: Object.fromEntries(drafts.map((d, i) => [String(i), d])),
+        },
+      },
+      JEV_TIMEOUT_MS,
+    );
+    const i = best?.type === "choice" ? Number(best.choice) : NaN;
+    return Number.isInteger(i) && i >= 0 && i < drafts.length ? i : 0;
+  } catch (e) {
+    console.warn(`nudge ${ctx.number}: Jev draft pick failed, first draft`, e instanceof Error ? e.message : e);
+    return 0;
+  }
 }
 
 /** Replace `{interest}` with one of the pair's interests, or the bonus-mode player's when there is one. */
@@ -88,15 +175,20 @@ async function playableTemplates(): Promise<Template[]> {
   return TEMPLATES.filter((t) => ok.has(t.kind));
 }
 
-async function loadContext(riffId: string, number: number): Promise<NudgeContext> {
+/**
+ * `ahead`: how many nudges ahead this slot is being written. Jev picks the kind from the chat (chooseKind), except
+ * for an instant local fill (0). An image takes too long to write 1 ahead, so it's only chosen 2 ahead.
+ */
+async function loadContext(riffId: string, number: number, ahead: 0 | 1 | 2): Promise<NudgeContext> {
   const db = supabaseAdmin();
-  const [players, messages, nudges, scores, totals, known] = await Promise.all([
+  const [players, messages, nudges, scores, totals, known, queued] = await Promise.all([
     db.from("players").select("*").eq("riff_id", riffId).order("seat"),
     db.from("messages").select("player_id, body").eq("riff_id", riffId).order("created_at", { ascending: false }).limit(40),
-    db.from("nudges").select("id, number, for_seat, payload").eq("riff_id", riffId).lt("number", number).order("number", { ascending: false }),
+    db.from("nudges").select("id, number, kind, for_seat, payload").eq("riff_id", riffId).lt("number", number).order("number", { ascending: false }),
     db.from("scores").select("nudge_id, player_id, quality, connection").eq("riff_id", riffId),
     totalsByPlayer(riffId),
     loadChatContext(riffId),
+    db.from("queued_nudges").select("for_number, kind").eq("riff_id", riffId).lt("for_number", number),
   ]);
   const seated = (players.data ?? []) as Player[];
   const name = new Map(seated.map((p) => [p.id, p.name]));
@@ -105,6 +197,24 @@ async function loadContext(riffId: string, number: number): Promise<NudgeContext
   const [{ data: profiles }, saved] = await Promise.all([db.from("user_profiles").select("user_id, profile").in("user_id", ids), publicProfiles(ids)]);
   const profileOf = new Map((profiles ?? []).map((r) => [r.user_id, r.profile as UserProfile]));
   const depth = depthFor(number, seated.length === 2 && seated.every((p) => connected.has(p.id)));
+  const playable = await playableTemplates();
+  // Shown and already-written nudges before this one, newest first: a slot written 2 ahead sees the one between.
+  const shownKinds = new Map((nudges.data ?? []).map((n) => [n.number as number, n.kind as NudgeKind]));
+  for (const q of queued.data ?? []) if (!shownKinds.has(q.for_number)) shownKinds.set(q.for_number, q.kind as NudgeKind);
+  const recent = [...shownKinds].sort(([a], [b]) => b - a).map(([, k]) => k);
+  const allowed = allowedKinds([...new Set(playable.map((t) => t.kind))], recent, number).filter((k) => k !== "image" || ahead === 2);
+  const kind = ahead
+    ? await chooseKind(
+        allowed,
+        {
+          recentNudges: (nudges.data ?? []).slice(0, 4).map((n) => ({ kind: n.kind, prompt: n.payload?.prompt })),
+          thread: known.thread,
+          recentChat: (messages.data ?? []).slice(0, 12).reverse().map((m) => `${name.get(m.player_id) ?? "?"}: ${m.body}`),
+        },
+        riffId,
+        number,
+      )
+    : allowed[0];
   return {
     number,
     depth,
@@ -125,7 +235,7 @@ async function loadContext(riffId: string, number: number): Promise<NudgeContext
         return [p.seat, { from, prompts, favorites }];
       }),
     ),
-    templates: pickTemplates(await playableTemplates(), riffId, number, depth),
+    templates: pickTemplates(playable, riffId, number, depth, kind),
     // ponytail: a slot written 2 ahead (images) can't see the nudge between; refreshNext corrects the next one.
     turf: isIntro(number) ? null : turfFor(seated, totals, nudges.data ?? []),
   };
@@ -140,7 +250,7 @@ export async function nudgeFor(riffId: string, number: number): Promise<PlannedN
     .eq("for_number", number)
     .maybeSingle<QueuedNudge>();
   if (data) return { kind: data.kind, depth: data.depth, payload: data.payload, is_bonus: data.is_bonus, for_seat: data.for_seat };
-  const ctx = await loadContext(riffId, number);
+  const ctx = await loadContext(riffId, number, 0);
   const writer = (await writerFor(ctx.templates[0].kind))!;
   return { kind: ctx.templates[0].kind, depth: ctx.depth, payload: writer.fill(ctx), ...bonusFields(ctx) };
 }
@@ -157,36 +267,36 @@ export async function writeOrFill(writer: Writer, ctx: NudgeContext): Promise<Nu
   }
 }
 
-/** Fill the queue after nudge `current` shows: slot current+1 always, current+2 if its kind needs 2 nudges of lead. */
+/**
+ * Fill the queue after nudge `current` shows: slot current+1 always, current+2 if its kind needs 2 nudges of lead.
+ * In order, so the variety rules for current+2 see the kind written for current+1.
+ */
 export async function prefetchNudges(riffId: string, current: number): Promise<void> {
   const db = supabaseAdmin();
-  await Promise.all(
-    ([1, 2] as const).map(async (ahead) => {
-      const number = current + ahead;
-      const { count } = await db
-        .from("queued_nudges")
-        .select("*", { count: "exact", head: true })
-        .eq("riff_id", riffId)
-        .eq("for_number", number);
-      if (count) return;
-      await writeSlot(riffId, await loadContext(riffId, number), ahead);
-    }),
-  );
+  for (const ahead of [1, 2] as const) {
+    const number = current + ahead;
+    const { count } = await db
+      .from("queued_nudges")
+      .select("*", { count: "exact", head: true })
+      .eq("riff_id", riffId)
+      .eq("for_number", number);
+    if (!count) await writeSlot(riffId, await loadContext(riffId, number, ahead), ahead);
+  }
 }
 
 /**
  * Run once nudge `current` is scored. The next nudge was written when `current` popped up, before anyone answered:
- * rewrite it with Grok now that the answers and their scores are in. Image slots only when bonus mode just switched
- * on, off or to the other player (too slow otherwise). The queued one stays until the rewrite replaces it, so a
+ * rewrite it with Grok now that the answers and their scores are in (its kind may change too). An image stays unless
+ * bonus mode just switched on, off or to the other player (too slow otherwise). The queued one stays until the rewrite replaces it, so a
  * pop-up mid-rewrite still gets a written nudge.
  */
 export async function refreshNext(riffId: string, current: number): Promise<void> {
   const number = current + 1;
   const [{ data: queued }, ctx] = await Promise.all([
-    supabaseAdmin().from("queued_nudges").select("for_seat").eq("riff_id", riffId).eq("for_number", number).maybeSingle(),
-    loadContext(riffId, number),
+    supabaseAdmin().from("queued_nudges").select("kind, for_seat").eq("riff_id", riffId).eq("for_number", number).maybeSingle(),
+    loadContext(riffId, number, 1),
   ]);
-  if (ctx.templates[0].kind !== "text" && queued && queued.for_seat === (ctx.turf?.seat ?? null)) return;
+  if (queued?.kind === "image" && queued.for_seat === (ctx.turf?.seat ?? null)) return;
   await writeSlot(riffId, { ...ctx, fast: true }, 1, true);
 }
 

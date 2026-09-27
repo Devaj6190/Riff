@@ -13,9 +13,11 @@ import { ProfilePopup } from "@/components/ProfilePopup";
 import { BOUNCY, calm, clearMatched, SPRING, wasMatched } from "@/components/motion";
 import { callApi } from "@/lib/api";
 import { PACING } from "@/lib/engine/pacing";
+import { isGame } from "@/lib/games";
 import { supabase } from "@/lib/supabase/client";
 import type { Moment, Nudge, Player, ProfileRequest, ProfileResponse, PublicProfile, Riff, Score, TickRequest, TickResponse } from "@/lib/types";
 import { EndControls, endRiff } from "./EndControls";
+import { MiniGame } from "./MiniGame";
 import { useGameState } from "./useGameState";
 
 type Props = { me: Player; riff: Riff; players: Player[] };
@@ -94,7 +96,7 @@ export function GameScreen({ me, riff, players }: Props) {
           <Lobby code={snap.riff.code} />
         ) : (
           <>
-            {liveNudge && <NudgeBanner key={liveNudge.id} nudge={liveNudge} onExpire={() => setExpired(liveNudge.id)} />}
+            {liveNudge && <NudgeBanner key={liveNudge.id} nudge={liveNudge} me={me} partner={partner} onExpire={() => setExpired(liveNudge.id)} />}
             <Chat
               riffId={snap.riff.id}
               me={me}
@@ -165,13 +167,15 @@ const RING = 2 * Math.PI * 21; // the timer ring's circumference (r = 21 in a 48
 /**
  * The newest nudge. Its timer is a ring around the Riff sparkle: gold and pulsing (with a tap) for the last 5 s, then
  * the card drops into the chat, where the prompt shows as a line. Keyed by id, so each nudge mounts fresh.
+ * A mini game's ring runs per stage, and the card stays up until its reveal is over.
  */
-function NudgeBanner({ nudge, onExpire }: { nudge: Nudge; onExpire: () => void }) {
+function NudgeBanner({ nudge, me, partner, onExpire }: { nudge: Nudge; me: Player; partner?: Player; onExpire: () => void }) {
   const left = useMsLeft(nudge.ends_at);
-  const span = Date.parse(nudge.ends_at) - Date.parse(nudge.created_at);
+  const game = isGame(nudge) ? nudge : null;
+  const span = Math.max(1, Date.parse(nudge.ends_at) - Date.parse((game && game.payload.stageAt) || nudge.created_at));
   const card = useRef<HTMLElement>(null);
   const expire = useEffectEvent(onExpire);
-  const over = left <= 0;
+  const over = left <= 0 && (!game || game.payload.stage === "reveal"); // an earlier stage waits for the server's next one
   const hurry = left <= 5000 && !over;
 
   useEffect(() => {
@@ -227,10 +231,11 @@ function NudgeBanner({ nudge, onExpire }: { nudge: Nudge; onExpire: () => void }
           <span className="sr-only">{Math.max(0, Math.ceil(left / 1000))} seconds left</span>
         </span>
         <div className="min-w-0">
-          <p className="text-xs font-semibold text-primary">Riff</p>
+          <p className="text-xs font-semibold text-primary">{nudge.kind === "pick" ? "Riff · Guess their pick" : nudge.kind === "truths" ? "Riff · Two truths and a lie" : "Riff"}</p>
           <p className="font-semibold">{nudge.payload.prompt}</p>
         </div>
       </div>
+      {game && <MiniGame nudge={game} me={me} partner={partner} />}
       {nudge.kind === "audio" && <audio src={nudge.payload.clipUrl} autoPlay controls className="mt-3 w-full" />}
     </section>
   );

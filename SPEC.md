@@ -41,10 +41,28 @@ Each nudge kind is written as UI once. Templates are JSON entries, so there can 
 | **Text** | A prompt: fun / deep / get-to-know. Improv ("finish the scene") too. |
 | **Image** | Muse Image generates a scene from both players' interests or the chat, with a prompt about it ("you have one hour here, what first?"). |
 | **Audio** | A CC0/royalty-free meme clip plays with a prompt ("name it, or react"). Enabled once the clips library exists. |
+| **Guess their pick** (mini game) | A this-or-that with 4 options. Each player taps their own pick and their guess of the partner's pick, then both are revealed. |
+| **Two truths and a lie** (mini game) | Each player types 3 statements about themselves and marks the lie. Then each sees the partner's 3 and taps the lie, then all is revealed. |
 
 Voice notes are ordinary chat messages: record → transcribe → send.
 
-**Template shape:** `{ id, kind, tone: fun|deep|know, depth: 1–3, seed, tags[] }`. Aim for 50+. The AI may remix any template freely, within content guardrails.
+**Template shape:** `{ id, kind, tone: fun|deep|know, depth: 1–3, seed, tags[], options? }`. Aim for 50+ text templates, in varied formats (hot take, pick a side, rank it, story, would-you-rather, finish the sentence, build something together, predictions), not 50 ways to say "what's your favorite". The AI may remix any template freely, within content guardrails. `options` are the fallback choices for a Guess-their-pick template.
+
+**Which kind comes next (variety first, then the chat):**
+- Code rules out repeats: intro nudges are text; after an image or a mini game comes a text nudge; the same mini game at most once in any 4 nudges, an image at most once in any 3.
+- Jev picks among what's left from the live chat: a mini game when replies are getting short or the chat is stalling, a text nudge when there's a thread worth building on, an image for a change of scene (chosen 2 nudges ahead, since images are slow to make). If Jev fails, the kinds rotate, text two times in three.
+
+**How a nudge is written (quality):**
+- The writer drafts 3 candidates, each naming its **hook**: the specific thing from this chat, their notes, profiles or interests it builds on. Nudge 2 (the second intro) gets one intro template, rotated per chat, so chats don't all open the same way.
+- Jev picks the one these two would most want to answer right now; if it fails, the first draft wins. Nudges are written ahead, so the extra ~0.5 s is never felt.
+- `scripts/eval-nudges.ts` writes nudges for a few fixed sample chats and prints every draft and Jev's pick, to compare prompt changes on real output.
+
+**Mini games (tappable cards, scored by rules, not the AI):**
+- A mini game is a nudge with stages. Taps go to `/api/play` and are kept server-side until the reveal, so nobody sees the partner's pick or lie early. A stage ends when both have locked in, or when its timer runs out.
+- **Guess their pick:** play 20 s → reveal 6 s. Both picks and guesses are shown ("you both picked X", "you knew they'd pick Y").
+- **Two truths and a lie:** write 60 s → guess 20 s → reveal 6 s. If only one wrote, only the other guesses; if nobody wrote, it ends.
+- Chatting during a mini game is fine; it just isn't what's scored.
+- In test mode the bot plays too: it writes statements that fit its persona and picks or guesses.
 
 ### 4.2 Intro, then a depth arc
 - **Intro (nudges 1–2):** nudge 1 pops up the moment the chat starts: say hi, your name, where you're from. Nudge 2 is another easy intro ("what are you into lately?").
@@ -58,6 +76,7 @@ Points come **only from answering nudges**. A player's answer is what they text 
 - **Quality:** 0–10, AI: specificity, effort, creativity, being real. Opinions are never "right" or "wrong."
 - **Connection:** 0–5, AI: tying the answer to the partner or earlier messages: callbacks, follow-ups, responding to the partner.
 - ~20 max per nudge → 100 takes ~7–9 nudges. No answer = no points.
+- **Mini games** use the same three columns, by rules: speed from the first tap, like a text answer. Guess their pick: playing = quality 5; guessing the partner's pick right = +5 quality and connection 5. Two truths: writing all 3 = quality 5; fooling the partner = +5 quality; spotting their lie = connection 5. Max 20, like any nudge.
 
 ### 4.4 Bonus mode (catch-up)
 - **Trigger:** one player trails by **25+** points.
@@ -76,7 +95,7 @@ Points come **only from answering nudges**. A player's answer is what they text 
 - All numbers are placeholders to tune in playtesting (`lib/engine/pacing.ts`).
 
 ### 4.6 Timers & ending
-- **Timers:** text 30 s · image 30 s · audio 20 s · intro nudges 45 s, or 2 s after both answered (§4.5). Speed points still run over the full timer. The client renders the countdown from `nudges.ends_at`.
+- **Timers:** text 30 s · image 30 s · audio 20 s · Guess their pick 20 s · Two truths 60 s to write, 20 s to guess · intro nudges 45 s, or 2 s after both answered (§4.5). Mini games show their reveal for 6 s. Speed points still run over the full timer. The client renders the countdown from `nudges.ends_at`.
 - **End:** first to the target score (100; configurable; **Expo mode = 50**), checked when a nudge is scored. Or either player taps **End**.
 - After the end the chat stays open: **keep chatting** (no more nudges) or **new match** (nudges and scores reset, chat kept).
 

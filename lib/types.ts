@@ -6,7 +6,7 @@ export type RiffPhase = "lobby" | "chatting" | "ended";
 
 export type RiffKind = "game" | "coach"; // coach: a 1:1 with the AI coach on references the player missed; no nudges
 
-export type NudgeKind = "text" | "image" | "audio";
+export type NudgeKind = "text" | "image" | "audio" | "pick" | "truths"; // pick, truths: mini games (SPEC §4.1)
 
 export type Tone = "fun" | "deep" | "know";
 
@@ -123,7 +123,25 @@ export type NudgePayloads = {
   text: { prompt: string };
   image: { prompt: string; imageUrl: string };
   audio: { prompt: string; clipId: string; clipUrl: string }; // the answer lives in clips.json, looked up by clipId
+  // Mini games (SPEC §4.1). `locked`: seats done with this stage. `stageAt`: when the stage began (the timer ring).
+  // Plays stay server-side (nudge_plays) until the reveal.
+  pick: { prompt: string; options: string[]; stage: "play" | "reveal"; stageAt: string; locked: Seat[]; reveal?: Partial<Record<Seat, PickPlay>> };
+  truths: {
+    prompt: string;
+    stage: "write" | "guess" | "reveal";
+    stageAt: string;
+    locked: Seat[];
+    statements?: Partial<Record<Seat, string[]>>; // from the guess stage on: who wrote what, without the lie
+    reveal?: Partial<Record<Seat, TruthsPlay>>;
+  };
 };
+
+/** Guess their pick: my pick and my guess of the partner's pick, as option indexes. */
+export type PickPlay = { pick: number; guess: number };
+/** Two truths and a lie: my 3 statements and which one is the lie (write stage), my guess at the partner's lie
+ *  (guess stage). Either part can be missing: someone who didn't write can still guess. */
+export type TruthsPlay = { statements?: string[]; lie?: number; guess?: number };
+export type GameStage = NudgePayloads["pick" | "truths"]["stage"];
 
 /** An entry in clips.json (SPEC §6). */
 export type Clip = {
@@ -145,6 +163,16 @@ export type TickRequest = { riffId: string; typing?: boolean };
 /** Test mode: seat the AI as player B in the caller's riff. */
 export type BotRequest = { code: string };
 export type TickResponse = { phase: RiffPhase; nudged: boolean };
+
+/** POST /api/play: a tap in a mini game (SPEC §4.1). `stage` must be the nudge's current stage, else 409.
+ *  play: my pick + my guess of theirs. write: my 3 statements (each ≤ 80 chars) and which is the lie.
+ *  guess: which of the partner's statements is the lie. */
+export type PlayRequest = { riffId: string; nudgeId: string } & (
+  | { stage: "play"; pick: number; guess: number }
+  | { stage: "write"; statements: string[]; lie: number }
+  | { stage: "guess"; guess: number }
+);
+export type PlayResponse = { ok: true };
 
 /** POST /api/match: join the Match me queue, then poll every 2 s. `code` is the new riff once paired; stop polling
  *  to leave the queue. `name` and `interests` are the caller's profile, as for create_riff. */
@@ -222,6 +250,7 @@ export type Template = {
   depth: Depth;
   seed: string;
   tags: string[];
+  options?: string[]; // pick: the choices for a local fill
 };
 
 /** What the scorer returns for one nudge's answers (SPEC §6). Speed is computed in code. */

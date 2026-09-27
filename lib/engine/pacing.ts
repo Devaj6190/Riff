@@ -14,7 +14,9 @@ export const PACING = {
 };
 
 /** Answer timers (SPEC §4.6). Speed points run linearly over the full timer, even when it's closed early. */
-const TIMER_SECONDS: Record<NudgeKind, number> = { text: 30, image: 30, audio: 20 };
+const TIMER_SECONDS: Record<NudgeKind, number> = { text: 30, image: 30, audio: 20, pick: 20, truths: 60 }; // truths: time to write
+/** Mini games' later stages (SPEC §4.6): guessing the partner's lie, then the reveal before scoring. */
+export const GAME_SECONDS = { guess: 20, reveal: 6 };
 const INTRO_TIMER_SECONDS = 45; // saying hi and where you're from takes a couple of messages
 
 export function timerSeconds(kind: NudgeKind, number: number): number {

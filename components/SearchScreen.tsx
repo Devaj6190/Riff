@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, ViewTransition } from "react";
 import { Avatar, stagger } from "@/components/HomeScreen";
 import { flyClone, markMatched } from "@/components/motion";
+import { seedPhoto } from "@/components/photos";
 import type { Profile } from "@/components/Onboarding";
 import { ProfilePopup } from "@/components/ProfilePopup";
 import { useQueue } from "@/components/useQueue";
@@ -155,7 +156,7 @@ export function SearchScreen({ profile }: { profile: Profile }) {
             // Keyed by query: each new result set springs out of the search bar again.
             <li key={`${results.query}|${p.id}`} className="riff-burst-row" style={stagger(i)}>
               <button onClick={() => setViewing(p)} className="flex w-full items-center gap-3 border-b border-current/10 py-3 text-left">
-                <Avatar name={p.name} />
+                <Avatar name={p.name} photo={seedPhoto(p.id)} />
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold">{p.name}</p>
                   <p className="truncate text-sm text-foreground/60">{first ? `${first.prompt} ${first.answer}` : [p.school, p.interests.join(", ")].filter(Boolean).join(" · ")}</p>
@@ -171,7 +172,7 @@ export function SearchScreen({ profile }: { profile: Profile }) {
 
       {/* Steps aside while an invite is up: the modal would make the invite card untappable. */}
       {viewing && !invite && (
-        <ProfilePopup profile={{ ...viewing, from: viewing.from ?? "", prompts: viewing.prompts ?? [], favorites: viewing.favorites ?? [] }} onClose={() => setViewing(null)}>
+        <ProfilePopup profile={{ ...viewing, from: viewing.from ?? "", prompts: viewing.prompts ?? [], favorites: viewing.favorites ?? [] }} photo={seedPhoto(viewing.id)} onClose={() => setViewing(null)}>
           <button
             onClick={() => tap(viewing)}
             disabled={!!sent[viewing.id]}
@@ -232,7 +233,7 @@ function InviteCard({ invite, onAnswer }: { invite: Invite; onAnswer: (accept: b
           PASS
         </span>
         <div className="flex flex-col items-center gap-2 pt-4 text-center">
-          <Avatar name={p.name} className="size-20 text-3xl" />
+          <Avatar name={p.name} photo={seedPhoto(p.id)} className="size-20 text-3xl" />
           <p className="mt-1 text-sm text-foreground/50">wants to chat</p>
           <p className="text-2xl font-bold">{p.name}</p>
           {p.school && <p className="text-foreground/60">{p.school}</p>}

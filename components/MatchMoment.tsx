@@ -8,7 +8,7 @@ import { BOUNCY, calm } from "@/components/motion";
  * "It's a match": both avatars fly in and click together, a ring pulses, then a hole opens where they met and the chat
  * underneath grows out of it. Plays over a chat that just paired; tap to skip.
  */
-export function MatchMoment({ me, them, onDone }: { me: string; them: string; onDone: () => void }) {
+export function MatchMoment({ me, them, themPhoto, onDone }: { me: string; them: string; themPhoto?: string; onDone: () => void }) {
   const root = useRef<HTMLDivElement>(null);
   const left = useRef<HTMLDivElement>(null);
   const right = useRef<HTMLDivElement>(null);
@@ -50,7 +50,7 @@ export function MatchMoment({ me, them, onDone }: { me: string; them: string; on
           <Avatar name={me} className="size-24 text-4xl ring-4 ring-background" />
         </div>
         <div ref={right} className="absolute inset-0 opacity-0">
-          <Avatar name={them} className="size-24 text-4xl ring-4 ring-background" />
+          <Avatar name={them} photo={themPhoto} className="size-24 text-4xl ring-4 ring-background" />
         </div>
         <span ref={ring} className="absolute inset-0 rounded-full border-2 border-cream opacity-0" />
       </div>

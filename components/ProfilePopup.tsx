@@ -14,6 +14,7 @@ type Errors = Record<string, string>; // by field, the way /api/profile sends th
 
 type Props = {
   profile: PublicProfile & Partial<Pick<MyProfile, "lastName" | "age">> & { school?: string; bio?: string }; // a seed's extras
+  photo?: string; // the AI's people only (photos.ts)
   onSaved?: (profile: MyProfile) => void; // given: it's mine, editable in place
   onClose: () => void;
   children?: ReactNode; // actions under someone else's, e.g. Invite
@@ -41,7 +42,7 @@ const chip = "rounded-full bg-foreground/10 px-3 py-1 text-sm";
 const item = "rounded-2xl bg-muted px-4 py-3";
 
 /** One profile, laid out by section (SPEC §7 Profiles). Mine: tap a section to edit it, then Save. Theirs: read-only. */
-export function ProfilePopup({ profile, onSaved, onClose, children }: Props) {
+export function ProfilePopup({ profile, photo, onSaved, onClose, children }: Props) {
   const mine = !!onSaved;
   const dialog = useRef<HTMLDialogElement>(null);
   const [draft, setDraft] = useState(profile as MyProfile); // only used when mine
@@ -109,7 +110,7 @@ export function ProfilePopup({ profile, onSaved, onClose, children }: Props) {
         </button>
 
         <div className="flex flex-col items-center gap-3">
-          <Avatar name={p.name || "?"} className="size-20 text-3xl" />
+          <Avatar name={p.name || "?"} photo={photo} className="size-20 text-3xl" />
           <Part mine={mine} open={open("basics")} onOpen={() => setEditing("basics")}>
             {open("basics") ? (
               <div className="grid grid-cols-2 gap-2">

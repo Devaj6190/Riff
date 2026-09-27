@@ -7,7 +7,7 @@ import { useEffect, useEffectEvent, useRef, useState, ViewTransition, type CSSPr
 import { Logo } from "@/components/Logo";
 import type { Profile } from "@/components/Onboarding";
 import { ProfilePopup } from "@/components/ProfilePopup";
-import { addFriend, chatsWith, loadFriends, personaOf, removeFriend, sendFriendInvite, type Friend } from "@/components/friends";
+import { addFriend, chatsWith, loadFriends, personaOf, photoOf, removeFriend, sendFriendInvite, type Friend } from "@/components/friends";
 import { BOUNCY, calm, markMatched } from "@/components/motion";
 import { useQueue } from "@/components/useQueue";
 import { callApi } from "@/lib/api";
@@ -15,8 +15,25 @@ import { normalizeInterests } from "@/lib/interests";
 import type { BotRequest, InviteRequest, InviteResponse, ProfileRequest, ProfileResponse } from "@/lib/types";
 import { ensureSignedIn, supabase } from "@/lib/supabase/client";
 
-/** Apple-style contact avatar: grey gradient, white initial. */
-export function Avatar({ name, className = "size-11" }: { name: string; className?: string }) {
+/** Apple-style contact avatar: grey gradient, white initial. The AI's people have a photo (photos.ts) instead. */
+export function Avatar({ name, photo, className = "size-11" }: { name: string; photo?: string; className?: string }) {
+  const [broken, setBroken] = useState<string | null>(null); // a photo that didn't load: show the initial
+  if (photo && photo !== broken) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- pre-sized 256 px WebPs in public/, nothing to optimize
+      <img
+        src={photo}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        onError={() => setBroken(photo)}
+        ref={(el) => {
+          if (el?.complete && !el.naturalWidth) setBroken(photo); // failed before hydration, when onError can't fire
+        }}
+        className={`shrink-0 rounded-full bg-[#868a94] object-cover ${className}`}
+      />
+    );
+  }
   return (
     <span className={`flex shrink-0 items-center justify-center rounded-full bg-linear-to-b from-[#a8adb8] to-[#868a94] font-semibold text-white ${className}`}>
       {name.slice(0, 1).toUpperCase()}
@@ -387,7 +404,7 @@ function FriendsSection({ profile }: { profile: Profile }) {
           <ul className="flex flex-col divide-y divide-current/10 border-b border-current/10 pb-2">
             {data.requests.map((r, i) => (
               <li key={r.userId} className="riff-rise flex items-center gap-3 py-2" style={stagger(3 + i)}>
-                <Avatar name={r.name} />
+                <Avatar name={r.name} photo={photoOf(r)} />
                 <p className="min-w-0 flex-1 truncate">
                   <b>{r.name}</b> added you
                 </p>
@@ -405,7 +422,7 @@ function FriendsSection({ profile }: { profile: Profile }) {
           {data?.friends.map((f, i) => (
             <li key={f.userId + f.name} className="riff-rise" style={stagger(3 + i)}>
               <button onClick={() => show(f)} className="flex w-full flex-col items-center gap-1.5 transition-transform duration-200 hover:-translate-y-0.5 active:scale-95">
-                <Avatar name={f.name} className="size-14 text-xl lg:size-16 lg:text-2xl" />
+                <Avatar name={f.name} photo={photoOf(f)} className="size-14 text-xl lg:size-16 lg:text-2xl" />
                 <span className="max-w-full truncate text-xs font-semibold lg:text-sm">{f.name}</span>
               </button>
             </li>
@@ -427,7 +444,7 @@ function FriendsSection({ profile }: { profile: Profile }) {
         {open && (
           <div className="riff-pop flex flex-col gap-5 p-6">
             <div className="flex flex-col items-center gap-2 text-center">
-              <Avatar name={open.name} className="size-20 text-3xl" />
+              <Avatar name={open.name} photo={photoOf(open)} className="size-20 text-3xl" />
               <p className="text-xl font-semibold">{open.name}</p>
               {persona && <p className="text-sm text-foreground/60">{persona.school}</p>}
             </div>

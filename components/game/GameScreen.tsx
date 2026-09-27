@@ -7,7 +7,7 @@ import { useCallback, useEffect, useEffectEvent, useLayoutEffect, useRef, useSta
 import { createPortal, flushSync } from "react-dom";
 import { Chat } from "@/components/Chat";
 import { Avatar, stagger } from "@/components/HomeScreen";
-import { addFriend, friendState, type FriendState } from "@/components/friends";
+import { addFriend, friendState, photoOf, type FriendState } from "@/components/friends";
 import { MatchMoment } from "@/components/MatchMoment";
 import { ProfilePopup } from "@/components/ProfilePopup";
 import { BOUNCY, calm, clearMatched, SPRING, wasMatched } from "@/components/motion";
@@ -25,6 +25,7 @@ export function GameScreen({ me, riff, players }: Props) {
   const { snap, reload } = useGameState(riff.id, { riff, players });
   const { phase } = snap.riff;
   const partner = snap.players.find((p) => p.id !== me.id);
+  const partnerPhoto = partner && photoOf({ userId: partner.user_id, name: partner.name, interests: partner.interests });
   const [expired, setExpired] = useState<string | null>(null); // id of the latest nudge once its countdown hits zero
   const latest = snap.nudges.at(-1);
   // The newest nudge sits pinned on top while its timer runs, then joins the thread with the others.
@@ -68,7 +69,7 @@ export function GameScreen({ me, riff, players }: Props) {
           </Link>
           <div className="flex min-w-0 flex-col items-center">
             <button type="button" onClick={showPartner} disabled={!partner} aria-label={partner ? `${partner.name}'s profile` : undefined} className="flex max-w-full flex-col items-center transition-transform active:scale-95">
-              <Avatar name={partner?.name ?? "?"} className="size-9 text-sm" />
+              <Avatar name={partner?.name ?? "?"} photo={partnerPhoto} className="size-9 text-sm" />
               <p className="mt-0.5 max-w-full truncate text-xs font-semibold">{partner?.name ?? "New chat"}</p>
             </button>
             {partner && phase !== "lobby" && (
@@ -121,11 +122,12 @@ export function GameScreen({ me, riff, players }: Props) {
           />
         )}
       </main>
-      {partnerCard && <ProfilePopup profile={partnerCard} onClose={() => setPartnerCard(null)} />}
+      {partnerCard && <ProfilePopup profile={partnerCard} photo={partnerPhoto} onClose={() => setPartnerCard(null)} />}
       {fresh && !matchShown && phase !== "lobby" && partner && (
         <MatchMoment
           me={me.name}
           them={partner.name}
+          themPhoto={partnerPhoto}
           onDone={() => {
             clearMatched();
             setMatchShown(true);
@@ -407,7 +409,7 @@ function FriendButton({ me, partner }: { me: Player; partner: Player }) {
         {[me.name, name].map((n, i) => (
           <span key={i} className="absolute top-0.5 left-1/2 -ml-4" style={slide(i ? 13 : -13)}>
             <span key={String(celebrate)} className={`block ${celebrate ? "riff-hop" : ""}`} style={{ "--i": i } as CSSProperties}>
-              <Avatar name={n} className="size-8 text-sm ring-2 ring-background" />
+              <Avatar name={n} photo={i ? photoOf({ userId, name, interests }) : undefined} className="size-8 text-sm ring-2 ring-background" />
             </span>
           </span>
         ))}

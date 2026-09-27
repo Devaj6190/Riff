@@ -1,3 +1,4 @@
+import { botPhoto } from "@/components/photos";
 import { PERSONAS } from "@/lib/engine/personas";
 import { supabase } from "@/lib/supabase/client";
 
@@ -13,6 +14,8 @@ export type FriendInvite = { from: string; name: string; code: string };
 
 export const BOT_USER_ID = "00000000-0000-4000-8000-00000000b075"; // lib/engine/bot.ts, which is server-only
 export const personaOf = (f: { userId: string; name: string }) => (f.userId === BOT_USER_ID ? PERSONAS.find((p) => p.name === f.name) : undefined);
+/** A person's photo: only the bot (a seed or stock persona) has one; real people keep their letter. */
+export const photoOf = (f: { userId: string; name: string; interests: string[] }) => (f.userId === BOT_USER_ID ? botPhoto(f) : undefined);
 
 // ponytail: persona friends live on this device. Every persona is the same bot user, and friend_requests keys on the user.
 const PERSONAS_KEY = "riff-friends";

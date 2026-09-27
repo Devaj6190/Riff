@@ -19,13 +19,14 @@ export async function writeCoaching(input: {
   const raw = await llmJson(
     [
       "Two people who just met finished a chat in a texting game. Write each player a private coaching report, from their own messages,",
-      "to help them get better at talking to new people. Talk to them as \"you\": kind and honest, like a friend who's great at this. Per player:",
-      "good: one specific thing they did well (point, one short sentence) and quote: one of their own messages that shows it, copied exactly.",
+      "to help them get better at talking to new people. Talk to them as \"you\": kind and honest, like a friend who's great at this.",
+      "Keep it short: it's shown on small cards. Each point and the tip at most 12 words, specific to this chat. Per player:",
+      "good: one specific thing they did well (point) and quote: one of their own messages that shows it, copied exactly.",
       "flat: where they fell flat, one specific moment: a reference or slang they didn't get, a joke they left hanging, a question they",
       "dead-ended, a one-word answer that killed a thread, or checking out of a topic; point, and quote: their message there, copied exactly.",
       "improve: one concrete tip (tip), and a rewrite: said = one of their own messages copied exactly, try = a better version they could have sent, in their voice.",
-      "coach: what an AI coach could teach them in one short practice chat, based on what fell flat. Not generic: title (2-5 words),",
-      "why (one line naming the actual references, moments or habits from this chat), learn: 3-5 concrete things to cover",
+      "coach: what an AI coach could teach them in one short practice chat, based on what fell flat. Not generic: title (2-4 words),",
+      "why (at most 14 words, naming the actual references, moments or habits from this chat), learn: 3-5 concrete things to cover",
       "(the actual references and slang to explain, or the moves to practice, like following up on a story or riffing on a joke).",
       "coach is null only if nothing really fell flat.",
       "nudges shows how well each answered each prompt the game dropped (quality 0-10, missing = no answer). notes: what each shared.",

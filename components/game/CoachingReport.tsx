@@ -3,6 +3,7 @@
 import { GraduationCap, Sparkles, TrendingUp, TriangleAlert, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { stagger } from "@/components/HomeScreen";
 import { callApi } from "@/lib/api";
 import type { CoachingRequest, CoachingResponse, CoachRequest, CoachResponse, Player } from "@/lib/types";
 
@@ -78,92 +79,71 @@ function CoachingPopup({ riffId, me, onClose }: { riffId: string; me: Player; on
       onClose={onClose}
       onClick={(e) => e.target === e.currentTarget && dialog.current?.close()} // a click on the backdrop
       aria-label="Your coaching report"
-      className="riff-dialog m-auto max-h-[88dvh] w-[calc(100%-2rem)] max-w-md overflow-y-auto overscroll-contain rounded-3xl bg-background text-foreground ring-1 ring-white/10 backdrop:bg-black/60"
+      className="riff-dialog m-auto w-[calc(100%-1.5rem)] max-w-lg bg-transparent text-foreground backdrop:bg-black/70 backdrop:backdrop-blur-sm"
     >
-      <div className="riff-pop relative flex flex-col gap-5 p-5 pt-8">
-        <button type="button" onClick={() => dialog.current?.close()} aria-label="Close" className="absolute top-2 right-2 flex size-11 items-center justify-center text-foreground/60 hover:text-foreground">
-          <X className="size-6" />
-        </button>
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Your coaching report</h2>
-          <p className="text-sm text-foreground/50">Only you can see this.</p>
+      {/* Cards float on the dimmed chat: no panel behind them. */}
+      <div className="riff-pop flex flex-col gap-3" onClick={(e) => e.target === e.currentTarget && dialog.current?.close()}>
+        <div className="flex items-center justify-between gap-2 px-1">
+          <div>
+            <h2 className="text-xl font-bold tracking-tight text-white">Your coaching report</h2>
+            <p className="text-xs text-white/60">Only you can see this</p>
+          </div>
+          <button type="button" onClick={() => dialog.current?.close()} aria-label="Close" className="flex size-11 items-center justify-center text-white/70 hover:text-white">
+            <X className="size-6" />
+          </button>
         </div>
 
-        {!res?.ready && !error && (
-          <p className={`text-sm text-foreground/60 ${gaveUp ? "" : "animate-pulse"}`}>{gaveUp ? "Still writing it. Check back in a minute." : "Writing your report…"}</p>
+        {!report && (
+          <p className={`rounded-3xl bg-background p-5 text-sm text-foreground/60 ring-1 ring-white/10 ${!res?.ready && !gaveUp && !error ? "animate-pulse" : ""}`}>
+            {error ? error : res?.ready ? "No report for this chat. It was too short to learn much from." : gaveUp ? "Still writing it. Check back in a minute." : "Writing your report…"}
+          </p>
         )}
-        {res?.ready && !report && <p className="text-sm text-foreground/60">No report for this chat. It was too short to learn much from.</p>}
 
         {report && (
           <>
-            <Section icon={<Sparkles className="size-4" />} title="What you were good at">
-              <p>{report.good.point}</p>
-              {report.good.quote && <Said text={report.good.quote} />}
-            </Section>
-            <Section icon={<TriangleAlert className="size-4" />} title="Where you fell flat">
-              <p>{report.flat.point}</p>
-              {report.flat.quote && <Said text={report.flat.quote} />}
-            </Section>
-            <Section icon={<TrendingUp className="size-4" />} title="What to improve">
-              <p>{report.improve.tip}</p>
-              {report.improve.said && report.improve.try && (
-                <div className="mt-1 grid gap-1.5">
-                  <Said text={report.improve.said} label="You said" dim />
-                  <Said text={report.improve.try} label="Try" />
-                </div>
-              )}
-            </Section>
+            <div className="grid grid-cols-3 gap-2">
+              <Card icon={<Sparkles className="size-4" />} tint="bg-emerald-400/15 text-emerald-300" title="Good at" text={report.good.point} delay={0} />
+              <Card icon={<TriangleAlert className="size-4" />} tint="bg-amber-400/15 text-amber-300" title="Fell flat" text={report.flat.point} delay={1} />
+              <Card icon={<TrendingUp className="size-4" />} tint="bg-sky-400/15 text-sky-300" title="Improve" text={report.improve.tip} delay={2} />
+            </div>
             {report.coach && (
-              <section className="rounded-3xl bg-primary/10 p-4">
-                <p className="flex items-center gap-1.5 text-xs font-semibold text-primary">
-                  <GraduationCap className="size-4" aria-hidden />
-                  Practice with the AI coach
-                </p>
-                <p className="mt-1 text-lg font-semibold">{report.coach.title}</p>
-                <p className="mt-1 text-sm text-foreground/70">{report.coach.why}</p>
-                <ul className="mt-2 grid list-disc gap-0.5 pl-5 text-sm text-foreground/80">
-                  {report.coach.learn.map((l) => (
-                    <li key={l}>{l}</li>
-                  ))}
-                </ul>
+              <section className="riff-rise flex flex-col gap-3 rounded-3xl bg-primary p-4 text-primary-foreground" style={stagger(3)}>
+                <div className="flex items-start gap-3">
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary-foreground/15">
+                    <GraduationCap className="size-5" aria-hidden />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="font-semibold leading-tight">{report.coach.title}</p>
+                    <p className="mt-0.5 line-clamp-2 text-sm opacity-80">{report.coach.why}</p>
+                  </div>
+                </div>
                 <button
                   type="button"
                   onClick={startCoach}
                   disabled={starting}
-                  className="mt-4 h-12 w-full rounded-full bg-primary font-semibold text-primary-foreground disabled:opacity-40"
+                  className="h-11 rounded-full bg-primary-foreground font-semibold text-primary transition-[opacity,scale] active:scale-[0.98] disabled:opacity-50"
                 >
-                  {starting ? "Starting…" : "Start coaching chat"}
+                  {starting ? "Starting…" : "Practice with the AI coach"}
                 </button>
               </section>
             )}
+            {error && <p className="px-1 text-sm text-red-300">{error}</p>}
           </>
         )}
-        {error && <p className="text-sm text-red-300">{error}</p>}
       </div>
     </dialog>
   );
 }
 
-function Section({ icon, title, children }: { icon: ReactNode; title: string; children: ReactNode }) {
+/** One of the three report cards: its own surface, lifted off the dimmed chat. */
+function Card({ icon, tint, title, text, delay }: { icon: ReactNode; tint: string; title: string; text: string; delay: number }) {
   return (
-    <section className="grid gap-2">
-      <h3 className="flex items-center gap-1.5 text-xs font-semibold tracking-wide text-primary uppercase">
+    <section className="riff-rise flex min-w-0 flex-col gap-2 rounded-3xl bg-background p-3 shadow-[0_8px_30px_rgb(0_0_0/0.35)] ring-1 ring-white/10" style={stagger(delay)}>
+      <span className={`flex size-8 items-center justify-center rounded-full ${tint}`} aria-hidden>
         {icon}
-        {title}
-      </h3>
-      <div className="grid gap-2 text-[15px] leading-snug">{children}</div>
+      </span>
+      <h3 className="text-xs font-semibold tracking-wide text-foreground/55 uppercase">{title}</h3>
+      <p className="line-clamp-6 text-[13px] leading-snug">{text}</p>
     </section>
-  );
-}
-
-/** One of the player's own messages, as their bubble. */
-function Said({ text, label, dim }: { text: string; label?: string; dim?: boolean }) {
-  return (
-    <div className="flex flex-col items-end gap-0.5">
-      {label && <span className="text-[11px] font-semibold text-foreground/45">{label}</span>}
-      <p className={`max-w-[85%] rounded-[18px] px-3.5 py-2 text-sm ${dim ? "bg-muted text-foreground/60 line-through decoration-foreground/30" : "bg-primary text-primary-foreground"}`}>
-        {text}
-      </p>
-    </div>
   );
 }

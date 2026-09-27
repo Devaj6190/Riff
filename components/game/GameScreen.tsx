@@ -19,6 +19,7 @@ import type { Moment, Nudge, Player, ProfileRequest, ProfileResponse, PublicProf
 import { CoachingButton } from "./CoachingReport";
 import { EndControls, endRiff } from "./EndControls";
 import { MiniGame } from "./MiniGame";
+import { NextPeople } from "./NextPeople";
 import { useGameState } from "./useGameState";
 
 type Props = { me: Player; riff: Riff; players: Player[] };
@@ -284,17 +285,20 @@ function EndScreen({
       {riff.kind !== "coach" && <CoachingButton riffId={riff.id} me={people.find((p) => p.id === meId)!} />}
       {error && <p className="text-center text-sm text-red-300">{error}</p>}
       <div className="flex flex-col gap-2">
-        <button
-          onClick={async () => {
-            setBusy(true);
-            await onNewMatch();
-            setBusy(false);
-          }}
-          disabled={busy}
-          className="h-12 rounded-full bg-primary font-semibold text-primary-foreground disabled:opacity-40"
-        >
-          {busy ? "…" : "New match"}
-        </button>
+        <div className="flex items-end gap-3">
+          <button
+            onClick={async () => {
+              setBusy(true);
+              await onNewMatch();
+              setBusy(false);
+            }}
+            disabled={busy}
+            className="h-12 w-[45%] shrink-0 rounded-full bg-primary font-semibold text-primary-foreground disabled:opacity-40"
+          >
+            {busy ? "…" : "New match"}
+          </button>
+          <NextPeople me={people.find((p) => p.id === meId)!} partner={partner} />
+        </div>
         {partner && <FriendButton me={people.find((p) => p.id === meId)!} partner={partner} />}
         <button onClick={onKeepChatting} className="h-12 rounded-full font-semibold text-primary">
           Keep chatting
